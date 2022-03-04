@@ -1,6 +1,6 @@
 CC = g++
-CFLAGS = -Wall -g
-#CFLAGS = -Wall
+#CFLAGS = -Wall -g
+CFLAGS = -Wall
 
 
 makeClient: testClient.o testServer.o
