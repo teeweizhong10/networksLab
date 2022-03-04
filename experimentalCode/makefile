@@ -4,7 +4,7 @@ CFLAGS = -Wall -g
 
 
 makeClient: testClient.o testServer.o
-	$(CC) $(CFLAGS) -o test testClient.o
+	$(CC) $(CFLAGS) -o makeClient testClient.o
 
 client.o: testClient.h
 	$(CC) $(CFLAGS) -c testClient.cpp
