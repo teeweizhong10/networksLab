@@ -4,10 +4,13 @@
 
 #include <iostream>
 
-#include "sender.h"
-
 using namespace std;
 
-void sender::senderWelcomeMessage() {
+void senderWelcomeMessage() {
     cout << "This instance is the sender." << endl;
+}
+
+int main() {
+    senderWelcomeMessage();
+    return 0;
 }
