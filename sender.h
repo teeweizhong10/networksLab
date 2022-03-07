@@ -7,7 +7,8 @@
 
 
 class sender {
-
+public:
+    void senderWelcomeMessage();
 };
 
 

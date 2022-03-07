@@ -39,17 +39,17 @@ public:
     void setSenderMaxWindowSize();
     int getSenderMaxWindowSize() {return senderMaxWindowSize;};
 
-    void getReceiverMaxWindowSize();
+    void setReceiverMaxWindowSize();
     int getReceiverMaxWindowSize() {return receiverMaxWindowSize;};
 
     void setSizeOfPacket();
-    int getSizeOfPacket() {return sizeOfPacket};
+    int getSizeOfPacket() {return sizeOfPacket;};
 
     void setStaticOrDynamic();
     int getStaticOrDyanamic() {return staticOrDynamic;};
 
     void setRoundTripMultiplier();
-    int getRoundTripMultiplier() {return roundTripTimeMultiplier};
+    int getRoundTripMultiplier() {return roundTripTimeMultiplier;};
 
     void setErrorType();
     errorType getErrorType() {return selectedErrorType;};

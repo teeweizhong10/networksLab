@@ -7,7 +7,8 @@
 
 
 class receiver {
-
+public:
+    void receiverWelcomeMessage();
 };
 
 
