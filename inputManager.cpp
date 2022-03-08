@@ -15,8 +15,8 @@ void inputManager::welcomeMessage() {
     cout << "Answer the following prompts to set up the configuration for the sender and receivers sessions. " << endl;
 }
 
-void inputManager::getMaxSeqNum() {
-    cout << ""
+void inputManager::setAlgorithmType() {
+    cout << "" << endl;
 }
 
 void inputManager::getInput() {
