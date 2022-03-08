@@ -5,8 +5,6 @@
 #include <iostream>
 
 #include "inputManager.h"
-#include "sender.h"
-#include "receiver.h"
 using namespace std;
 
 int main() {

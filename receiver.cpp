@@ -4,10 +4,13 @@
 
 #include <iostream>
 
-#include "receiver.h"
-
 using namespace std;
 
-void receiver::receiverWelcomeMessage() {
-    cout << "This instance is the client" << endl;
+void receiverWelcomeMessage() {
+    cout << "Creating instance for: receiver." << endl;
+}
+
+int main() {
+    receiverWelcomeMessage();
+    return 0;
 }

@@ -7,7 +7,7 @@
 using namespace std;
 
 void senderWelcomeMessage() {
-    cout << "This instance is the sender." << endl;
+    cout << "Creating instance for: sender." << endl;
 }
 
 int main() {
