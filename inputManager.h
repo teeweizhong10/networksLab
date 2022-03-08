@@ -48,6 +48,8 @@ private:
     errorType selectedErrorType;
 
 public:
+    void welcomeMessage();
+
     void setMaxSeqNum();
     int getMaxSeqNum() {return maxSeqNum;};
 
@@ -71,6 +73,8 @@ public:
 
     void setErrorType();
     errorType getErrorType() {return selectedErrorType;};
+
+    void getInput();
 };
 
 
