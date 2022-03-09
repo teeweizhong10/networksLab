@@ -3,10 +3,8 @@
 //
 
 #include <iostream>
-#include <cstdlib>
 
 #include "inputManager.h"
-#include "packet.h"
 
 using namespace std;
 
@@ -16,7 +14,7 @@ void inputManager::welcomeMessage() {
 }
 
 void inputManager::setAlgorithmType() {
-    cout << "" << endl;
+    cout << "Choose which protocol you would like to use (Enter 1, 2 or 3): " << endl;
 }
 
 void inputManager::getInput() {

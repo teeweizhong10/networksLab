@@ -27,7 +27,6 @@
 using std::vector;
 class inputManager {
 private:
-    int maxSeqNum;
     enum algorithm {
         GBN,
         stopAndWait,
@@ -59,7 +58,7 @@ public:
     void welcomeMessage();
 
     void setAlgorithmType();
-    algorithm returnAlgorithm() {return selectedAlgoritm;};
+    algorithm returnSelectedAlgorithm() {return selectedAlgoritm;};
 
     void setSenderMaxWindowSize();
     int getSenderMaxWindowSize() {return senderMaxWindowSize;};
