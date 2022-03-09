@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <fstream>
 using namespace std;
 
 class Sender {
@@ -35,6 +36,10 @@ public:
         input = input - 1;
         if (input == 0) {
             selectedAlgorithm = GBN;
+        } else if (input == 1) {
+            selectedAlgorithm = stopAndWait;
+        } else {
+            selectedAlgorithm = SR;
         }
     };
     algorithm returnSelectedAlgorithm() {return selectedAlgorithm;};
@@ -66,10 +71,28 @@ void senderWelcomeMessage() {
 }
 
 void getNetworkConfigFrom(string fileName) {
+    ifstream inputFile;
+    inputFile.open(fileName);
+    if (inputFile.is_open() ) {
+        string line;
+        while (getline(inputFile, line)) {
+            int len = line.length();
+            char lineChars[len + 1];
+            int itemCount = 0;
+            strcpy(lineChars, line.c_str());
+            cout << lineChars << endl;
+            cout << "New loop" << endl;
+        }
+    }
+}
+
+void showCurrentConfig() {
 
 }
 
 int main() {
     senderWelcomeMessage();
+    getNetworkConfigFrom("config.txt");
+    showCurrentConfig();
     return 0;
 }
