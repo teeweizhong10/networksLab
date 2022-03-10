@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <stdio.h>
 using namespace std;
 
 class Sender {
@@ -19,7 +20,7 @@ private:
     int dynamicRoundTripTimeMultiplier;
     int selectedErrorType;
     int errorPercentage; //0 if none
-    std::vector<int> packetsToDrop; //empty if none
+    vector<int> packetsToDrop; //empty if none
     // packets to fail checksum, fail to send ack done in receiver
 
 public:
@@ -47,8 +48,14 @@ public:
     void setDynamicRoundTripMultiplier(int input) {dynamicRoundTripTimeMultiplier = input;};
     int getDynamicRoundTripMultiplier() {return dynamicRoundTripTimeMultiplier;};
 
-    void setErrorType(int input) {selectedErrorType = input;};
+    void setErrorType(int input) {selectedErrorType = (input - 1);};
     int getErrorType() {return selectedErrorType;};
+
+    void setErrorPercentage(int input) {errorPercentage = input;};
+    int getErrorPercentage() {return errorPercentage;};
+
+    void setPacketsToDrop(vector<int> input) {packetsToDrop = input;};
+    vector<int>& getPacketsToDrop() {return packetsToDrop;}
 };
 
 int selectedAlgorithm;
@@ -61,7 +68,7 @@ int staticSeconds;
 int dynamicRoundTripTimeMultiplier;
 int selectedErrorType;
 int errorPercentage; //0 if none
-std::vector<int> packetsToDrop; //empty if none
+vector<int> packetsToDrop; //empty if none
 
 void senderWelcomeMessage() {
     cout << "Creating instance for: sender." << endl;
@@ -98,7 +105,22 @@ void getNetworkConfigFrom(string fileName) {
             } else if (itemCount == 8) { // Get round trip time multiplier for dynamic option
                 dynamicRoundTripTimeMultiplier = stoi(lineChars);
             } else if (itemCount == 9) { // Selected error type
-                dynamicRoundTripTimeMultiplier = stoi(lineChars);
+                selectedErrorType = stoi(lineChars);
+            } else if (itemCount == 10) { // Error percentage if percentage to be randomly dropped is chosen
+                errorPercentage = stoi(line);
+                cout << errorPercentage;
+            } else if (itemCount == 11) { // Frame IDs of packets to drop
+                string currentNum = "";
+                for (int i = 0; i < len; ++i) {
+                    if(lineChars[i] != ',') {
+                        currentNum += lineChars[i];
+                    } else {
+                        cout << "Current number end: " << currentNum << endl;
+                        int packet = stoi(currentNum);
+                        packetsToDrop.push_back(packet);
+                        currentNum = "";
+                    }
+                }
             }
             itemCount++;
         }
@@ -131,9 +153,27 @@ void showCurrentConfig(Sender currentSender) {
         cout << "Dynamic" << endl;
         cout << "Round trip time multiplier: " << currentSender.getDynamicRoundTripMultiplier() << endl;
     }
+    cout << "Selected error type: " << currentSender.getErrorType() << endl;
+    switch (currentSender.getErrorType()) {
+        case 0:
+            cout << "None" << endl;
+            break;
+        case 1:
+            cout << "Specific Packets" << endl;
+            cout << "Packets to drop: ";
+            for (int i = 0; i < packetsToDrop.size(); ++i) {
+                cout << packetsToDrop[i] << "\t";
+            }
+            cout << endl;
+            break;
+        case 2:
+            cout << "Percentage of randomly selected packets" << endl;
+            cout << "Percentage: " << currentSender.getErrorPercentage() << "%" << endl;
+            break;
+    }
 }
 
-Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int sizeOfPacket, int seqNumUpperBound, int seqNumLowerBound, int staticOrDynamic, int staticSeconds, int dynamicRoundTripTimeMultiplier) {
+Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int sizeOfPacket, int seqNumUpperBound, int seqNumLowerBound, int staticOrDynamic, int staticSeconds, int dynamicRoundTripTimeMultiplier, int selectedErrorType, int errorPercentage, vector<int> packetsToDrop) {
     Sender senderInstance;
     senderInstance.setAlgorithmType(selectedAlgorithm);
     senderInstance.setSenderMaxWindowSize(senderMaxWindowSize);
@@ -143,6 +183,9 @@ Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int siz
     senderInstance.setStaticOrDynamic(staticOrDynamic);
     senderInstance.setStaticSeconds(staticSeconds);
     senderInstance.setDynamicRoundTripMultiplier(dynamicRoundTripTimeMultiplier);
+    senderInstance.setErrorType(selectedErrorType);
+    senderInstance.setErrorPercentage(errorPercentage);
+    senderInstance.setPacketsToDrop(packetsToDrop);
     return senderInstance;
 }
 
@@ -150,7 +193,8 @@ int main() {
     Sender senderInstance;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
-    senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier);
+    cout << errorPercentage;
+    senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop);
     showCurrentConfig(senderInstance);
     return 0;
 }
