@@ -58,7 +58,7 @@ public:
     void welcomeMessage();
 
     void setAlgorithmType();
-    algorithm returnSelectedAlgorithm() {return selectedAlgoritm;};
+    algorithm getSelectedAlgorithm() {return selectedAlgoritm;};
 
     void setSenderMaxWindowSize();
     int getSenderMaxWindowSize() {return senderMaxWindowSize;};
