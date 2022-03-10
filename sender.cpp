@@ -128,7 +128,7 @@ void getNetworkConfigFrom(string fileName) {
 }
 
 void showCurrentConfig(Sender currentSender) {
-    cout << "Current sender configuration: " << endl;
+    cout << endl << "Current sender configuration: " << endl;
     cout << "Selected algorithm: ";
     switch (currentSender.getSelectedAlgorithm()) {
         case 0:
