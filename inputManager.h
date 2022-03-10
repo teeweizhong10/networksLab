@@ -11,7 +11,8 @@
  * seqNumberUpperBound
  * seqNumberLowerBound
  * staticOrDyanmic
- * roundTripTimeMultiplier
+ * staticSeconds
+ * dynamicRoundTripTimeMultiplier
  * errorType: 0 for none, 1 for random, 2 for specific, 3 for percentage
  * errorPercentage: 0 if not used
  * packetsToDrop: position, position //empty if none

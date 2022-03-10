@@ -15,7 +15,8 @@ private:
     int seqNumberUpperBound;
     int seqNumberLowerBound;
     int staticOrDynamic; // 0 for static, 1 for dynamic
-    int roundTripTimeMultiplier;
+    int staticSeconds;
+    int dynamicRoundTripTimeMultiplier;
     int selectedErrorType;
     int errorPercentage; //0 if none
     std::vector<int> packetsToDrop; //empty if none
@@ -40,8 +41,11 @@ public:
     void setStaticOrDynamic (int input) {staticOrDynamic = input;};
     int getStaticOrDyanamic() {return staticOrDynamic;};
 
-    void setRoundTripMultiplier(int input) {roundTripTimeMultiplier = input;};
-    int getRoundTripMultiplier() {return roundTripTimeMultiplier;};
+    void setStaticSeconds(int input) {staticSeconds = input;};
+    int getStaticSeconds() {return staticSeconds;};
+
+    void setDynamicRoundTripMultiplier(int input) {dynamicRoundTripTimeMultiplier = input;};
+    int getDynamicRoundTripMultiplier() {return dynamicRoundTripTimeMultiplier;};
 
     void setErrorType(int input) {selectedErrorType = input;};
     int getErrorType() {return selectedErrorType;};
@@ -53,7 +57,8 @@ int sizeOfPacket;
 int seqNumberUpperBound;
 int seqNumberLowerBound;
 int staticOrDynamic; // 0 for static, 1 for dynamic
-int roundTripTimeMultiplier;
+int staticSeconds;
+int dynamicRoundTripTimeMultiplier;
 int selectedErrorType;
 int errorPercentage; //0 if none
 std::vector<int> packetsToDrop; //empty if none
@@ -86,6 +91,14 @@ void getNetworkConfigFrom(string fileName) {
                 seqNumberUpperBound = stoi(lineChars);
             } else if (itemCount == 5) { // Seq num lower bound
                 seqNumberLowerBound = stoi(lineChars);
+            }  else if (itemCount == 6) { // 0 for Static or 1 for Dynamic
+                staticOrDynamic = stoi(lineChars);
+            } else if (itemCount == 7) { // Get time interval in seconds for static option
+                staticSeconds = stoi(lineChars);
+            } else if (itemCount == 8) { // Get round trip time multiplier for dynamic option
+                dynamicRoundTripTimeMultiplier = stoi(lineChars);
+            } else if (itemCount == 9) { // Selected error type
+                dynamicRoundTripTimeMultiplier = stoi(lineChars);
             }
             itemCount++;
         }
@@ -110,15 +123,26 @@ void showCurrentConfig(Sender currentSender) {
     cout << "Size of Packet: " << currentSender.getSizeOfPacket() << endl;
     cout << "Seq Num Lower Bound: " << currentSender.getSeqNumberLowerBound() << endl;
     cout << "Seq Num Upper Bound: " << currentSender.getSeqNumberUpperBound() << endl;
+    cout << "Static or Dynamic time interval: ";
+    if (currentSender.getStaticOrDyanamic() == 0) {
+        cout << "Static" << endl;
+        cout << "Time interval in seconds: " << currentSender.getStaticSeconds() << endl;
+    } else {
+        cout << "Dynamic" << endl;
+        cout << "Round trip time multiplier: " << currentSender.getDynamicRoundTripMultiplier() << endl;
+    }
 }
 
-Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int sizeOfPacket, int seqNumUpperBound, int seqNumLowerBound) {
+Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int sizeOfPacket, int seqNumUpperBound, int seqNumLowerBound, int staticOrDynamic, int staticSeconds, int dynamicRoundTripTimeMultiplier) {
     Sender senderInstance;
     senderInstance.setAlgorithmType(selectedAlgorithm);
     senderInstance.setSenderMaxWindowSize(senderMaxWindowSize);
     senderInstance.setSizeOfPacket(sizeOfPacket);
     senderInstance.setSeqNumberUpperBound(seqNumUpperBound);
     senderInstance.setSeqNumberLowerBound(seqNumLowerBound);
+    senderInstance.setStaticOrDynamic(staticOrDynamic);
+    senderInstance.setStaticSeconds(staticSeconds);
+    senderInstance.setDynamicRoundTripMultiplier(dynamicRoundTripTimeMultiplier);
     return senderInstance;
 }
 
@@ -126,7 +150,7 @@ int main() {
     Sender senderInstance;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
-    senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound);
+    senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier);
     showCurrentConfig(senderInstance);
     return 0;
 }
