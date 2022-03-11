@@ -110,6 +110,39 @@ void inputManager::getInput() {
     allInput.push_back(std::to_string(input)); // Set lower bouond to user input
     allInput.push_back("\n");
 
+    // Static or dynamic
+    cout << endl << "Choose the timeout interval type: \n1. Static \n2. Dynamic" << endl;
+    cout << "Input: ";
+    cin >> input;
+    cout << "You chose: ";
+    allInput.push_back(std::to_string(input-1)); // 0 for static, 1 for dynamic
+    allInput.push_back("\n");
+    switch (input-1) {
+        case 0:
+            cout << "Static" << endl;
+            cout << endl << "Choose the time in seconds to wait for a timeout:" << endl;
+            cout << "Input: ";
+            cin >> input;
+            cout << "You chose: " << input << endl;
+            allInput.push_back(std::to_string(input)); // User input for static seconds
+            allInput.push_back("\n");
+            allInput.push_back(std::to_string(0)); // 0 for dynamic round trip multiplier
+            allInput.push_back("\n");
+            break;
+        case 1:
+            cout << "Dynamic" << endl;
+            cout << endl << "Choose the round trip time multiplier:" << endl;
+            cout << "Input: ";
+            cin >> input;
+            cout << "You chose: " << input << endl;
+            allInput.push_back(std::to_string(0)); // 0 for static seconds
+            allInput.push_back("\n");
+            allInput.push_back(std::to_string(input)); // User input for dynamic round trip multiplier
+            allInput.push_back("\n");
+            break;
+    }
+
+
     cout << "\nCurrent input lines: " << endl;
     for (int i = 0; i < allInput.size(); ++i) {
         cout << allInput[i];

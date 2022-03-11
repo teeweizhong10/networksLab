@@ -22,6 +22,7 @@ private:
     int selectedErrorType; // 0 for none, 1 for specific packets, 2 for percentage
     int errorPercentage; //0 if none
     vector<int> packetsToDrop; //empty if none
+    string fileName;
     // packets to fail checksum, fail to send ack done in receiver
 
 public:
@@ -70,7 +71,7 @@ int dynamicRoundTripTimeMultiplier;
 int selectedErrorType;
 int errorPercentage; //0 if none
 vector<int> packetsToDrop; //empty if none
-
+string fileName;
 void senderWelcomeMessage() {
     cout << "Creating instance for: sender." << endl;
 }
@@ -121,6 +122,8 @@ void getNetworkConfigFrom(string fileName) {
                         currentNum = "";
                     }
                 }
+            } else if (itemCount == 12) { // File name
+                fileName = lineChars;
             }
             itemCount++;
         }
@@ -191,6 +194,7 @@ Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int siz
 
 int main() {
     Sender senderInstance;
+    cout << "test" << endl;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
     senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop);
