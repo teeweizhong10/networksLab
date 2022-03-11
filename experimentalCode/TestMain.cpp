@@ -10,11 +10,11 @@ using namespace std;
 
 int main() {
 
-    ifstream file("/tmp/500m");//locate 500m
+    ifstream file ("/tmp/500m");//locate 500m
     char b;
     while(file.get(b)){
         for(int i = 7; i>=0; i--){
-            cout << ((c >> i) & 1);
+            cout << ((b >> i) & 1);
         }
     }
 
