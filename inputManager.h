@@ -95,7 +95,7 @@ public:
     vector<int>& getPacketsToFailChecksum() {return packetsToFailChecksum;}
 
     void getInput();
-    void writeInputToFile(int selectedAlgorithm, int senderMaxWindowSize, int receiverMaxWindowSize, int sizeOfPacket, int seqNumberUpperBound, int seqNumberLowerBound, int staticOrDynamic, int roundTripTimeMultiplier, int selectedErrorType, int errorPercentage, std::vector<int> packetsToDrop, std::vector<int> packetsToLoseAck, std::vector<int> packetsToFailChecksum);
+    void writeInputToFile(vector<std::string> configContent);
 };
 
 
