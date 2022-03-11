@@ -13,10 +13,22 @@ void inputManager::welcomeMessage() {
     cout << "Answer the following prompts to set up the configuration for the sender and receivers sessions. " << endl;
 }
 
-void inputManager::setAlgorithmType() {
-    cout << "Choose which protocol you would like to use (Enter 1, 2 or 3): " << endl;
-}
-
 void inputManager::getInput() {
+    int selectedAlgorithm; // 0 for GBN, 1 for stop and Wait, 2 for SR
+    int senderMaxWindowSize;
+    int receiverMaxWindowSize;
+    int sizeOfPacket;
+    int seqNumberUpperBound;
+    int seqNumberLowerBound;
+    int staticOrDynamic; // 0 for static, 1 for dynamic
+    int staticSeconds;
+    int dynamicRoundTripTimeMultiplier;
+    int roundTripTimeMultiplier;
+    int selectedErrorType;
+    int errorPercentage; //0 if none
+    std::vector<int> packetsToDrop; //empty if none
+    std::vector<int> packetsToLoseAck; //empty if none
+    std::vector<int> packetsToFailChecksum; //empty if none
+
     welcomeMessage();
 }

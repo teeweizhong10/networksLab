@@ -11,7 +11,7 @@ using namespace std;
 
 class Sender {
 private:
-    int selectedAlgorithm;
+    int selectedAlgorithm; // 0 for GBN, 1 for stop and Wait, 2 for SR
     int senderMaxWindowSize;
     int sizeOfPacket;
     int seqNumberUpperBound;
@@ -19,7 +19,7 @@ private:
     int staticOrDynamic; // 0 for static, 1 for dynamic
     int staticSeconds;
     int dynamicRoundTripTimeMultiplier;
-    int selectedErrorType;
+    int selectedErrorType; // 0 for none, 1 for specific packets, 2 for percentage
     int errorPercentage; //0 if none
     vector<int> packetsToDrop; //empty if none
     // packets to fail checksum, fail to send ack done in receiver
@@ -109,14 +109,13 @@ void getNetworkConfigFrom(string fileName) {
                 selectedErrorType = stoi(lineChars);
             } else if (itemCount == 10) { // Error percentage if percentage to be randomly dropped is chosen
                 errorPercentage = stoi(line);
-                cout << errorPercentage;
             } else if (itemCount == 11) { // Frame IDs of packets to drop
                 string currentNum = "";
                 for (int i = 0; i < len; ++i) {
                     if(lineChars[i] != ',') {
                         currentNum += lineChars[i];
                     } else {
-                        cout << "Current number end: " << currentNum << endl;
+                        //cout << "Current number end: " << currentNum << endl;
                         int packet = stoi(currentNum);
                         packetsToDrop.push_back(packet);
                         currentNum = "";

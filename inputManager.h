@@ -24,72 +24,78 @@
 #ifndef NETWORKSLAB_INPUTMANAGER_H
 #define NETWORKSLAB_INPUTMANAGER_H
 
+
+#include <iostream>
 #include <vector>
+#include <fstream>
+#include <cstring>
+#include <stdio.h>
 using std::vector;
 class inputManager {
 private:
-    enum algorithm {
-        GBN,
-        stopAndWait,
-        SR
-    };
-    algorithm selectedAlgoritm;
+    int selectedAlgorithm; // 0 for GBN, 1 for stop and Wait, 2 for SR
     int senderMaxWindowSize;
     int receiverMaxWindowSize;
     int sizeOfPacket;
     int seqNumberUpperBound;
     int seqNumberLowerBound;
     int staticOrDynamic; // 0 for static, 1 for dynamic
+    int staticSeconds;
+    int dynamicRoundTripTimeMultiplier;
     int roundTripTimeMultiplier;
-    enum errorType {
-        none,
-        specificPackets,
-        percentage
-    };
-    errorType selectedErrorType;
+    int selectedErrorType;
     int errorPercentage; //0 if none
     std::vector<int> packetsToDrop; //empty if none
     std::vector<int> packetsToLoseAck; //empty if none
     std::vector<int> packetsToFailChecksum; //empty if none
 
-
-
 public:
     void welcomeMessage();
 
-    void setAlgorithmType();
-    algorithm getSelectedAlgorithm() {return selectedAlgoritm;};
+    void setAlgorithmType(int input) {selectedAlgorithm = (input - 1);};
+    int getSelectedAlgorithm() {return selectedAlgorithm;};
 
-    void setSenderMaxWindowSize();
+    void setSenderMaxWindowSize(int input) {senderMaxWindowSize = input;};
     int getSenderMaxWindowSize() {return senderMaxWindowSize;};
 
-    void setReceiverMaxWindowSize();
+    void setReceiverMaxWindowSize(int input) {receiverMaxWindowSize = input;};
     int getReceiverMaxWindowSize() {return receiverMaxWindowSize;};
 
-    void setSizeOfPacket();
+    void setSizeOfPacket(int input) {sizeOfPacket = input;};
     int getSizeOfPacket() {return sizeOfPacket;};
 
-    void setSeqNumberUpperBound();
+    void setSeqNumberUpperBound(int input) {seqNumberUpperBound = input;};
     int getSeqNumberUpperBound() {return seqNumberUpperBound;};
 
-    void setSeqNumberLowerBound();
+    void setSeqNumberLowerBound(int input) {seqNumberLowerBound = input;};
     int getSeqNumberLowerBound() {return seqNumberLowerBound;};
 
-    void setStaticOrDynamic();
+    void setStaticOrDynamic (int input) {staticOrDynamic = input;};
     int getStaticOrDyanamic() {return staticOrDynamic;};
 
-    void setRoundTripMultiplier();
-    int getRoundTripMultiplier() {return roundTripTimeMultiplier;};
+    void setStaticSeconds(int input) {staticSeconds = input;};
+    int getStaticSeconds() {return staticSeconds;};
 
-    void setErrorType();
-    errorType getErrorType() {return selectedErrorType;};
+    void setDynamicRoundTripMultiplier(int input) {dynamicRoundTripTimeMultiplier = input;};
+    int getDynamicRoundTripMultiplier() {return dynamicRoundTripTimeMultiplier;};
 
-    bool goodInputForNumbers(int input);
-    bool goodInputForAlgorithmSelection(int input);
-    bool goodInputForErrorSelection(int input);
+    void setErrorType(int input) {selectedErrorType = (input - 1);};
+    int getErrorType() {return selectedErrorType;};
+
+    void setErrorPercentage(int input) {errorPercentage = input;};
+    int getErrorPercentage() {return errorPercentage;};
+
+    void setPacketsToDrop(vector<int> input) {packetsToDrop = input;};
+    vector<int>& getPacketsToDrop() {return packetsToDrop;}
+
+    void setPacketsToLoseAck(vector<int> input) {packetsToLoseAck = input;};
+    vector<int>& getPacketsToLoseAck() {return packetsToLoseAck;}
+
+    void setPacketsToFailChecksum(vector<int> input) {packetsToFailChecksum = input;};
+    vector<int>& getPacketsToFailChecksum() {return packetsToFailChecksum;}
 
     void getInput();
-    void writeInputToFile(algorithm selectedAlgorithm, int senderMaxWindowSize, int receiverMaxWindowSize, int sizeOfPacket, int seqNumberUpperBound, int seqNumberLowerBound, int staticOrDynamic, int roundTripTimeMultiplier,  errorType selectedErrorType, int errorPercentage, std::vector<int> packetsToDrop, std::vector<int> packetsToLoseAck, std::vector<int> packetsToFailChecksum);
+    void writeInputToFile(int selectedAlgorithm, int senderMaxWindowSize, int receiverMaxWindowSize, int sizeOfPacket, int seqNumberUpperBound, int seqNumberLowerBound, int staticOrDynamic, int roundTripTimeMultiplier, int selectedErrorType, int errorPercentage, std::vector<int> packetsToDrop, std::vector<int> packetsToLoseAck, std::vector<int> packetsToFailChecksum);
 };
 
 
