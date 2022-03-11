@@ -1,7 +1,6 @@
 CC = g++
-#CFLAGS = -Wall -g
-CFLAGS = -Wall
-
+CFLAGS = -Wall -g #debug flag
+#CFLAGS = -Wall
 
 sender: sender.o
 	$(CC) $(CFLAGS) -o sender sender.o
