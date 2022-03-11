@@ -22,7 +22,7 @@ private:
     int selectedErrorType; // 0 for none, 1 for specific packets, 2 for percentage
     int errorPercentage; //0 if none
     vector<int> packetsToDrop; //empty if none
-    string fileName;
+    string filePath;
     // packets to fail checksum, fail to send ack done in receiver
 
 public:
@@ -58,6 +58,9 @@ public:
 
     void setPacketsToDrop(vector<int> input) {packetsToDrop = input;};
     vector<int>& getPacketsToDrop() {return packetsToDrop;}
+
+    void setFilePath(string input) {filePath = input;};
+    string getFilePath() {return filePath;};
 };
 
 int selectedAlgorithm;
@@ -71,7 +74,7 @@ int dynamicRoundTripTimeMultiplier;
 int selectedErrorType;
 int errorPercentage; //0 if none
 vector<int> packetsToDrop; //empty if none
-string fileName;
+string filePath;
 void senderWelcomeMessage() {
     cout << "Creating instance for: sender." << endl;
 }
@@ -122,8 +125,8 @@ void getNetworkConfigFrom(string fileName) {
                         currentNum = "";
                     }
                 }
-            } else if (itemCount == 12) { // File name
-                fileName = lineChars;
+            } else if (itemCount == 14) { // Skip items 12 to 13, File path
+                filePath = line;
             }
             itemCount++;
         }
@@ -174,9 +177,10 @@ void showCurrentConfig(Sender currentSender) {
             cout << "Percentage: " << currentSender.getErrorPercentage() << "%" << endl;
             break;
     }
+    cout << "Getting data from: " << currentSender.getFilePath() << endl;
 }
 
-Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int sizeOfPacket, int seqNumUpperBound, int seqNumLowerBound, int staticOrDynamic, int staticSeconds, int dynamicRoundTripTimeMultiplier, int selectedErrorType, int errorPercentage, vector<int> packetsToDrop) {
+Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int sizeOfPacket, int seqNumUpperBound, int seqNumLowerBound, int staticOrDynamic, int staticSeconds, int dynamicRoundTripTimeMultiplier, int selectedErrorType, int errorPercentage, vector<int> packetsToDrop, string filePath) {
     Sender senderInstance;
     senderInstance.setAlgorithmType(selectedAlgorithm);
     senderInstance.setSenderMaxWindowSize(senderMaxWindowSize);
@@ -189,15 +193,15 @@ Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int siz
     senderInstance.setErrorType(selectedErrorType);
     senderInstance.setErrorPercentage(errorPercentage);
     senderInstance.setPacketsToDrop(packetsToDrop);
+    senderInstance.setFilePath(filePath);
     return senderInstance;
 }
 
 int main() {
     Sender senderInstance;
-    cout << "test" << endl;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
-    senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop);
+    senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, filePath);
     showCurrentConfig(senderInstance);
     return 0;
 }
