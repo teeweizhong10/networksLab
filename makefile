@@ -1,6 +1,6 @@
 CC = g++
-#CFLAGS = -Wall -g
-CFLAGS = -Wall
+CFLAGS = -Wall -g #debug flag
+#CFLAGS = -Wall
 
 
 network: main.o errorHandler.o inputManager.o sender.o receiver.o packet.o
