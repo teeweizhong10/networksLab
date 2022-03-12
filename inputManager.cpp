@@ -158,7 +158,7 @@ void inputManager::getInput() {
             cout << "Specific Packets to drop/lose ack/corrupt" << endl;
             break;
         case 2:
-            cout << "SRandom percentage of packets to drop, lose ack and corrupt" << endl;
+            cout << "Random percentage of packets to drop, lose ack and corrupt" << endl;
             break;
     }
 
