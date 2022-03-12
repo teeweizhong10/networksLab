@@ -91,7 +91,7 @@ void getNetworkConfigFrom(string fileName) {
             strcpy(lineChars, line.c_str());
             if(itemCount == 0) { // Set selected algorithm
                 selectedAlgorithm = stoi(lineChars);
-            } else if (itemCount == 1) { // Set sender window size
+              } else if (itemCount == 1) { // Set sender window size
                 if (selectedAlgorithm-1 != 1) { // GBN or SR: Set window size to size in config file
                     senderMaxWindowSize = stoi(lineChars);
                 } else { // Stop and Wait: Set window size to 1
@@ -178,6 +178,7 @@ void showCurrentConfig(Sender currentSender) {
             break;
     }
     cout << "Getting data from: " << currentSender.getFilePath() << endl;
+
 }
 
 Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int sizeOfPacket, int seqNumUpperBound, int seqNumLowerBound, int staticOrDynamic, int staticSeconds, int dynamicRoundTripTimeMultiplier, int selectedErrorType, int errorPercentage, vector<int> packetsToDrop, string filePath) {

@@ -142,6 +142,28 @@ void inputManager::getInput() {
             break;
     }
 
+    // Select error type
+    cout << endl << "Choose your selected error type, enter the corresponding number to make your choice: \n1: None \n2: Specific Packets to drop/lose ack/corrupt \n3: Random percentage of packets to drop, lose ack and corrupt" << endl;
+    cout << "Input: ";
+    cin >> input;
+    cout << "You chose: ";
+    input = input - 1;
+    allInput.push_back(std::to_string(input));
+    allInput.push_back("\n");
+    switch (input-1) {
+        case 0:
+            cout << "No errors" << endl;
+            break;
+        case 1:
+            cout << "Specific Packets to drop/lose ack/corrupt" << endl;
+            break;
+        case 2:
+            cout << "SRandom percentage of packets to drop, lose ack and corrupt" << endl;
+            break;
+    }
+
+
+
 
     cout << "\nCurrent input lines: " << endl;
     for (int i = 0; i < allInput.size(); ++i) {
