@@ -212,7 +212,19 @@ void inputManager::getInput() {
             break;
     }
     cout << "\nCurrent input lines: " << endl;
+
+    // Select error type
+    string fileName;
+    cout << endl << "Input the destination of the input file: " << endl;
+    cout << "Input: ";
+    cin >> fileName;
+    cout << "Getting File: ";
+    allInput.push_back(fileName);
     for (int i = 0; i < allInput.size(); ++i) {
         cout << allInput[i];
     }
+
+    std::ofstream output_file("./config.txt");
+    std::ostream_iterator<std::string> output_iterator(output_file, "");
+    std::copy(allInput.begin(), allInput.end(), output_iterator);
 }

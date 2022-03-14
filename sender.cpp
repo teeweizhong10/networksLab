@@ -178,7 +178,6 @@ void showCurrentConfig(Sender currentSender) {
             break;
     }
     cout << "Getting data from: " << currentSender.getFilePath() << endl;
-
 }
 
 Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int sizeOfPacket, int seqNumUpperBound, int seqNumLowerBound, int staticOrDynamic, int staticSeconds, int dynamicRoundTripTimeMultiplier, int selectedErrorType, int errorPercentage, vector<int> packetsToDrop, string filePath) {
