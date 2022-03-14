@@ -112,7 +112,11 @@ void getNetworkConfigFrom(string fileName) {
             } else if (itemCount == 9) { // Selected error type
                 selectedErrorType = stoi(lineChars);
             } else if (itemCount == 10) { // Error percentage if percentage to be randomly dropped is chosen
-                errorPercentage = stoi(line);
+                if(line == "") {
+                    errorPercentage = 0;
+                } else {
+                    errorPercentage = stoi(line);
+                }
             } else if (itemCount == 11) { // Frame IDs of packets to drop
                 string currentNum = "";
                 for (int i = 0; i < len; ++i) {
