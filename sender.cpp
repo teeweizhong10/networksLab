@@ -82,7 +82,7 @@ void senderWelcomeMessage() {
 void getNetworkConfigFrom(string fileName) {
     ifstream inputFile;
     inputFile.open(fileName);
-    if (inputFile.is_open() ) {
+    if (inputFile.is_open()) {
         string line;
         int itemCount = 0;
         while (getline(inputFile, line)) {
