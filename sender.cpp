@@ -50,7 +50,7 @@ public:
     void setDynamicRoundTripMultiplier(int input) {dynamicRoundTripTimeMultiplier = input;};
     int getDynamicRoundTripMultiplier() {return dynamicRoundTripTimeMultiplier;};
 
-    void setErrorType(int input) {selectedErrorType = (input - 1);};
+    void setErrorType(int input) {selectedErrorType = input;};
     int getErrorType() {return selectedErrorType;};
 
     void setErrorPercentage(int input) {errorPercentage = input;};
