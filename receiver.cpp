@@ -88,9 +88,34 @@ void getNetworkConfigFrom(string fileName) {
     }
 }
 
+void showCurrentConfig(Receiver currentReceiver) {
+    cout << endl << "Current sender configuration: " << endl;
+    cout << "Selected algorithm: ";
+    switch (currentReceiver.getSelectedAlgorithm()) {
+        case 0:
+            cout << "GBN" << endl;
+            break;
+        case 1:
+            cout << "Stop and Wait" << endl;
+            break;
+        case 2:
+            cout << "Selective Repeat" << endl;
+            break;
+    }
+}
+
+Receiver setReceiverInstance(int selectedAlgorithm) {
+    Receiver receiverInstance;
+    receiverInstance.setAlgorithmType(selectedAlgorithm);
+    return receiverInstance;
+}
+
+
 int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();
     getNetworkConfigFrom("config.txt");
+    receiverInstance = setReceiverInstance(selectedAlgorithm);
+    showCurrentConfig(receiverInstance);
     return 0;
 }
