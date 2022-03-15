@@ -34,7 +34,7 @@ void inputManager::getInput() {
 
     int input;
     // Select protocol
-    cout << endl << "Choose your selected algorithm, enter the corresponding number to make your choice: \n1: Go Back N \n2: Stop and Wait \n3: Selective Repeat" << endl;
+    cout << endl << "Choose your selected protocol, enter the corresponding number to make your choice: \n1: Go Back N \n2: Stop and Wait \n3: Selective Repeat" << endl;
     cout << "Input: ";
     cin >> input;
     cout << "You chose: ";
@@ -142,9 +142,89 @@ void inputManager::getInput() {
             break;
     }
 
+    // Select error type
+    cout << endl << "Choose your selected error type, enter the corresponding number to make your choice: \n1: None \n2: Specific Packets to drop/lose ack/corrupt \n3: Random percentage of packets to drop, lose ack and corrupt" << endl;
+    cout << "Input: ";
+    cin >> input;
+    cout << "You chose: ";
+    input = input - 1;
+    allInput.push_back(std::to_string(input));
+    allInput.push_back("\n");
+    switch (input) {
+        case 0:
+            cout << "No errors" << endl;
+            allInput.push_back("\n"); // No percentage
+            allInput.push_back("\n"); // No packets to drop
+            allInput.push_back("\n"); // No packets to lose ack
+            allInput.push_back("\n"); // No packets to fail checksum
+            break;
+        case 1:
+            cout << "Specific Packets to drop/lose ack/corrupt" << endl;
+            allInput.push_back("\n"); // No percentage
+            // Packets to drop
+            while(input > 0) {
+                cout << endl << "Enter all packets to be dropped. Enter -1 to stop." << endl;
+                cout << "Input: ";
+                cin >> input;
+                if (input > 0) {
+                    allInput.push_back(std::to_string(input));
+                    allInput.push_back(",");
+                }
+            }
+            allInput.push_back("\n");
+            input = 1;
+            // Packets to lose ack
+            while(input > 0) {
+                cout << endl << "Enter all packets to lose the ack. Enter -1 to stop." << endl;
+                cout << "Input: ";
+                cin >> input;
+                if (input > 0) {
+                    allInput.push_back(std::to_string(input));
+                    allInput.push_back(",");
+                }
+            }
+            allInput.push_back("\n");
+            input = 1;
+            // Packets to fail checksum
+            while(input > 0) {
+                cout << endl << "Enter all packets to fail checksum test. Enter -1 to stop." << endl;
+                cout << "Input: ";
+                cin >> input;
+                if (input > 0) {
+                    allInput.push_back(std::to_string(input));
+                    allInput.push_back(",");
+                }
+            }
+            allInput.push_back("\n");
 
+            break;
+        case 2:
+            cout << "Random percentage of packets to drop, lose ack and corrupt" << endl;
+            cout << endl << "Choose the percentage:" << endl;
+            cout << "Input: ";
+            cin >> input;
+            cout << "You chose: " << input << "%" << endl;
+            allInput.push_back(std::to_string(input)); // User input for percentage
+            allInput.push_back("\n");
+            allInput.push_back("\n"); // No packets to drop
+            allInput.push_back("\n"); // No packets to lose ack
+            allInput.push_back("\n"); // No packets to fail checksum
+            break;
+    }
     cout << "\nCurrent input lines: " << endl;
+
+    // Select error type
+    string fileName;
+    cout << endl << "Input the destination of the input file: " << endl;
+    cout << "Input: ";
+    cin >> fileName;
+    cout << "Getting File: " << fileName << endl;
+    allInput.push_back(fileName);
     for (int i = 0; i < allInput.size(); ++i) {
         cout << allInput[i];
     }
+
+    std::ofstream output_file("./config.txt");
+    std::ostream_iterator<std::string> output_iterator(output_file, "");
+    std::copy(allInput.begin(), allInput.end(), output_iterator);
 }

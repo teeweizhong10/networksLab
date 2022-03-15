@@ -50,7 +50,7 @@ public:
     void setDynamicRoundTripMultiplier(int input) {dynamicRoundTripTimeMultiplier = input;};
     int getDynamicRoundTripMultiplier() {return dynamicRoundTripTimeMultiplier;};
 
-    void setErrorType(int input) {selectedErrorType = (input - 1);};
+    void setErrorType(int input) {selectedErrorType = input;};
     int getErrorType() {return selectedErrorType;};
 
     void setErrorPercentage(int input) {errorPercentage = input;};
@@ -82,7 +82,7 @@ void senderWelcomeMessage() {
 void getNetworkConfigFrom(string fileName) {
     ifstream inputFile;
     inputFile.open(fileName);
-    if (inputFile.is_open() ) {
+    if (inputFile.is_open()) {
         string line;
         int itemCount = 0;
         while (getline(inputFile, line)) {
@@ -91,7 +91,7 @@ void getNetworkConfigFrom(string fileName) {
             strcpy(lineChars, line.c_str());
             if(itemCount == 0) { // Set selected algorithm
                 selectedAlgorithm = stoi(lineChars);
-            } else if (itemCount == 1) { // Set sender window size
+              } else if (itemCount == 1) { // Set sender window size
                 if (selectedAlgorithm-1 != 1) { // GBN or SR: Set window size to size in config file
                     senderMaxWindowSize = stoi(lineChars);
                 } else { // Stop and Wait: Set window size to 1
@@ -112,7 +112,11 @@ void getNetworkConfigFrom(string fileName) {
             } else if (itemCount == 9) { // Selected error type
                 selectedErrorType = stoi(lineChars);
             } else if (itemCount == 10) { // Error percentage if percentage to be randomly dropped is chosen
-                errorPercentage = stoi(line);
+                if(line == "") {
+                    errorPercentage = 0;
+                } else {
+                    errorPercentage = stoi(line);
+                }
             } else if (itemCount == 11) { // Frame IDs of packets to drop
                 string currentNum = "";
                 for (int i = 0; i < len; ++i) {
