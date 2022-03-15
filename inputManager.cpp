@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <iterator>
 
 #include "inputManager.h"
 
