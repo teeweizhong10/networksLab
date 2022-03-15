@@ -218,7 +218,7 @@ void inputManager::getInput() {
     cout << endl << "Input the destination of the input file: " << endl;
     cout << "Input: ";
     cin >> fileName;
-    cout << "Getting File: ";
+    cout << "Getting File: " << fileName << endl;
     allInput.push_back(fileName);
     for (int i = 0; i < allInput.size(); ++i) {
         cout << allInput[i];

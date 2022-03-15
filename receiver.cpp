@@ -30,16 +30,7 @@ public:
     void setReceiverMaxWindowSize(int input) {receiverMaxWindowSize = input;};
     int getReceiverMaxWindowSize() {return receiverMaxWindowSize;};
 
-    void setSizeOfPacket(int input) {sizeOfPacket = input;};
-    int getSizeOfPacket() {return sizeOfPacket;};
-
-    void setSeqNumberUpperBound(int input) {seqNumberUpperBound = input;};
-    int getSeqNumberUpperBound() {return seqNumberUpperBound;};
-
-    void setSeqNumberLowerBound(int input) {seqNumberLowerBound = input;};
-    int getSeqNumberLowerBound() {return seqNumberLowerBound;};
-
-    void setErrorType(int input) {selectedErrorType = (input - 1);};
+    void setErrorType(int input) {selectedErrorType = input;};
     int getErrorType() {return selectedErrorType;};
 
     void setErrorPercentage(int input) {errorPercentage = input;};
@@ -58,8 +49,6 @@ public:
 int selectedAlgorithm;
 int receiverMaxWindowSize;
 int sizeOfPacket;
-int seqNumberUpperBound;
-int seqNumberLowerBound;
 int selectedErrorType;
 int errorPercentage; //0 if none
 vector<int> packetsToLoseAck; //empty if none
@@ -82,6 +71,44 @@ void getNetworkConfigFrom(string fileName) {
             strcpy(lineChars, line.c_str());
             if (itemCount == 0) { // Set selected algorithm
                 selectedAlgorithm = stoi(lineChars);
+            } else if (itemCount == 2) { // Skip sender window size, set receiver window size
+                if (selectedAlgorithm-1 != 2) { // GBN or Stop and Wait: Set window size to size 1
+                    receiverMaxWindowSize = 1;
+                } else { // Selective repeat: Set window size to size in config file
+                    receiverMaxWindowSize =  stoi(lineChars);
+                }
+            } else if (itemCount == 9) { // Selected error type
+                selectedErrorType = stoi(lineChars);
+            } else if (itemCount == 10) { // Error percentage if percentage to be randomly dropped is chosen
+                if(line == "") {
+                    errorPercentage = 0;
+                } else {
+                    errorPercentage = stoi(line);
+                }
+            } else if (itemCount == 12) { // Frame IDs of packets to lose ack
+                string currentNum = "";
+                for (int i = 0; i < len; ++i) {
+                    if(lineChars[i] != ',') {
+                        currentNum += lineChars[i];
+                    } else {
+                        //cout << "Current number end: " << currentNum << endl;
+                        int packet = stoi(currentNum);
+                        packetsToLoseAck.push_back(packet);
+                        currentNum = "";
+                    }
+                }
+            } else if (itemCount == 13) { // Frame IDs of packets to fail checksum
+                string currentNum = "";
+                for (int i = 0; i < len; ++i) {
+                    if(lineChars[i] != ',') {
+                        currentNum += lineChars[i];
+                    } else {
+                        //cout << "Current number end: " << currentNum << endl;
+                        int packet = stoi(currentNum);
+                        packetsToFailChecksum.push_back(packet);
+                        currentNum = "";
+                    }
+                }
             }
             itemCount++;
         }
@@ -102,11 +129,40 @@ void showCurrentConfig(Receiver currentReceiver) {
             cout << "Selective Repeat" << endl;
             break;
     }
+    cout << "Receiver Window Size: " << currentReceiver.getReceiverMaxWindowSize() << endl;
+    cout << "Selected error type: " << currentReceiver.getErrorType() << endl;
+    switch (currentReceiver.getErrorType()) {
+        case 0:
+            cout << "None" << endl;
+            break;
+        case 1:
+            cout << "Specific Packets" << endl;
+            cout << "Packets to lose ack: ";
+            for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+                cout << packetsToLoseAck[i] << "\t";
+            }
+            cout << endl;
+            cout << "Packets to fail checksum: ";
+            for (int i = 0; i < packetsToFailChecksum.size(); ++i) {
+                cout << packetsToFailChecksum[i] << "\t";
+            }
+            cout << endl;
+            break;
+        case 2:
+            cout << "Percentage of randomly selected packets" << endl;
+            cout << "Percentage: " << currentReceiver.getErrorPercentage() << "%" << endl;
+            break;
+    }
 }
 
-Receiver setReceiverInstance(int selectedAlgorithm) {
+Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, int selectedErrorType, int errorPercentage, vector<int> packetsToLoseAck, vector<int> packetsToFailCheckSum) {
     Receiver receiverInstance;
     receiverInstance.setAlgorithmType(selectedAlgorithm);
+    receiverInstance.setReceiverMaxWindowSize(receiverMaxWindowSize);
+    receiverInstance.setErrorType(selectedErrorType);
+    receiverInstance.setErrorPercentage(errorPercentage);
+    receiverInstance.setPacketsToLoseAck(packetsToLoseAck);
+    receiverInstance.setPacketsToFailChecksum(packetsToFailCheckSum);
     return receiverInstance;
 }
 
@@ -115,7 +171,7 @@ int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();
     getNetworkConfigFrom("config.txt");
-    receiverInstance = setReceiverInstance(selectedAlgorithm);
+    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, selectedErrorType, errorPercentage, packetsToLoseAck, packetsToFailChecksum);
     showCurrentConfig(receiverInstance);
     return 0;
 }
