@@ -1,3 +1,5 @@
+
+/*
 #include <limits>
 #include <bitset>
 #include <string>
@@ -16,21 +18,60 @@ int main()
     char byte = 0;
     //just try read into char vector
     //then convert to binary
-    ifstream input_file("/tmp/1G");
+
+    fstream input_file;
+    input_file.open ("/tmp/1G");
+
     if(!input_file.is_open()){
         cerr << "could not open file";
         return EXIT_FAILURE;
+    }else{
+        while(input_file.get(byte)){
+            bytes.push_back(byte);
+        }
+
+        for(char i:bytes){
+            cout << i << " ";
+        }
+        cout << "broke";
     }
 
-    while(input_file.get(byte)){
+
+//
+//
+//
+}
+ */
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+using std::cout; using std::cerr;
+using std::endl; using std::string;
+using std::ifstream; using std::vector;
+
+int main()
+{
+    string filename("/tmp/1G");
+    vector<char> bytes;
+    char byte = 0;
+
+    ifstream input_file(filename);
+    if (!input_file.is_open()) {
+        cerr << "Could not open the file - '"
+             << filename << "'" << endl;
+        return EXIT_FAILURE;
+    }
+
+    while (input_file.get(byte)) {
         bytes.push_back(byte);
     }
-
-    for(char i:bytes){
-        cout << i << " ";
+    for (const auto &i : bytes) {
+        cout << i << "-";
     }
-    cout << "broke";
-//
-//
-//
+    cout << endl;
+    input_file.close();
+
+    return EXIT_SUCCESS;
 }
