@@ -53,25 +53,21 @@ using std::ifstream; using std::vector;
 
 int main()
 {
-    string filename("/tmp/1G");
+    string filename("input.txt");
     vector<char> bytes;
-    char byte = 0;
 
-    ifstream input_file(filename);
-    if (!input_file.is_open()) {
-        cerr << "Could not open the file - '"
-             << filename << "'" << endl;
+    FILE* input_file = fopen(filename.c_str(), "r");
+    if (input_file == nullptr) {
         return EXIT_FAILURE;
     }
 
-    while (input_file.get(byte)) {
-        bytes.push_back(byte);
-    }
-    for (const auto &i : bytes) {
-        cout << i << "-";
+    unsigned char character = 0;
+    while (!feof(input_file)) {
+        character = getc(input_file);
+        cout << character << "-";
     }
     cout << endl;
-    input_file.close();
+    fclose(input_file);
 
     return EXIT_SUCCESS;
 }
