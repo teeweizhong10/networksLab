@@ -16,7 +16,7 @@ int main()
     char byte = 0;
     //just try read into char vector
     //then convert to binary
-    ifstream input_file("/tmp");
+    ifstream input_file("/tmp/1G");
     if(!input_file.is_open()){
         cerr << "could not open file";
         return EXIT_FAILURE;
