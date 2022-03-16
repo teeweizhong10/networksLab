@@ -53,7 +53,7 @@ using std::ifstream; using std::vector;
 
 int main()
 {
-    string filename("input.txt");
+    string filename("/tmp/1G");
     vector<char> bytes;
 
     FILE* input_file = fopen(filename.c_str(), "r");
