@@ -7,8 +7,20 @@
 #include <fstream>
 #include <cstring>
 #include <stdio.h>
+#include <string>
+#include <algorithm>
+#include <bitset>
+#include <boost/asio.hpp>
+#include <bits/stdc++.h>      //may be able to use <bitset> but this include is causing errors
 
 using namespace std;
+using namespace boost::asio;
+using ip::tcp;
+using std::string;
+using std::cout;
+using std::endl;
+using std::cin;
+
 
 class Receiver {
 private:
@@ -166,12 +178,139 @@ Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, i
     return receiverInstance;
 }
 
+//addBinary: takes in two strings of binary characters and adds them
+string addBinary (string a, string b){
+
+        if(a.length() > b.length()){
+                return addBinary(b, a);
+        }
+
+        int diff = b.length() - a.length();
+        string padding;
+
+        for (int i = 0; i < diff; i++){
+                padding.push_back('0');
+        }
+
+        a = padding + a;
+        string res;
+        char carry = '0';
+
+        for(int i = a.length() - 1; i >= 0; i--){
+                if(a[i] == '1' && b[i]){
+                        if(carry == '1'){
+                                res.push_back('1');
+                                carry = '1';
+                        }else{
+                                res.push_back('0');
+                                carry = '1';
+                        }
+                }else if (a[i] == '0' && b[i] == '0'){
+                        if(carry == '1'){
+                                res.push_back('1');
+                                carry = '0';
+                        }else{
+                                res.push_back('0');
+                                carry = '0';
+                        }
+                }else if (a[i] != b[i]){
+                        if(carry == '1'){
+                                res.push_back('0');
+				carry = '1';
+                        }else{
+                                res.push_back('1');
+                                carry = '0';
+                        }
+                }
+        }
+
+                if (carry == '1'){
+                        res.push_back(carry);
+                }
+                reverse(res.begin(), res.end());
+
+                return res;
+        }
+
+
+//checksum : performs the internet checksum on given data as 16 bits
+string checksum(string message){
+        //Takes 16 bits of the data and adds
+        string addition = "";
+        for(int i = 0; i < message.length();i++){
+                if (i % 16 == 0){       //split data into this many bit segments
+                        cout << "\nAdding string: " << message.substr(i, 16);
+                        addition = addBinary(addition, message.substr(i, 16));
+                        i = i + 15;
+                }else if ( (i > message.length() - 16)){
+                        cout << "\nAdding string: " << message.substr(i, message.length() - i);
+                        addition = addBinary(addition, message.substr(i, message.length()-i));
+                        i = message.length();
+                }
+        }
+        addition = addBinary(addition.substr(0, addition.length()-16), addition.substr(addition.length()-16, addition.length()-1));
+        return addition;
+}
+//gets compliment of checksum binary string
+string compliment(string cksum){
+        string compli = "";
+
+        for (int i = 0; i < cksum.length();i++){
+                if(cksum[i] =='0'){
+                        compli = compli + "1";
+                }else if (cksum[i] == '1'){
+                        compli = compli + "0";
+                }
+        }
+        return compli;
+}
 
 int main() {
+
+    //FOR WHEN WE NEED TO RUN CHECKSUM
+    string cksum = checksum("ReplaceThisStringWithPacketData");
+    string complimentofChkSum = compliment(cksum);
+    // //////////////////////////////////////////////
+
     Receiver receiverInstance;
     receiverWelcomeMessage();
     getNetworkConfigFrom("config.txt");
     receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, selectedErrorType, errorPercentage, packetsToLoseAck, packetsToFailChecksum);
     showCurrentConfig(receiverInstance);
+
+
+
+    /////////////////////////////
+    //estabilishes service
+        boost::asio::io_service io_service;
+
+        //creates socket
+        tcp::socket socket(io_service);
+
+        //connects socket to server
+        socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234));
+
+        //message from client -- WILL BE REPLACED
+        const string msg = "Hello from Receiver!\n";
+        boost::system::error_code error;
+        boost::asio::write(socket, boost::asio::buffer(msg), error);
+        if(!error){
+                cout<<"Receiver sent message"<<endl;
+        }else{
+                cout<<"Send failed"<<endl;
+        }
+        //server response
+        boost::asio::streambuf recv_buf;
+        boost::asio::read(socket, recv_buf, boost::asio::transfer_all(), error);
+        if(error && error != boost::asio::error::eof){
+                cout<<"recv failed"<<endl;
+        }else{
+                const char* data = boost::asio::buffer_cast<const char*>
+                        (recv_buf.data());
+                cout<< data<<endl;
+        }
+        /////////////////////////////
+
     return 0;
 }
+

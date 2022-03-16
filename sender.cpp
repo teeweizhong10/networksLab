@@ -7,7 +7,17 @@
 #include <fstream>
 #include <cstring>
 #include <stdio.h>
+#include <algorithm>
+#include <boost/asio.hpp>
+
 using namespace std;
+using namespace boost::asio;
+using ip::tcp;
+using std::string;
+using std::cout;
+using std::endl;
+using std::cin;
+
 
 class Sender {
 private:
@@ -201,11 +211,124 @@ Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int siz
     return senderInstance;
 }
 
+//addBinary: takes in two strings of binary characters and adds them
+string addBinary (string a, string b){
+
+        if(a.length() > b.length()){
+                return addBinary(b, a);
+        }
+
+        int diff = b.length() - a.length();
+        string padding;
+
+        for (int i = 0; i < diff; i++){
+                padding.push_back('0');
+        }
+
+        a = padding + a;
+        string res;
+        char carry = '0';
+
+        for(int i = a.length() - 1; i >= 0; i--){
+                if(a[i] == '1' && b[i]){
+                        if(carry == '1'){
+                                res.push_back('1');
+                                carry = '1';
+                        }else{
+                                res.push_back('0');
+                                carry = '1';
+                        }
+                }else if (a[i] == '0' && b[i] == '0'){
+                        if(carry == '1'){
+                                res.push_back('1');
+                                carry = '0';
+                        }else{
+                                res.push_back('0');
+                                carry = '0';
+                        }
+                }else if (a[i] != b[i]){
+                        if(carry == '1'){
+                                res.push_back('0');
+				carry = '1';
+                        }else{
+                                res.push_back('1');
+                                carry = '0';
+                        }
+                }
+        }
+                if (carry == '1'){
+                        res.push_back(carry);
+                }
+                reverse(res.begin(), res.end());
+
+                return res;
+        }
+
+
+
+//checksum : performs the internet checksum on given data as 16 bits
+bool passesChecksum(string message, string compli){
+        //Takes 16 bits of the data and adds
+        string addition = "";
+        for(int i = 0; i < message.length();i++){
+                if (i % 16 == 0){       //split data into this many bit segments
+                        cout << "\nAdding string: " << message.substr(i, 16);
+                        addition = addBinary(addition, message.substr(i, 16));
+                        i = i + 15;
+                }else if ( (i > message.length() - 16)){
+                        cout << "\nAdding string: " << message.substr(i, message.length() - i);
+                        addition = addBinary(addition, message.substr(i, message.length()-i));
+                        i = message.length();
+                }
+        }
+        addition = addBinary(addition.substr(0, addition.length()-16), addition.substr(addition.length()-16, addition.length()-1));
+        if (addBinary(addition, compli) == "0"){
+            return true;
+        }else{
+            return false;
+        }
+}
+
+//FOR SOCKET SENDER
+string read_(tcp::socket & socket) {
+       boost::asio::streambuf buf;
+       boost::asio::read_until( socket, buf, "\n" );
+       string data = boost::asio::buffer_cast<const char*>(buf.data());
+       return data;
+}
+void send_(tcp::socket & socket, const string& message) {
+       const string msg = message + "\n";
+       boost::asio::write( socket, boost::asio::buffer(message) );
+}
+
 int main() {
+    /////////////////FOR CHECKING CHECKSUM -- returns boolean
+    passesChecksum("ReplaceWithOriginalPacketData", "ReplaceWithPassedCksumCompliment");
+    /////////////////
+    
     Sender senderInstance;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
     senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, filePath);
     showCurrentConfig(senderInstance);
+
+//////////////KEEP FOR FORMATTING UNTIL WE HAVE PACKETS READY
+    cout << "\nStarting server...\n";
+    cout << "\nSender side setting up sockets...\n";
+
+    boost::asio::io_service io_service;
+//listen for new connection
+      tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 1234 ));
+//socket creation
+      tcp::socket socket(io_service);
+//waiting for connection
+      acceptor.accept(socket);
+//read operation
+      string message = read_(socket);
+      cout << message << endl;
+//write operation
+      send_(socket, "Hello From Sender!");
+      cout << "Sender sent Hello message to Receiver!" << endl;
+
     return 0;
 }
