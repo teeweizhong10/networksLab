@@ -58,6 +58,7 @@ int main()
 
     FILE* input_file = fopen(filename.c_str(), "r");
     if (input_file == nullptr) {
+        cout << here1;
         return EXIT_FAILURE;
     }
 
@@ -68,6 +69,7 @@ int main()
     }
     cout << endl;
     fclose(input_file);
-
+    cout << here2;
     return EXIT_SUCCESS;
+
 }
