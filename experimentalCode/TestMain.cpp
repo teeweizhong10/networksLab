@@ -7,14 +7,14 @@
 #include <fstream>
 #include <algorithm>
 #include <vector>
-//#include <bits/stdc++.h>
+#include <bits/stdc++.h>
 
 using namespace std;
 
 
 int main()
 {
-    vector<char> bytes;
+    vector<char> bits;
     char byte = 0;
     //just try read into char vector
     //then convert to binary
@@ -27,10 +27,10 @@ int main()
         return EXIT_FAILURE;
     }else{
         while(input_file.get(byte)){
-            bytes.push_back(byte);
+            bits.push_back(bitset<8>(byte).to_string());
         }
 
-        for(char i:bytes){
+        for(char i:bits){
             cout << i << " ";
         }
 
