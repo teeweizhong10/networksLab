@@ -16,7 +16,7 @@ int main()
 {
     vector<char> bytes;
     char byte = 0;
-    string bits='';
+    string bits="";
     //just try read into char vector
     //then convert to binary
 
