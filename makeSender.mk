@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = -Wall -g #debug flag
 #CFLAGS = -Wall
 
-sender: sender.o
+sender:
 	 g++ sender.cpp -o sender -lboost_system -lpthread
 
 
