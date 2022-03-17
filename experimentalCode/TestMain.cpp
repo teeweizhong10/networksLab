@@ -29,13 +29,15 @@ int main()
     }else{
         while(input_file.get(byte)){
             //bytes.push_back(byte);
-            bits=bits << bitset<8>(byte).to_string());
+            bits=bitset<8>(byte).to_string());
+            cout << bits;
         }
 
+        /*
         for(char i:bits){
             cout << i << " ";
         }
-
+    */
     }
 
 
