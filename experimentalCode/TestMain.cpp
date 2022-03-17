@@ -14,8 +14,9 @@ using namespace std;
 
 int main()
 {
-    vector<char> bits;
+    vector<char> bytes;
     char byte = 0;
+    string bits='';
     //just try read into char vector
     //then convert to binary
 
@@ -27,7 +28,8 @@ int main()
         return EXIT_FAILURE;
     }else{
         while(input_file.get(byte)){
-            bits.push_back(bitset<8>(byte).to_string());
+            //bytes.push_back(byte);
+            bits=bits << bitset<8>(byte).to_string());
         }
 
         for(char i:bits){
