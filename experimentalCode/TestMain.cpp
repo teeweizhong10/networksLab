@@ -16,7 +16,7 @@ int main()
 {
     vector<char> bytes;
     char byte = 0;
-    string bits='';
+    string bits;
     //just try read into char vector
     //then convert to binary
 
@@ -29,7 +29,7 @@ int main()
     }else{
         while(input_file.get(byte)){
             //bytes.push_back(byte);
-            bits=bitset<8>(byte).to_string());
+            bits=bitset<8>(byte).to_string();
             cout << bits;
         }
 
