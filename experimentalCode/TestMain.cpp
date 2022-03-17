@@ -30,7 +30,7 @@ int main()
         while(input_file.get(byte)){
             //bytes.push_back(byte);
             bits += bitset<8>(byte).to_string();
-            cout<<"|"
+            cout<<"|";
         }
         cout << bits;
         /*
