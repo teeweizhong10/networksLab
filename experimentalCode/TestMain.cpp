@@ -1,5 +1,5 @@
 
-/*
+
 #include <limits>
 #include <bitset>
 #include <string>
@@ -41,35 +41,5 @@ int main()
 //
 //
 }
- */
 
-#include <iostream>
-#include <fstream>
-#include <vector>
 
-using std::cout; using std::cerr;
-using std::endl; using std::string;
-using std::ifstream; using std::vector;
-
-int main()
-{
-    string filename("/tmp/1G");
-    vector<char> bytes;
-
-    FILE* input_file = fopen(filename.c_str(), "r");
-    if (input_file == nullptr) {
-        cout << "here1";
-        return EXIT_FAILURE;
-    }
-
-    unsigned char character = 0;
-    while (!feof(input_file)) {
-        character = getc(input_file);
-        cout << character << "-";
-    }
-    cout << endl;
-    fclose(input_file);
-    cout << "here2";
-    return EXIT_SUCCESS;
-//
-}
