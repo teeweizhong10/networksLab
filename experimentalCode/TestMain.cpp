@@ -20,7 +20,7 @@ int main()
     //then convert to binary
 
     fstream input_file;
-    input_file.open ("/tmp/1G");
+    input_file.open ("/tmp/500M");
 
     if(!input_file.is_open()){
         cerr << "could not open file";
@@ -33,7 +33,7 @@ int main()
         for(char i:bytes){
             cout << i << " ";
         }
-        cout << "broke";
+
     }
 
 
