@@ -2,9 +2,8 @@ CC = g++
 CFLAGS = -Wall -g #debug flag
 #CFLAGS = -Wall
 
-sender:
-	 g++ sender.cpp -o sender -lboost_system -lpthread
-
+sender: sender.o
+	$(CC) $(CFLAGS) -o sender sender.o
 
 sender.o: sender.cpp packet.h
 	$(CC) $(CFLAGS) -c sender.cpp

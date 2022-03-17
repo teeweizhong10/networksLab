@@ -3,7 +3,7 @@ CFLAGS = -Wall -g #debug flag
 #CFLAGS = -Wall
 
 receiver: receiver.o
-	$(CC) $(CFLAGS) -o receiver receiver.o -lboost_system -lpthread
+	$(CC) $(CFLAGS) -o receiver receiver.o
 
 receiver.o: receiver.cpp packet.h
 	$(CC) $(CFLAGS) -c receiver.cpp
