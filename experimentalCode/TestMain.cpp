@@ -37,6 +37,7 @@ int main()
         for(char i:bits){
             cout << i << " ";
         }
+         //
     */
     }
 
