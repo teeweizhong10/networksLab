@@ -453,7 +453,6 @@ int main() {
 
     // Begin coding here
     numOfPackets = allBits.length()/sizeOfPacket;
-
     cout << "\nNumber of packets: " << numOfPackets << endl;
     return 0;
 }
