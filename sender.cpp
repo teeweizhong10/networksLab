@@ -418,7 +418,6 @@ void setPacketErrors(int percentage, int numOfPackets) {
 }
 
 void setBitsFromFile(string file) {
-    string bits;
     vector<char> bytes;
     char byte = 0;
     string bits="";
@@ -430,8 +429,8 @@ void setBitsFromFile(string file) {
 
     if(!input_file.is_open()){
         cerr << "could not open file";
-        return EXIT_FAILURE;
-    }else{
+        return ;
+    }else {
         while(input_file.get(byte)){
             //bytes.push_back(byte);
             bits += bitset<8>(byte).to_string();
@@ -439,6 +438,7 @@ void setBitsFromFile(string file) {
         }
         cout << bits;
     allBits = bits;
+    }
 }
 
 int main() {
