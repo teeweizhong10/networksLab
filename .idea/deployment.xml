@@ -2,10 +2,10 @@
 <project version="4">
   <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="Poseidon0 (8c447531-615e-4e4a-9ed0-5c18585c84bb)">
+      <paths name="Remote Host (b038e9d9-170a-4988-b952-00dbc53d9c9b)">
         <serverdata>
           <mappings>
-            <mapping deploy="/USERS/ALL/SARGEAKB9348/CS462" local="$PROJECT_DIR$/experimentalCode" />
+            <mapping deploy="/tmp/networksLab" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

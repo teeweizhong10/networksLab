@@ -18,7 +18,6 @@
  * packetsToDrop: position, position //empty if none
  * packetsToLoseAck: position, position //empty if none
  * packetsToFailChecksum: position, position //empty if none
-
  */
 
 #ifndef NETWORKSLAB_INPUTMANAGER_H
