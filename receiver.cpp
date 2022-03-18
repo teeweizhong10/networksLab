@@ -134,7 +134,6 @@ void parseFromString(string input) {
         }
         itemCount++;
     }
-
 }
 
 void showCurrentConfig(Receiver currentReceiver) {

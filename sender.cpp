@@ -7,6 +7,9 @@
 #include <fstream>
 #include <cstring>
 #include <stdio.h>
+#include <cstdlib>
+#include <time.h>
+#include <stdlib.h>
 using namespace std;
 
 class Sender {
@@ -307,7 +310,31 @@ Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int rec
 
 //TODO: make random packet errors
 void setRandomPacketsToDrop(int percentage, int numOfPackets) {
-    // packetsToDrop
+    packetsToDrop.clear();
+    int packetsDropCount = numOfPackets * percentage/100;
+    cout << "Packets to drop: " << packetsDropCount << " packets." << endl;
+    int v1 = rand() % 100;
+    bool add;
+    cout << "rand: " << v1 << endl;
+    while (packetsDropCount > 0) {
+        for (int i = 0; i < packetsToDrop.size(); ++i) {
+            if(packetsToDrop[i] == v1) {
+                add = false;
+            }
+        }
+
+        if (add == true) {
+            packetsToDrop.push_back(v1);
+            packetsDropCount--;
+        } else {
+            add = true;
+        }
+        v1 = rand() % 100;
+    }
+    sort(packetsToDrop.begin(), packetsToDrop.end());
+    for (int i = 0; i < packetsToDrop.size(); ++i) {
+        cout << packetsToDrop[i] << "\t";
+    }
 }
 
 void setRandomPacketsToLoseAck(int percentage, int numOfPackets) { // to send to receiver
@@ -324,6 +351,7 @@ int main() {
     Sender senderInstance;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
+    setRandomPacketsToDrop(15, 100);
     senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, receiverMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, packetsToLoseAck, packetsToFailChecksum, filePath);
     showCurrentConfig(senderInstance);
     return 0;
