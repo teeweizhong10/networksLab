@@ -7,6 +7,7 @@
 #include <fstream>
 #include <cstring>
 #include <stdio.h>
+#include <sstream>
 
 using namespace std;
 
@@ -28,6 +29,9 @@ public:
 
     void setReceiverMaxWindowSize(int input) {receiverMaxWindowSize = input;};
     int getReceiverMaxWindowSize() {return receiverMaxWindowSize;};
+
+    void setSizeOfPacket(int input) {sizeOfPacket = input;};
+    int getSizeOfPacket() {return sizeOfPacket;};
 
     void setErrorType(int input) {selectedErrorType = input;};
     int getErrorType() {return selectedErrorType;};
@@ -100,6 +104,36 @@ void getNetworkConfigFrom(string fileName) {
 }
 
 void parseFromString(string input) {
+    cout << "Current input: " << endl;
+    istringstream f(input);
+    string line;
+    int itemCount = 0;
+    while (getline(f, line)) {
+        int len = line.length();
+        cout << line << endl;
+        if (itemCount == 0) { // selected algorithm
+            selectedAlgorithm = stoi(line);
+        } else if (itemCount == 1) {
+            receiverMaxWindowSize = stoi(line);
+        } else if (itemCount == 2) {
+            sizeOfPacket = stoi(line);
+        } else if (itemCount == 5) { // skip sequence numbers
+            selectedErrorType = stoi(line);
+        } else if (itemCount == 6) { // Frame IDs of packets to lose ack
+            string currentNum = "";
+            for (int i = 0; i < len; ++i) {
+                if(line[i] != ',') {
+                    currentNum += line[i];
+                } else {
+                    //cout << "Current number end: " << currentNum << endl;
+                    int packet = stoi(currentNum);
+                    packetsToLoseAck.push_back(packet);
+                    currentNum = "";
+                }
+            }
+        }
+        itemCount++;
+    }
 
 }
 
@@ -118,6 +152,7 @@ void showCurrentConfig(Receiver currentReceiver) {
             break;
     }
     cout << "Receiver Window Size: " << currentReceiver.getReceiverMaxWindowSize() << endl;
+    cout << "Packet Size: " << currentReceiver.getSizeOfPacket() << endl;
     cout << "Selected error type: " << currentReceiver.getErrorType() << endl;
     switch (currentReceiver.getErrorType()) {
         case 0:
@@ -125,23 +160,28 @@ void showCurrentConfig(Receiver currentReceiver) {
             break;
         case 1:
             cout << "Specific Packets" << endl;
-            cout << "Packets to fail checksum: ";
-            for (int i = 0; i < packetsToFailChecksum.size(); ++i) {
-                cout << packetsToFailChecksum[i] << "\t";
+            cout << "Packets to lose ack: ";
+            for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+                cout << packetsToLoseAck[i] << "\t";
             }
             cout << endl;
             break;
         case 2:
             cout << "Percentage of randomly selected packets" << endl;
-            cout << "Percentage: " << currentReceiver.getErrorPercentage() << "%" << endl;
+            cout << "Packets to lose ack: ";
+            for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+                cout << packetsToLoseAck[i] << "\t";
+            }
+            cout << endl;
             break;
     }
 }
 
-Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, int selectedErrorType, int errorPercentage, vector<int> packetsToLoseAck) {
+Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, int sizeOfPacket, int selectedErrorType, int errorPercentage, vector<int> packetsToLoseAck) {
     Receiver receiverInstance;
     receiverInstance.setAlgorithmType(selectedAlgorithm);
     receiverInstance.setReceiverMaxWindowSize(receiverMaxWindowSize);
+    receiverInstance.setSizeOfPacket(sizeOfPacket);
     receiverInstance.setErrorType(selectedErrorType);
     receiverInstance.setErrorPercentage(errorPercentage);
     receiverInstance.setPacketsToLoseAck(packetsToLoseAck);
@@ -153,8 +193,11 @@ Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, i
 int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();
-    getNetworkConfigFrom("config.txt");
-    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, selectedErrorType, errorPercentage, packetsToLoseAck);
+    string test = "3\n1\n64000\n1\n100\n2\n4,5,6,";
+    parseFromString(test);
+    //getNetworkConfigFrom("config.txt");
+    cout << selectedAlgorithm;
+    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck);
     showCurrentConfig(receiverInstance);
     return 0;
 }
