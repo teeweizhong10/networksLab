@@ -106,6 +106,7 @@ void setBitsFromFile(string file) {
 
 void senderWelcomeMessage() {
     cout << "Creating instance for: sender." << endl;
+    srand(time(NULL));
 }
 
 void getNetworkConfigFrom(string fileName) {
@@ -312,11 +313,12 @@ Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int rec
 void setRandomPacketsToDrop(int percentage, int numOfPackets) {
     packetsToDrop.clear();
     int packetsDropCount = numOfPackets * percentage/100;
-    cout << "Packets to drop: " << packetsDropCount << " packets." << endl;
     int v1 = rand() % 100;
     bool add;
-    cout << "rand: " << v1 << endl;
     while (packetsDropCount > 0) {
+        if(packetsToDrop.size() ==  numOfPackets * percentage/100) {
+            packetsDropCount = 0;
+        }
         for (int i = 0; i < packetsToDrop.size(); ++i) {
             if(packetsToDrop[i] == v1) {
                 add = false;
@@ -332,26 +334,97 @@ void setRandomPacketsToDrop(int percentage, int numOfPackets) {
         v1 = rand() % 100;
     }
     sort(packetsToDrop.begin(), packetsToDrop.end());
-    for (int i = 0; i < packetsToDrop.size(); ++i) {
-        cout << packetsToDrop[i] << "\t";
-    }
 }
 
 void setRandomPacketsToLoseAck(int percentage, int numOfPackets) { // to send to receiver
-    // packetsToLoseAck
-    // Check if it is in drop, if not add to this packetsToLoseAck
+    packetsToLoseAck.clear();
+    int packetsLoseAckCount = numOfPackets * percentage/100;
+    int v1 = rand() % 100;
+    bool add;
+    while (packetsLoseAckCount > 0) {
+        if(packetsToLoseAck.size() ==  numOfPackets * percentage/100) {
+            packetsLoseAckCount = 0;
+        }
+        for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+            if(packetsToLoseAck[i] == v1) {
+                add = false;
+            }
+        }
+
+        for (int i = 0; i < packetsToDrop.size(); ++i) {
+            if(packetsToDrop[i] == v1) {
+                add = false;
+                packetsLoseAckCount--;
+            }
+        }
+
+        if (add == true) {
+            packetsToLoseAck.push_back(v1);
+            packetsLoseAckCount--;
+        } else {
+            add = true;
+        }
+        v1 = rand() % 100;
+    }
+    sort(packetsToLoseAck.begin(), packetsToLoseAck.end());
 }
 
 void setRandomPacketsToFailChecksum(int percentage, int numOfPackets) { //corrupt
-    // packetsToFailChecksum
-    // Check if it is in drop, if not add to this packetsToLoseAck
+    packetsToFailChecksum.clear();
+    int packetsToFailChecksumCount = numOfPackets * percentage/100;
+    int v1 = rand() % 100;
+    bool add;
+    while (packetsToFailChecksumCount > 0) {
+        if(packetsToFailChecksum.size() ==  numOfPackets * percentage/100) {
+            packetsToFailChecksumCount = 0;
+        }
+        for (int i = 0; i < packetsToFailChecksum.size(); ++i) {
+            if(packetsToFailChecksum[i] == v1) {
+                add = false;
+            }
+        }
+
+        for (int i = 0; i < packetsToDrop.size(); ++i) {
+            if(packetsToDrop[i] == v1) {
+                add = false;
+                packetsToFailChecksumCount--;
+            }
+        }
+
+        for (int i = 0; i < packetsToLoseAck.size(); ++i) { // If both lose ack and fail checksum, drop instead
+            if(packetsToLoseAck[i] == v1) {
+                packetsToLoseAck.erase(packetsToLoseAck.begin() + i); // Remove from lose ack
+                packetsToDrop.push_back(v1);
+                add = false;
+                packetsToFailChecksumCount--;
+            }
+        }
+
+        if (add == true) {
+            packetsToFailChecksum.push_back(v1);
+            packetsToFailChecksumCount--;
+        } else {
+            add = true;
+        }
+        v1 = rand() % 100;
+    }
+    sort(packetsToFailChecksum.begin(), packetsToFailChecksum.end());
+}
+
+void setPacketErrors(int percentage, int numOfPackets) {
+    setRandomPacketsToDrop(10, 100);
+    setRandomPacketsToLoseAck(10, 100);
+    setRandomPacketsToFailChecksum(10,100);
+    sort(packetsToDrop.begin(), packetsToDrop.end());
+    sort(packetsToLoseAck.begin(), packetsToLoseAck.end());
+    sort(packetsToFailChecksum.begin(), packetsToFailChecksum.end());
 }
 
 int main() {
     Sender senderInstance;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
-    setRandomPacketsToDrop(15, 100);
+    setPacketErrors(10,100);
     senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, receiverMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, packetsToLoseAck, packetsToFailChecksum, filePath);
     showCurrentConfig(senderInstance);
     return 0;
