@@ -282,9 +282,7 @@ void showCurrentConfig(Sender currentSender) {
             break;
     }
     cout << "Getting data from: " << currentSender.getFilePath() << endl;
-
-
-    cout << "****************************\n" << "Content to send: \n" << contentToSend << endl;
+    //cout << "****************************\n" << "Content to send: \n" << contentToSend << endl;
 }
 
 Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int receiverMaxWindowSize, int sizeOfPacket, int seqNumUpperBound, int seqNumLowerBound, int staticOrDynamic, int staticSeconds, int dynamicRoundTripTimeMultiplier, int selectedErrorType, int errorPercentage, vector<int> packetsToDrop,  vector<int> packetsToLoseAck, vector<int> packetsToFailCheckSum, string filePath) {
@@ -430,14 +428,11 @@ void setBitsFromFile(string file) {
     if(!input_file.is_open()){
         cerr << "could not open file";
         return ;
-    }else {
+    } else {
         while(input_file.get(byte)){
-            //bytes.push_back(byte);
             bits += bitset<8>(byte).to_string();
-            cout<<"|";
         }
-        cout << bits;
-    allBits = bits;
+        allBits = bits;
     }
 }
 
@@ -448,11 +443,15 @@ int main() {
     if (selectedErrorType == 2) { // set errors for random percentage
         setPacketErrors(errorPercentage, numOfPackets);
     }
+
+    setBitsFromFile(filePath);
+    cout << "Length of file in bits: " << allBits.length();
+
     senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, receiverMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, packetsToLoseAck, packetsToFailChecksum, filePath);
     showCurrentConfig(senderInstance);
+    cout << endl;
 
     // Begin coding here
-    setBitsFromFile("test");
 
     return 0;
 }
