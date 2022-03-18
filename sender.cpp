@@ -419,7 +419,25 @@ void setPacketErrors(int percentage, int numOfPackets) {
 
 void setBitsFromFile(string file) {
     string bits;
+    vector<char> bytes;
+    char byte = 0;
+    string bits="";
+    //just try read into char vector
+    //then convert to binary
 
+    fstream input_file;
+    input_file.open ("1M");
+
+    if(!input_file.is_open()){
+        cerr << "could not open file";
+        return EXIT_FAILURE;
+    }else{
+        while(input_file.get(byte)){
+            //bytes.push_back(byte);
+            bits += bitset<8>(byte).to_string();
+            cout<<"|";
+        }
+        cout << bits;
     allBits = bits;
 }
 
@@ -434,7 +452,7 @@ int main() {
     showCurrentConfig(senderInstance);
 
     // Begin coding here
-
+    setBitsFromFile("test");
 
     return 0;
 }
