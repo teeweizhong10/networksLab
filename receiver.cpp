@@ -208,7 +208,7 @@ Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, i
 int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();
-    string test = "3\n1\n64000\n1\n100\n2\n4,5,6,";
+    string test = "3\n1\n64000\n1\n100\n2\n4,5,6,64,99,";
     parseFromString(test);
     //getNetworkConfigFrom("config.txt");
     cout << selectedAlgorithm;
