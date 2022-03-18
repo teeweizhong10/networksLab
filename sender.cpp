@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <time.h>
 #include <stdlib.h>
+#include <bitset>
 using namespace std;
 
 class Sender {
@@ -454,5 +455,6 @@ int main() {
     // Begin coding here
     numOfPackets = allBits.length()/sizeOfPacket;
     cout << "\nNumber of packets: " << numOfPackets << endl;
+    cout << "All bits: " << allBits << endl;
     return 0;
 }
