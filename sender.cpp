@@ -217,11 +217,11 @@ void showCurrentConfig(Sender currentSender) {
     contentToSend += std::to_string(currentSender.getSizeOfPacket());
     contentToSend += "\n";
     cout << "Seq Num Lower Bound: " << currentSender.getSeqNumberLowerBound() << endl;
-    //contentToSend += std::to_string(currentSender.getSeqNumberLowerBound());
-    //contentToSend += "\n";
+    contentToSend += std::to_string(currentSender.getSeqNumberLowerBound());
+    contentToSend += "\n";
     cout << "Seq Num Upper Bound: " << currentSender.getSeqNumberUpperBound() << endl;
-    //contentToSend += std::to_string(currentSender.getSeqNumberUpperBound());
-    //contentToSend += "\n";
+    contentToSend += std::to_string(currentSender.getSeqNumberUpperBound());
+    contentToSend += "\n";
     cout << "Static or Dynamic time interval: ";
     if (currentSender.getStaticOrDyanamic() == 0) {
         cout << "Static" << endl;
@@ -304,6 +304,8 @@ Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int rec
     return senderInstance;
 }
 
+
+//TODO: make random packet errors
 void setRandomPacketsToDrop(int percentage, int numOfPackets) {
     // packetsToDrop
 }
