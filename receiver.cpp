@@ -20,7 +20,6 @@ private:
     int selectedErrorType; // 0 for none, 1 for specific packets, 2 for percentage
     int errorPercentage; //0 if none
     vector<int> packetsToLoseAck; //empty if none
-    vector<int> packetsToFailChecksum; //empty if none
     string filePath;
 
 public:
@@ -38,9 +37,6 @@ public:
 
     void setPacketsToLoseAck(vector<int> input) {packetsToLoseAck = input;};
     vector<int>& getPacketsToLoseAck() {return packetsToLoseAck;}
-
-    void setPacketsToFailChecksum(vector<int> input) {packetsToFailChecksum = input;};
-    vector<int>& setPacketsToFailChecksum() {return packetsToFailChecksum;}
 
     void setFilePath(string input) {filePath = input;};
     string getFilePath() {return filePath;};
@@ -97,22 +93,14 @@ void getNetworkConfigFrom(string fileName) {
                         currentNum = "";
                     }
                 }
-            } else if (itemCount == 13) { // Frame IDs of packets to fail checksum
-                string currentNum = "";
-                for (int i = 0; i < len; ++i) {
-                    if(lineChars[i] != ',') {
-                        currentNum += lineChars[i];
-                    } else {
-                        //cout << "Current number end: " << currentNum << endl;
-                        int packet = stoi(currentNum);
-                        packetsToFailChecksum.push_back(packet);
-                        currentNum = "";
-                    }
-                }
             }
             itemCount++;
         }
     }
+}
+
+void parseFromString(string input) {
+
 }
 
 void showCurrentConfig(Receiver currentReceiver) {
@@ -137,11 +125,6 @@ void showCurrentConfig(Receiver currentReceiver) {
             break;
         case 1:
             cout << "Specific Packets" << endl;
-            cout << "Packets to lose ack: ";
-            for (int i = 0; i < packetsToLoseAck.size(); ++i) {
-                cout << packetsToLoseAck[i] << "\t";
-            }
-            cout << endl;
             cout << "Packets to fail checksum: ";
             for (int i = 0; i < packetsToFailChecksum.size(); ++i) {
                 cout << packetsToFailChecksum[i] << "\t";
@@ -155,23 +138,23 @@ void showCurrentConfig(Receiver currentReceiver) {
     }
 }
 
-Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, int selectedErrorType, int errorPercentage, vector<int> packetsToLoseAck, vector<int> packetsToFailCheckSum) {
+Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, int selectedErrorType, int errorPercentage, vector<int> packetsToLoseAck) {
     Receiver receiverInstance;
     receiverInstance.setAlgorithmType(selectedAlgorithm);
     receiverInstance.setReceiverMaxWindowSize(receiverMaxWindowSize);
     receiverInstance.setErrorType(selectedErrorType);
     receiverInstance.setErrorPercentage(errorPercentage);
     receiverInstance.setPacketsToLoseAck(packetsToLoseAck);
-    receiverInstance.setPacketsToFailChecksum(packetsToFailCheckSum);
     return receiverInstance;
 }
+
 
 
 int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();
     getNetworkConfigFrom("config.txt");
-    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, selectedErrorType, errorPercentage, packetsToLoseAck, packetsToFailChecksum);
+    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, selectedErrorType, errorPercentage, packetsToLoseAck);
     showCurrentConfig(receiverInstance);
     return 0;
 }

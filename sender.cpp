@@ -92,6 +92,7 @@ vector<int> packetsToFailChecksum; //empty if none
 string filePath;
 
 string allBits;
+string contentToSend;
 int numOfPackets;
 
 void setBitsFromFile(string file) {
@@ -206,11 +207,21 @@ void showCurrentConfig(Sender currentSender) {
             cout << "Selective Repeat" << endl;
             break;
     }
+    contentToSend += std::to_string(currentSender.getSelectedAlgorithm());
+    contentToSend += "\n";
     cout << "Sender Window Size: " << currentSender.getSenderMaxWindowSize() << endl;
     cout << "Receiver Window Size: " << currentSender.getReceiverMaxWindowSize() << endl;
+    contentToSend += std::to_string(currentSender.getReceiverMaxWindowSize());
+    contentToSend += "\n";
     cout << "Size of Packet: " << currentSender.getSizeOfPacket() << endl;
+    contentToSend += std::to_string(currentSender.getSizeOfPacket());
+    contentToSend += "\n";
     cout << "Seq Num Lower Bound: " << currentSender.getSeqNumberLowerBound() << endl;
+    contentToSend += std::to_string(currentSender.getSeqNumberLowerBound());
+    contentToSend += "\n";
     cout << "Seq Num Upper Bound: " << currentSender.getSeqNumberUpperBound() << endl;
+    contentToSend += std::to_string(currentSender.getSeqNumberUpperBound());
+    contentToSend += "\n";
     cout << "Static or Dynamic time interval: ";
     if (currentSender.getStaticOrDyanamic() == 0) {
         cout << "Static" << endl;
@@ -220,6 +231,8 @@ void showCurrentConfig(Sender currentSender) {
         cout << "Round trip time multiplier: " << currentSender.getDynamicRoundTripMultiplier() << endl;
     }
     cout << "Selected error type: " << currentSender.getErrorType() << endl;
+    contentToSend += std::to_string(currentSender.getErrorType());
+    contentToSend += "\n";
     switch (currentSender.getErrorType()) {
         case 0:
             cout << "None" << endl;
@@ -253,6 +266,8 @@ void showCurrentConfig(Sender currentSender) {
             cout << "Packets to lose ack: ";
             for (int i = 0; i < packetsToLoseAck.size(); ++i) {
                 cout << packetsToLoseAck[i] << "\t";
+                contentToSend += std::to_string(packetsToLoseAck[i]);
+                contentToSend += ",";
             }
             cout << endl;
             cout << "Packets to fail checksum: ";
@@ -260,9 +275,13 @@ void showCurrentConfig(Sender currentSender) {
                 cout << packetsToFailChecksum[i] << "\t";
             }
             cout << endl;
+            contentToSend += "\n";
             break;
     }
     cout << "Getting data from: " << currentSender.getFilePath() << endl;
+
+
+    cout << "****************************\n" << "Content to send: \n" << contentToSend << endl;
 }
 
 Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int receiverMaxWindowSize, int sizeOfPacket, int seqNumUpperBound, int seqNumLowerBound, int staticOrDynamic, int staticSeconds, int dynamicRoundTripTimeMultiplier, int selectedErrorType, int errorPercentage, vector<int> packetsToDrop,  vector<int> packetsToLoseAck, vector<int> packetsToFailCheckSum, string filePath) {
