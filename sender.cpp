@@ -98,10 +98,9 @@ string allBits;
 string contentToSend;
 int numOfPackets;
 
-void setBitsFromFile(string file) {
-    string bits;
-
-    allBits = bits;
+int getNumOfPackets(string bits) {
+    numOfPackets = 0;
+    return numOfPackets;
 }
 
 void senderWelcomeMessage() {
@@ -308,8 +307,6 @@ Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int rec
     return senderInstance;
 }
 
-
-//TODO: make random packet errors
 void setRandomPacketsToDrop(int percentage, int numOfPackets) {
     packetsToDrop.clear();
     int packetsDropCount = numOfPackets * percentage/100;
@@ -412,20 +409,32 @@ void setRandomPacketsToFailChecksum(int percentage, int numOfPackets) { //corrup
 }
 
 void setPacketErrors(int percentage, int numOfPackets) {
-    setRandomPacketsToDrop(10, 100);
-    setRandomPacketsToLoseAck(10, 100);
-    setRandomPacketsToFailChecksum(10,100);
+    setRandomPacketsToDrop(percentage, numOfPackets);
+    setRandomPacketsToLoseAck(percentage, numOfPackets);
+    setRandomPacketsToFailChecksum(percentage,numOfPackets);
     sort(packetsToDrop.begin(), packetsToDrop.end());
     sort(packetsToLoseAck.begin(), packetsToLoseAck.end());
     sort(packetsToFailChecksum.begin(), packetsToFailChecksum.end());
+}
+
+void setBitsFromFile(string file) {
+    string bits;
+
+    allBits = bits;
 }
 
 int main() {
     Sender senderInstance;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
-    setPacketErrors(10,100);
+    if (selectedErrorType == 2) { // set errors for random percentage
+        setPacketErrors(errorPercentage, numOfPackets);
+    }
     senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, receiverMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, packetsToLoseAck, packetsToFailChecksum, filePath);
     showCurrentConfig(senderInstance);
+
+    // Begin coding here
+
+
     return 0;
 }
