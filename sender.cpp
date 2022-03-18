@@ -423,7 +423,7 @@ void setBitsFromFile(string file) {
     //then convert to binary
 
     fstream input_file;
-    input_file.open ("1M");
+    input_file.open (file);
 
     if(!input_file.is_open()){
         cerr << "could not open file";
@@ -452,6 +452,8 @@ int main() {
     cout << endl;
 
     // Begin coding here
+    numOfPackets = allBits.length()/sizeOfPacket;
 
+    cout << "\nNumber of packets: " << numOfPackets << endl;
     return 0;
 }
