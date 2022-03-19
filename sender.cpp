@@ -11,7 +11,10 @@
 #include <time.h>
 #include <stdlib.h>
 #include <bitset>
+#include <bits/stdc++.h>
+
 using namespace std;
+
 
 class Sender {
 private:
@@ -416,13 +419,113 @@ void setPacketErrors(int percentage, int numOfPackets) {
     sort(packetsToFailChecksum.begin(), packetsToFailChecksum.end());
 }
 
+//addBinary: takes in two strings of binary characters and adds them
+string addBinary (string a, string b){
+
+        if(a.length() > b.length()){
+                return addBinary(b, a);
+        }
+
+        int diff = b.length() - a.length();
+        string padding;
+
+        for (int i = 0; i < diff; i++){
+                padding.push_back('0');
+        }
+
+        a = padding + a;
+        string res;
+        char carry = '0';
+
+        for(int i = a.length() - 1; i >= 0; i--){
+                if(a[i] == '1' && b[i]){
+                        if(carry == '1'){
+                                res.push_back('1');
+                                carry = '1';
+                        }else{
+                                res.push_back('0');
+                                carry = '1';
+                        }
+                }else if (a[i] == '0' && b[i] == '0'){
+                        if(carry == '1'){
+                                res.push_back('1');
+                                carry = '0';
+                        }else{
+                                res.push_back('0');
+                                carry = '0';
+                        }
+                }else if (a[i] != b[i]){
+                        if(carry == '1'){
+                                res.push_back('0');
+				carry = '1';
+                        }else{
+                                res.push_back('1');
+                                carry = '0';
+                        }
+                }
+        }
+
+                if (carry == '1'){
+                        res.push_back(carry);
+                }
+                reverse(res.begin(), res.end());
+
+                return res;
+        }
+
+string checksum(string inPacket){
+        //Takes 16 bits of the data and adds
+	string addition = "";
+        for(int i = 0; i < inPacket.length();i++){
+                if (i % 16 == 0){       //split data into this many bit segments
+                        addition = addBinary(addition, inPacket.substr(i, 16));
+                        i = i + 15;
+                }else if ( (i > inPacket.length() - 16)){
+                        addition = addBinary(addition, inPacket.substr(i, inPacket.length()-i));
+                        i = inPacket.length();
+                }
+        }
+
+        addition = addBinary(addition.substr(0, addition.length()-16), addition.substr(addition.length()-16, addition.length()-1));
+
+
+        return addition;
+}
+
+string compliment(string cksum){
+        string compli = "";
+
+        for (int i = 0; i < cksum.length();i++){
+                if(cksum[i] =='0'){
+                        compli = compli + "1";
+                }else if (cksum[i] == '1'){
+                        compli = compli + "0";
+                }
+        }
+        return compli;
+}
+
+
+
+void setBitsToFile(string bitString){
+ofstream output;
+output.open("OUTPUTFILE");
+
+cout << "\nBITSTRING: " << bitString;
+for (int i = 0; i < bitString.length(); i++){
+	string bitTemp = bitString.substr(i, 8);
+	cout << "\nSubstring: " << bitTemp;
+	bitset<8> temp(bitTemp);
+	output << char(temp.to_ulong());
+	i= i+7;
+}
+output.close();
+}
+
 void setBitsFromFile(string file) {
-    vector<char> bytes;
     char byte = 0;
     string bits="";
-    //just try read into char vector
-    //then convert to binary
-
+    
     fstream input_file;
     input_file.open (file);
 
@@ -434,6 +537,7 @@ void setBitsFromFile(string file) {
             bits += bitset<8>(byte).to_string();
         }
         allBits = bits;
+	setBitsToFile(allBits);
     }
 }
 
@@ -456,5 +560,6 @@ int main() {
     numOfPackets = allBits.length()/sizeOfPacket;
     cout << "\nNumber of packets: " << numOfPackets << endl;
     cout << "All bits: " << allBits << endl;
+    
     return 0;
 }
