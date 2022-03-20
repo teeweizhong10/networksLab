@@ -99,6 +99,8 @@ string allBits;
 string contentToSend;
 int numOfPackets;
 
+vector<string> packets;
+
 int getNumOfPackets(string bits) {
     numOfPackets = 0;
     return numOfPackets;
@@ -437,6 +439,8 @@ void setBitsFromFile(string file) {
     }
 }
 
+
+
 int main() {
     Sender senderInstance;
     senderWelcomeMessage();
@@ -453,8 +457,42 @@ int main() {
     cout << endl;
 
     // Begin coding here
-    numOfPackets = allBits.length()/sizeOfPacket;
+    // Get the amount of packets based on the string length
+    if(allBits.length()%sizeOfPacket > 0) {
+        numOfPackets = allBits.length()/sizeOfPacket + 1;
+    } else {
+        numOfPackets = allBits.length()/sizeOfPacket;
+    }
+
     cout << "\nNumber of packets: " << numOfPackets << endl;
     cout << "All bits: " << allBits << endl;
+
+    // Putting bit strings into packets based on user input size of packets
+    allBits += ""; // Test adding bits
+    remove(allBits.begin(), allBits.end(), ' ');
+    vector<char> bitArray(allBits.begin(), allBits.end());
+    string currentSet = "";
+    int j = 0;
+    bool runOnce = true;
+    for (int i = 0; i < numOfPackets; ++i) {
+        while (j < allBits.length()) {
+            currentSet += bitArray[j];
+            j++;
+            if (j%sizeOfPacket == 0) {
+                cout << "Current set: " << currentSet << endl;
+                currentSet = "";
+            }
+        }
+        if (runOnce) {
+            if (j%numOfPackets > 0){
+                cout << "Current set: " << currentSet << endl;
+            }
+        }
+        runOnce = false;
+    }
+
+
+
+
     return 0;
 }
