@@ -13,7 +13,7 @@ private:
     int packetNum;
     int seqNum;
     string bitContent;
-    string checksumValue; //TODO: check checksum value with Lauren
+    string checksumValue;
     string packetMessage;
 
 public:
