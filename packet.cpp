@@ -14,7 +14,7 @@ packet::packet() {
     packetMessage = "";
 }
 
-packet::packet(int packetNum, int seqNum, string bitContent, int checksumValue) {
+packet::packet(int packetNum, int seqNum, string bitContent, string checksumValue) {
     setPacketNum(packetNum);
     setSeqNum(seqNum);
     setBitContent(bitContent);
@@ -28,7 +28,7 @@ void packet::setPacketMessage() {
     message += "|";
     message += bitContent;
     message += "|";
-    message += std::to_string(checksumValue);
+    message += checksumValue;
     packetMessage = message;
 }
 

@@ -13,12 +13,12 @@ private:
     int packetNum;
     int seqNum;
     string bitContent;
-    int checksumValue; //TODO: check checksum value with Lauren
+    string checksumValue; //TODO: check checksum value with Lauren
     string packetMessage;
 
 public:
     packet();
-    packet(int packetNum, int seqNum, string bitContent, int checksumValue);
+    packet(int packetNum, int seqNum, string bitContent, string checksumValue);
 
     void setPacketNum(int input) {packetNum = input;};
     int getPacketNum() {return packetNum;};
@@ -29,8 +29,8 @@ public:
     void setBitContent (string bitInput) {bitContent = bitInput;};
     string getBitContent() {return bitContent;};
 
-    void setChecksumValue(int input) {checksumValue = input;};
-    int getChecksumValue() {return checksumValue;};
+    void setChecksumValue(string input) {checksumValue = input;};
+    string getChecksumValue() {return checksumValue;};
 
     void setPacketMessage();
     string getPacketMessage() {return packetMessage;};
