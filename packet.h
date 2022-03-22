@@ -33,7 +33,7 @@ public:
     void setChecksumValue(string input) {checksumValue = input;};
     string getChecksumValue() {return checksumValue;};
 
-    void setAckReceived(int input) {ackReceived = input;};
+    void setAckReceived(int input) {ackReceived = input;}; // 0 for not received, 1 for received
     int getAckReceived() {return ackReceived;};
 
     void setPacketMessage();
