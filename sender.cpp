@@ -562,7 +562,7 @@ int main() {
     showCurrentConfig(senderInstance);
     cout << endl;
 
-    allBits += "0101011110101010101011101010110101110101010101011100"; // Test adding bits
+    //allBits += "0101011110101010101011101010110101110101010101011100"; // Test adding bits
 
     // Begin coding here
     // Get the amount of packets based on the string length
