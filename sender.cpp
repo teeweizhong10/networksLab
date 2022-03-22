@@ -474,25 +474,25 @@ string addBinary (string a, string b){
                 return res;
         }
 
+
+//TODO: ask Lauren about checksum errors
 string checksum(string inPacket){
-        //Takes 16 bits of the data and adds
+    //Takes 16 bits of the data and adds
 	string addition = "";
-        for(int i = 0; i < inPacket.length();i++){
-                if (i % 16 == 0){       //split data into this many bit segments
-                        addition = addBinary(addition, inPacket.substr(i, 16));
-                        i = i + 15;
-                }else if ( (i > inPacket.length() - 16)){
-                        addition = addBinary(addition, inPacket.substr(i, inPacket.length()-i));
-                        i = inPacket.length();
-                }
+    for(int i = 0; i < inPacket.length();i++){
+        if (i % 16 == 0) { //split data into this many bit segments
+            addition = addBinary(addition, inPacket.substr(i, 16));
+            i = i + 15;
+        } else if ((i > inPacket.length() - 16)){
+            addition = addBinary(addition, inPacket.substr(i, inPacket.length()-i));
+            i = inPacket.length();
         }
-
-        addition = addBinary(addition.substr(0, addition.length()-16), addition.substr(addition.length()-16, addition.length()-1));
-
-
-        return addition;
+    }
+    addition = addBinary(addition.substr(0, addition.length()-16), addition.substr(addition.length()-16, addition.length()-1));
+    return addition;
 }
 
+//TODO: ask Lauren if we need to keep this
 string compliment(string cksum){
         string compli = "";
 
@@ -560,7 +560,7 @@ int main() {
     showCurrentConfig(senderInstance);
     cout << endl;
 
-    allBits += "010101111010101010101110101101000011100101101010111001010000101010110101110101010101011100"; // Test adding bits
+    //allBits += "010101111010101010101110101101000011100101101010111001010000101010110101110101010101011100"; // Test adding bits
 
     // Begin coding here
     // Get the amount of packets based on the string length
@@ -572,6 +572,11 @@ int main() {
 
     cout << "\nNumber of packets: " << numOfPackets << endl;
     cout << "All bits: " << allBits << endl;
+
+
+    // TODO: Test checksum code
+    string testChecksum = checksum("0");
+    cout << testChecksum;
 
     // Putting bit strings into packets based on user input size of packets
     remove(allBits.begin(), allBits.end(), ' ');
