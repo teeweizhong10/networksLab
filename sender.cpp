@@ -523,6 +523,11 @@ void setBitsFromFile(string file) {
     }
 }
 
+bool receivedPacket(packet packetReceived) { //testing for receiver instance
+
+    return false;
+}
+
 void stopAndWait() {
     int sentPackets = 0;
     string receivingStatus = "";
