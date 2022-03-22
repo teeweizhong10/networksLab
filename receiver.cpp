@@ -283,6 +283,69 @@ string checksum(string inPacket){
         return addition;
 }
 
+void parseReceivingPacket(string input) {
+    cout << "\nReceived packet: " << input << endl;
+
+    int len = input.length();
+    char lineChars[len + 1];
+    strcpy(lineChars, input.c_str());
+    int itemCount = 0;
+
+    string item = "";
+    int packetNum = 0;
+    int seqNum = 0;
+    string bitContent = "";
+    string checksumVal = "";
+
+    for (int i = 0; i < len; ++i) {
+        //cout << lineChars [i] << endl;
+        if(itemCount == 0) {
+            if(lineChars[i] != '|') { // packet number
+                item += lineChars[i];
+            } else {
+                itemCount = 1;
+                i++;
+                packetNum = stoi(item);
+                item = "";
+            }
+        }
+
+        if(itemCount == 1) {
+            if(lineChars[i] != '|') { // seq number
+                item += lineChars[i];
+            } else {
+                itemCount = 2;
+                i++;
+                seqNum = stoi(item);
+                item = "";
+            }
+        }
+
+        if(itemCount == 2) { // bit content
+            if(lineChars[i] != '|') {
+                bitContent += lineChars[i];
+            } else {
+                itemCount = 3;
+                i++;
+            }
+        }
+
+        if(itemCount == 3) { // checksum value
+            if(lineChars[i] != '|') {
+                checksumVal += lineChars[i];
+            } else {
+                itemCount = 4;
+                i++;
+            }
+        }
+    }
+    cout << "Packet number: " << packetNum << endl;
+    cout << "Sequence number: " << seqNum << endl;
+    cout << "Bit Content: " << bitContent << endl;
+    cout << "Checksum value: " << checksumVal << endl;
+}
+
+
 int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();
@@ -292,5 +355,7 @@ int main() {
     cout << selectedAlgorithm;
     receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck);
     showCurrentConfig(receiverInstance);
+
+    parseReceivingPacket("2|23|0101010101000|010100"); //Test with dummy packet
     return 0;
 }
