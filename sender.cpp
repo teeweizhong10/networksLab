@@ -586,6 +586,8 @@ int main() {
     bool runOnce = true;
     int packetCounter = 0;
     int seqNumCounter = 0;
+
+    //TODO: Add checksum code to the packet instantiation
     for (int i = 0; i < numOfPackets; ++i) {
         while (j < allBits.length()) {
             currentSet += bitArray[j];
