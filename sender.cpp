@@ -424,73 +424,43 @@ void setPacketErrors(int percentage, int numOfPackets) {
 
 //addBinary: takes in two strings of binary characters and adds them
 string addBinary (string a, string b){
+string result = "";
+int temp = 0;
+int size_a = a.size() - 1;
+int size_b = b.size() - 1;
 
-        if(a.length() > b.length()){
-                return addBinary(b, a);
-        }
+while(size_a >= 0 || size_b >= 0 || temp ==1){
+temp += ((size_a >= 0)? a[size_a] - '0': 0);
+      temp += ((size_b >= 0)? b[size_b] - '0': 0);
+      result = char(temp % 2 + '0') + result;
+      temp /= 2;
+      size_a--; size_b--;
+   }
+   return result;
 
-        int diff = b.length() - a.length();
-        string padding;
-
-        for (int i = 0; i < diff; i++){
-                padding.push_back('0');
-        }
-
-        a = padding + a;
-        string res;
-        char carry = '0';
-
-        for(int i = a.length() - 1; i >= 0; i--){
-                if(a[i] == '1' && b[i]){
-                        if(carry == '1'){
-                                res.push_back('1');
-                                carry = '1';
-                        }else{
-                                res.push_back('0');
-                                carry = '1';
-                        }
-                }else if (a[i] == '0' && b[i] == '0'){
-                        if(carry == '1'){
-                                res.push_back('1');
-                                carry = '0';
-                        }else{
-                                res.push_back('0');
-                                carry = '0';
-                        }
-                }else if (a[i] != b[i]){
-                        if(carry == '1'){
-                                res.push_back('0');
-				carry = '1';
-                        }else{
-                                res.push_back('1');
-                                carry = '0';
-                        }
-                }
-        }
-
-                if (carry == '1'){
-                        res.push_back(carry);
-                }
-                reverse(res.begin(), res.end());
-
-                return res;
-        }
+}
 
 
 //TODO: ask Lauren about checksum errors
 string checksum(string inPacket){
     //Takes 16 bits of the data and adds
 	string addition = "";
-    for(int i = 0; i < inPacket.length();i++){
-        if (i % 16 == 0) { //split data into this many bit segments
-            addition = addBinary(addition, inPacket.substr(i, 16));
-            i = i + 15;
-        } else if ((i > inPacket.length() - 16)){
-            addition = addBinary(addition, inPacket.substr(i, inPacket.length()-i));
-            i = inPacket.length();
+    for(signed int i = 1; i <= inPacket.length();i++){
+        if ((i%16 == 0) && (i >= 16)) { //split data into this many bit segments
+            
+		addition = addBinary(addition, inPacket.substr((signed)(i-16),16));
+
+        } else if (i >= (signed)((inPacket.length() - (signed)(inPacket.length()%16)))){
+            addition = addBinary(addition, inPacket.substr(i-1, inPacket.length()-1));
+	    i = inPacket.length();
         }
     }
-    addition = addBinary(addition.substr(0, addition.length()-16), addition.substr(addition.length()-16, addition.length()-1));
+    while ((signed)(addition.length() > 16)){
+    signed int minus16 = addition.length() - 16;
+    signed int minus1 = addition.length() - 1;
+    addition = addBinary(addition.substr(0, minus16), addition.substr(minus16, minus1));
+    }
+
     return addition;
 }
 
@@ -577,8 +547,9 @@ int main() {
 
 
     // TODO: Test checksum code
-    //string testChecksum = checksum("0");
-    //cout << testChecksum;
+    string testChecksum = checksum("1011001110110001110101010101111001100110");
+    cout << "\nCkSUM: " << testChecksum;
+    cout << "\nCompl: " << compliment(testChecksum) << "\n";
 
     // Putting bit strings into packets based on user input size of packets
     remove(allBits.begin(), allBits.end(), ' ');
