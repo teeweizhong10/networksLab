@@ -478,16 +478,22 @@ string compliment(string cksum){
         return compli;
 }
 
+string getChecksumVal(string input) {
+    string com = checksum(input);
+    com = compliment(com);
+    return com;
+}
+
 
 
 void setBitsToFile(string bitString){
 ofstream output;
 output.open("OUTPUTFILE");
 
-cout << "\nBITSTRING: " << bitString;
+//cout << "\nBITSTRING: " << bitString; Test print bit string
 for (int i = 0; i < bitString.length(); i++){
 	string bitTemp = bitString.substr(i, 8);
-	cout << "\nSubstring: " << bitTemp;
+	//cout << "\nSubstring: " << bitTemp;
 	bitset<8> temp(bitTemp);
 	output << char(temp.to_ulong());
 	i= i+7;
@@ -543,11 +549,11 @@ int main() {
     }
 
     cout << "\nNumber of packets: " << numOfPackets << endl;
-    cout << "All bits: " << allBits << endl;
+    //cout << "All bits: " << allBits << endl; Test print all bits
 
 
     // TODO: Test checksum code
-    string testChecksum = checksum("1011001110110001110101010101111001100110");
+    string testChecksum = checksum("000110");
     cout << "\nCkSUM: " << testChecksum;
     cout << "\nCompl: " << compliment(testChecksum) << "\n";
 
@@ -568,7 +574,7 @@ int main() {
             if (j%sizeOfPacket == 0) {
                 //cout << "Current set: " << currentSet << endl;
                 seqNumCounter=(packetCounter)%(seqNumberUpperBound+1);
-                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,"00",0);
+                packet newPacket = packet(packetCounter,seqNumCounter,currentSet, getChecksumVal(currentSet),0);
                 packets.push_back(newPacket);
                 currentSet = "";
                 packetCounter++;
@@ -582,7 +588,7 @@ int main() {
                 } else {
                     seqNumCounter = 0;
                 }
-                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,"00",0);
+                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,getChecksumVal(currentSet),0);
                 packets.push_back(newPacket);
             }
         }
@@ -590,8 +596,10 @@ int main() {
     }
 
     // Test print all packet objects getMessage()
-    for (int i = 0; i < packets.size(); ++i) {
-        cout << packets[i].getPacketMessage() << endl;
-    }
+//    for (int i = 0; i < packets.size(); ++i) {
+//        cout << packets[i].getPacketMessage() << endl; Test print all packets
+//    }
+
+    cout << packets[5000].getPacketMessage() << endl;
     return 0;
 }
