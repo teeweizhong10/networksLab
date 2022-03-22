@@ -11,6 +11,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <bitset>
+#include <algorithm>
 #include "packet.h"
 //#include <bits/stdc++.h>
 
@@ -580,6 +581,7 @@ int main() {
     //cout << testChecksum;
 
     // Putting bit strings into packets based on user input size of packets
+    remove(allBits.begin(), allBits.end(), ' ');
     vector<char> bitArray(allBits.begin(), allBits.end());
     string currentSet = "";
     int j = 0;
