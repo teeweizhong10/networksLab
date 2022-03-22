@@ -574,7 +574,7 @@ int main() {
             if (j%sizeOfPacket == 0) {
                 //cout << "Current set: " << currentSet << endl;
                 seqNumCounter=(packetCounter)%(seqNumberUpperBound+1);
-                packet newPacket = packet(packetCounter,seqNumCounter,currentSet, getChecksumVal(currentSet),0);
+                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,getChecksumVal(currentSet),0);
                 packets.push_back(newPacket);
                 currentSet = "";
                 packetCounter++;

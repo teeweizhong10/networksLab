@@ -41,3 +41,7 @@ void packet::setPacketMessage() {
     packetMessage = message;
 }
 
+void packet::corruptBitContent() {
+    //TODO: toggle a bit in bitContent
+}
+

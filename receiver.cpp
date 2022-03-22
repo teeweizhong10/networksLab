@@ -66,6 +66,9 @@ vector<int> packetsToLoseAck; //empty if none
 vector<int> packetsToFailChecksum; //empty if none
 string filePath;
 
+int currentSeqNum;
+int currentPacketNum;
+
 void receiverWelcomeMessage() {
     cout << "Creating instance for: receiver." << endl;
 }
@@ -114,7 +117,7 @@ void getNetworkConfigFrom(string fileName) {
     }
 }
 
-void parseFromString(string input) {
+void parseConfigFromString(string input) {
     cout << "Current input: " << endl;
     istringstream f(input);
     string line;
@@ -129,7 +132,7 @@ void parseFromString(string input) {
         } else if (itemCount == 2) {
             sizeOfPacket = stoi(line);
         } else if (itemCount == 3) { // seq num lower bound
-            seqNumberLowerBound = stoi(line);
+             = stoi(line);
         } else if (itemCount == 4) { //seq num upper bound
             seqNumberUpperBound = stoi(line);
         } else if (itemCount == 5) { // error type
@@ -266,11 +269,6 @@ for (int i = 0; i < bitString.length(); i++){
 output.close();
 }
 
-
-
-
-
-
 void parseReceivingPacket(string input) {
     cout << "\nReceived packet: " << input << endl;
 
@@ -350,6 +348,7 @@ void parseReceivingPacket(string input) {
 int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();
+    //receive config by sockets
     string test = "3\n1\n64000\n1\n100\n2\n4,5,6,64,99,";
     parseFromString(test);
     //getNetworkConfigFrom("config.txt");
@@ -360,3 +359,12 @@ int main() {
     parseReceivingPacket("2|23|0101010101000|010100|0"); //Test with dummy packet
     return 0;
 }
+
+/*
+ * Lauren TODO:
+ * 1. Make sure file split by the desired user input and all packets are sent over the sockets and add a corrupt function in packet class for sender to call before sending
+ * 2. File is reconstructed on the other end and md5sums are equal
+ * 3. Make sure packets split properly
+ * 4. Come up with system on sender to show when all packets are done (sendPackets == numOfPackets)
+ * 5. Receiver gets a message to signify that all packets have been received (incoming == "alldone")
+ */
