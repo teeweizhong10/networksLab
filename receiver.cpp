@@ -8,6 +8,7 @@
 #include <cstring>
 #include <stdio.h>
 #include <sstream>
+#include <algorithm>
 #include <bitset>
 //#include <bits/stdc++.h>
 
