@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <bitset>
 #include "packet.h"
+
 using namespace std;
 
 class Sender {
@@ -419,6 +420,109 @@ void setPacketErrors(int percentage, int numOfPackets) {
     sort(packetsToFailChecksum.begin(), packetsToFailChecksum.end());
 }
 
+//addBinary: takes in two strings of binary characters and adds them
+string addBinary (string a, string b){
+
+        if(a.length() > b.length()){
+                return addBinary(b, a);
+        }
+
+        int diff = b.length() - a.length();
+        string padding;
+
+        for (int i = 0; i < diff; i++){
+                padding.push_back('0');
+        }
+
+        a = padding + a;
+        string res;
+        char carry = '0';
+
+        for(int i = a.length() - 1; i >= 0; i--){
+                if(a[i] == '1' && b[i]){
+                        if(carry == '1'){
+                                res.push_back('1');
+                                carry = '1';
+                        }else{
+                                res.push_back('0');
+                                carry = '1';
+                        }
+                }else if (a[i] == '0' && b[i] == '0'){
+                        if(carry == '1'){
+                                res.push_back('1');
+                                carry = '0';
+                        }else{
+                                res.push_back('0');
+                                carry = '0';
+                        }
+                }else if (a[i] != b[i]){
+                        if(carry == '1'){
+                                res.push_back('0');
+				carry = '1';
+                        }else{
+                                res.push_back('1');
+                                carry = '0';
+                        }
+                }
+        }
+
+                if (carry == '1'){
+                        res.push_back(carry);
+                }
+                reverse(res.begin(), res.end());
+
+                return res;
+        }
+
+
+//TODO: ask Lauren about checksum errors
+string checksum(string inPacket){
+    //Takes 16 bits of the data and adds
+	string addition = "";
+    for(int i = 0; i < inPacket.length();i++){
+        if (i % 16 == 0) { //split data into this many bit segments
+            addition = addBinary(addition, inPacket.substr(i, 16));
+            i = i + 15;
+        } else if ((i > inPacket.length() - 16)){
+            addition = addBinary(addition, inPacket.substr(i, inPacket.length()-i));
+            i = inPacket.length();
+        }
+    }
+    addition = addBinary(addition.substr(0, addition.length()-16), addition.substr(addition.length()-16, addition.length()-1));
+    return addition;
+}
+
+//TODO: ask Lauren if we need to keep this
+string compliment(string cksum){
+        string compli = "";
+
+        for (int i = 0; i < cksum.length();i++){
+                if(cksum[i] =='0'){
+                        compli = compli + "1";
+                }else if (cksum[i] == '1'){
+                        compli = compli + "0";
+                }
+        }
+        return compli;
+}
+
+
+
+void setBitsToFile(string bitString){
+ofstream output;
+output.open("OUTPUTFILE");
+
+cout << "\nBITSTRING: " << bitString;
+for (int i = 0; i < bitString.length(); i++){
+	string bitTemp = bitString.substr(i, 8);
+	cout << "\nSubstring: " << bitTemp;
+	bitset<8> temp(bitTemp);
+	output << char(temp.to_ulong());
+	i= i+7;
+}
+output.close();
+}
+
 void setBitsFromFile(string file) {
     vector<char> bytes;
     char byte = 0;
@@ -437,10 +541,9 @@ void setBitsFromFile(string file) {
             bits += bitset<8>(byte).to_string();
         }
         allBits = bits;
+	setBitsToFile(allBits);
     }
 }
-
-
 
 int main() {
     Sender senderInstance;
@@ -457,7 +560,7 @@ int main() {
     showCurrentConfig(senderInstance);
     cout << endl;
 
-    allBits += "010101111010101010101110101101000011100101101010111001010000101010110101110101010101011100"; // Test adding bits
+    //allBits += "010101111010101010101110101101000011100101101010111001010000101010110101110101010101011100"; // Test adding bits
 
     // Begin coding here
     // Get the amount of packets based on the string length
@@ -470,6 +573,11 @@ int main() {
     cout << "\nNumber of packets: " << numOfPackets << endl;
     cout << "All bits: " << allBits << endl;
 
+
+    // TODO: Test checksum code
+    string testChecksum = checksum("0");
+    cout << testChecksum;
+
     // Putting bit strings into packets based on user input size of packets
     remove(allBits.begin(), allBits.end(), ' ');
     vector<char> bitArray(allBits.begin(), allBits.end());
@@ -478,6 +586,8 @@ int main() {
     bool runOnce = true;
     int packetCounter = 0;
     int seqNumCounter = 0;
+
+    //TODO: Add checksum code to the packet instantiation
     for (int i = 0; i < numOfPackets; ++i) {
         while (j < allBits.length()) {
             currentSet += bitArray[j];
