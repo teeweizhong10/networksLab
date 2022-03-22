@@ -560,7 +560,7 @@ int main() {
     showCurrentConfig(senderInstance);
     cout << endl;
 
-    //allBits += "010101111010101010101110101101000011100101101010111001010000101010110101110101010101011100"; // Test adding bits
+    //allBits += "0101011110101010101011101010110101110101010101011100"; // Test adding bits
 
     // Begin coding here
     // Get the amount of packets based on the string length
@@ -575,8 +575,8 @@ int main() {
 
 
     // TODO: Test checksum code
-    string testChecksum = checksum("0");
-    cout << testChecksum;
+    //string testChecksum = checksum("0");
+    //cout << testChecksum;
 
     // Putting bit strings into packets based on user input size of packets
     remove(allBits.begin(), allBits.end(), ' ');
