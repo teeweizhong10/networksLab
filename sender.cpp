@@ -457,7 +457,7 @@ int main() {
     showCurrentConfig(senderInstance);
     cout << endl;
 
-    allBits += "0101011110101010101011101011010000111001011010101110010100001010101101011100"; // Test adding bits
+    allBits += "010101111010101010101110101101000011100101101010111001010000101010110101110101010101011100"; // Test adding bits
 
     // Begin coding here
     // Get the amount of packets based on the string length
@@ -484,7 +484,8 @@ int main() {
             j++;
             if (j%sizeOfPacket == 0) {
                 //cout << "Current set: " << currentSet << endl;
-                packet newPacket = packet(packetCounter,1,currentSet,"00");
+                seqNumCounter=(packetCounter)%(seqNumberUpperBound+1);
+                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,"00");
                 packets.push_back(newPacket);
                 currentSet = "";
                 packetCounter++;
@@ -493,7 +494,12 @@ int main() {
         if (runOnce) {
             if (j%numOfPackets > 0){
                 //cout << "Current set: " << currentSet << endl;
-                packet newPacket = packet(packetCounter,1,currentSet,"00");
+                if(seqNumCounter%seqNumberUpperBound != 0) {
+                    seqNumCounter++;
+                } else {
+                    seqNumCounter = 0;
+                }
+                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,"00");
                 packets.push_back(newPacket);
             }
         }
