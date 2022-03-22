@@ -523,6 +523,69 @@ void setBitsFromFile(string file) {
     }
 }
 
+void stopAndWait() {
+    int sentPackets = 0;
+    string receivingStatus = "";
+
+    int packetSent = 0;
+    int packetReceived = 0;
+    int goodPacket = 0;
+    int sendAck = 1;
+    int ackSent = 0;
+    int ackRecieved = 0;
+
+    // Stop and Wait for sender
+
+    //TODO:
+    /*
+     * Research into using wait and timing functions and tracking time taken to send packets and receive ack
+     * Generating network speed in Mbps
+     */
+
+
+    //send config and get ping
+    int ping;
+    int waitTime = 0;
+    if (staticOrDynamic == 0) {
+        waitTime = staticSeconds;
+    } else {
+        waitTime = ping*2*dynamicRoundTripTimeMultiplier;
+    }
+
+    while (sentPackets != numOfPackets) { // Sender
+        // packet sent to receiver
+        packetSent = 1;
+
+        //packet received by receivers
+        packetReceived = 1;
+        if(packetReceived == 1) { // packet is received
+            goodPacket = 1;
+            if(goodPacket == 1) { // not corrupted
+                if(sendAck != 0) { // if ack not to be lost
+                    ackSent = 1; // send ack
+                }
+            }
+        }
+
+        // packet's ack received by sender
+        ackRecieved = 1;
+        if (ackRecieved == 1) {
+            sentPackets++;
+        } else {  //ack not received (packed has been dropped, corrupted or lost ack, error handling)
+
+            // reset testing params
+            packetSent = 0;
+            packetReceived = 0;
+            goodPacket = 0;
+            sendAck = 0;
+            ackSent = 0;
+            ackRecieved = 0;
+        }
+    }
+    cout << "Done doing stop and wait." << endl;
+
+}
+
 int main() {
     Sender senderInstance;
     senderWelcomeMessage();
@@ -601,5 +664,9 @@ int main() {
     //TODO: send packets here
     // Send packets here
     // Corrupt packets use compliment()
+    stopAndWait();
+
     return 0;
 }
+
+
