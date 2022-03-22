@@ -104,11 +104,11 @@ void inputManager::getInput() {
     allInput.push_back("\n");
 
     // seqNum Lower Bound
-    cout << endl << "Choose the lower bound of the sequence numbers: " << endl;
-    cout << "Input: ";
-    cin >> input;
-    cout << "You chose: " << input << endl;
-    allInput.push_back(std::to_string(input)); // Set lower bouond to user input
+//    cout << endl << "Choose the lower bound of the sequence numbers: " << endl;
+//    cout << "Input: ";
+//    cin >> input;
+//    cout << "You chose: " << input << endl;
+    allInput.push_back(std::to_string(0)); // Set lower bound to user input
     allInput.push_back("\n");
 
     // Static or dynamic
