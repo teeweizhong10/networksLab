@@ -19,6 +19,11 @@ packet::packet(int packetNum, int seqNum, string bitContent, string checksumValu
     setSeqNum(seqNum);
     setBitContent(bitContent);
     setChecksumValue(checksumValue);
+    setPacketMessage();
+//    this->packetNum = packetNum;
+//    this->seqNum = seqNum;
+//    this->bitContent = bitContent;
+//    this->checksumValue = checksumValue;
 }
 
 void packet::setPacketMessage() {

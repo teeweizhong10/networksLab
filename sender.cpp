@@ -11,6 +11,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <bitset>
+#include "packet.h"
 using namespace std;
 
 class Sender {
@@ -99,7 +100,7 @@ string allBits;
 string contentToSend;
 int numOfPackets;
 
-vector<string> packets;
+vector<packet> packets;
 
 int getNumOfPackets(string bits) {
     numOfPackets = 0;
@@ -456,6 +457,8 @@ int main() {
     showCurrentConfig(senderInstance);
     cout << endl;
 
+    allBits += "0101011110101010101011101011010000111001011010101110010100001010101101011100"; // Test adding bits
+
     // Begin coding here
     // Get the amount of packets based on the string length
     if(allBits.length()%sizeOfPacket > 0) {
@@ -468,31 +471,38 @@ int main() {
     cout << "All bits: " << allBits << endl;
 
     // Putting bit strings into packets based on user input size of packets
-    allBits += ""; // Test adding bits
     remove(allBits.begin(), allBits.end(), ' ');
     vector<char> bitArray(allBits.begin(), allBits.end());
     string currentSet = "";
     int j = 0;
     bool runOnce = true;
+    int packetCounter = 0;
+    int seqNumCounter = 0;
     for (int i = 0; i < numOfPackets; ++i) {
         while (j < allBits.length()) {
             currentSet += bitArray[j];
             j++;
             if (j%sizeOfPacket == 0) {
-                cout << "Current set: " << currentSet << endl;
+                //cout << "Current set: " << currentSet << endl;
+                packet newPacket = packet(packetCounter,1,currentSet,"00");
+                packets.push_back(newPacket);
                 currentSet = "";
+                packetCounter++;
             }
         }
         if (runOnce) {
             if (j%numOfPackets > 0){
-                cout << "Current set: " << currentSet << endl;
+                //cout << "Current set: " << currentSet << endl;
+                packet newPacket = packet(packetCounter,1,currentSet,"00");
+                packets.push_back(newPacket);
             }
         }
         runOnce = false;
     }
 
-
-
-
+    // Test print all packet objects getMessage()
+    for (int i = 0; i < packets.size(); ++i) {
+        cout << packets[i].getPacketMessage() << endl;
+    }
     return 0;
 }
