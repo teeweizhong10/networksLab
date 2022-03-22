@@ -132,7 +132,7 @@ void parseConfigFromString(string input) {
         } else if (itemCount == 2) {
             sizeOfPacket = stoi(line);
         } else if (itemCount == 3) { // seq num lower bound
-             = stoi(line);
+             seqNumberLowerBound = stoi(line);
         } else if (itemCount == 4) { //seq num upper bound
             seqNumberUpperBound = stoi(line);
         } else if (itemCount == 5) { // error type
@@ -349,19 +349,20 @@ int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();
     //receive config by sockets
-    string test = "3\n1\n64000\n1\n100\n2\n4,5,6,64,99,";
-    parseFromString(test);
+    string test = "3\n1\n64000\n0\n100\n2\n4,5,6,64,99,";
+    parseConfigFromString(test);
     //getNetworkConfigFrom("config.txt");
     cout << selectedAlgorithm;
     receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck);
     showCurrentConfig(receiverInstance);
 
+    // TODO: receive packets here
     parseReceivingPacket("2|23|0101010101000|010100|0"); //Test with dummy packet
     return 0;
 }
 
 /*
- * Lauren TODO:
+ * Lauren TODO: (within branch off main)
  * 1. Make sure file split by the desired user input and all packets are sent over the sockets and add a corrupt function in packet class for sender to call before sending
  * 2. File is reconstructed on the other end and md5sums are equal
  * 3. Make sure packets split properly

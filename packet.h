@@ -38,8 +38,6 @@ public:
 
     void setPacketMessage();
     string getPacketMessage() {return packetMessage;};
-
-    void corruptBitContent();
 };
 
 /* Plan for packet structure that will be sent
