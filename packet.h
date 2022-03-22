@@ -14,11 +14,12 @@ private:
     int seqNum;
     string bitContent;
     string checksumValue;
+    int ackReceived;
     string packetMessage;
 
 public:
     packet();
-    packet(int packetNum, int seqNum, string bitContent, string checksumValue);
+    packet(int packetNum, int seqNum, string bitContent, string checksumValue, int ackReceived);
 
     void setPacketNum(int input) {packetNum = input;};
     int getPacketNum() {return packetNum;};
@@ -32,13 +33,16 @@ public:
     void setChecksumValue(string input) {checksumValue = input;};
     string getChecksumValue() {return checksumValue;};
 
+    void setAckReceived(int input) {ackReceived = input;};
+    int getAckReceived() {return ackReceived;};
+
     void setPacketMessage();
     string getPacketMessage() {return packetMessage;};
 };
 
 /* Plan for packet structure that will be sent
- * Packet message: "packetNum|seqNum|bitContent|checksumVal"
- * "2|23|0101010101000|010100"
+ * Packet message: "packetNum|seqNum|bitContent|checksumVal|ackReceived"
+ * "2|23|0101010101000|010100|0"
  * */
 
 #endif //NETWORKSLAB_PACKET_H

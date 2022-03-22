@@ -568,7 +568,7 @@ int main() {
             if (j%sizeOfPacket == 0) {
                 //cout << "Current set: " << currentSet << endl;
                 seqNumCounter=(packetCounter)%(seqNumberUpperBound+1);
-                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,"00");
+                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,"00",0);
                 packets.push_back(newPacket);
                 currentSet = "";
                 packetCounter++;
@@ -582,7 +582,7 @@ int main() {
                 } else {
                     seqNumCounter = 0;
                 }
-                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,"00");
+                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,"00",0);
                 packets.push_back(newPacket);
             }
         }

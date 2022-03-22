@@ -284,6 +284,7 @@ void parseReceivingPacket(string input) {
     int seqNum = 0;
     string bitContent = "";
     string checksumVal = "";
+    int ackReceived = 0;
 
     for (int i = 0; i < len; ++i) {
         //cout << lineChars [i] << endl;
@@ -326,11 +327,23 @@ void parseReceivingPacket(string input) {
                 i++;
             }
         }
+
+        if(itemCount == 4) {
+            if(lineChars[i] != '|') { // ack received
+                item += lineChars[i];
+            } else {
+                itemCount = 2;
+                i++;
+                ackReceived = stoi(item);
+                item = "";
+            }
+        }
     }
     cout << "Packet number: " << packetNum << endl;
     cout << "Sequence number: " << seqNum << endl;
     cout << "Bit Content: " << bitContent << endl;
     cout << "Checksum value: " << checksumVal << endl;
+    cout << "Ack received value: " << ackReceived << endl;
 }
 
 
@@ -344,6 +357,6 @@ int main() {
     receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck);
     showCurrentConfig(receiverInstance);
 
-    parseReceivingPacket("2|23|0101010101000|010100"); //Test with dummy packet
+    parseReceivingPacket("2|23|0101010101000|010100|0"); //Test with dummy packet
     return 0;
 }
