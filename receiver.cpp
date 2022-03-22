@@ -244,7 +244,7 @@ bool passesChecksum(string inPacket, string compliment){
     addition = addBinary(addition.substr(0, minus16), addition.substr(minus16, minus1));
     }
 
-    if(addBinary(addition, compliment)==0){
+    if(addBinary(addition, compliment)== "0"){
 	    return true;
     }else{
 	    return false;
