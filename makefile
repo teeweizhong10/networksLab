@@ -2,6 +2,11 @@ CC = g++
 CFLAGS = -Wall -g #debug flag
 #CFLAGS = -Wall
 
+receiver: receiver.o packet.o
+	$(CC) $(CFLAGS) -o receiver receiver.o packet.o -lboost_system -lpthread
+
+sender: sender.o packet.o
+	$(CC) $(CFLAGS) -o sender sender.o packet.o -lboost_system -lpthread
 
 network: main.o errorHandler.o inputManager.o sender.o receiver.o packet.o
 	$(CC) $(CFLAGS) -o network main.o errorHandler.o inputManager.o packet.o
@@ -29,4 +34,6 @@ clean:
 	rm -f *.out
 	rm -f *.gch
 	rm -f *~
-	rm -f test
+	rm -f network
+	rm -f sender
+	rm -f receiver
