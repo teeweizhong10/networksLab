@@ -12,16 +12,18 @@
 #include <stdlib.h>
 #include <bitset>
 #include <algorithm>
-//#include <chrono>
-//#include <thread>
+#include <chrono>
+#include <thread>
 #include <unistd.h>
-#include <ctime>
 #include "packet.h"
 //#include <bits/stdc++.h>
 
 using namespace std;
-//using namespace std::this_thread;     // sleep_for, sleep_until
-using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
+using Clock = std::chrono::steady_clock;
+using std::chrono::time_point;
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using std::this_thread::sleep_for;
 
 class Sender {
 private:
@@ -110,6 +112,9 @@ string contentToSend;
 int numOfPackets;
 
 vector<packet> packets;
+time_point<Clock> start;
+milliseconds latency;
+milliseconds waitTime = milliseconds(0);
 
 int getNumOfPackets(string bits) {
     numOfPackets = 0;
@@ -446,8 +451,6 @@ temp += ((size_a >= 0)? a[size_a] - '0': 0);
 
 }
 
-
-//TODO: ask Lauren about checksum errors
 string checksum(string inPacket){
     //Takes 16 bits of the data and adds
 	string addition = "";
@@ -470,7 +473,6 @@ string checksum(string inPacket){
     return addition;
 }
 
-//TODO: ask Lauren if we need to keep this
 string compliment(string cksum){
         string compli = "";
 
@@ -489,8 +491,6 @@ string getChecksumVal(string input) {
     com = compliment(com);
     return com;
 }
-
-
 
 void setBitsToFile(string bitString){
 ofstream output;
@@ -529,6 +529,44 @@ void setBitsFromFile(string file) {
     }
 }
 
+// Testing simulation functions
+void sendConfig(string configMessage) {}
+
+bool simulateSendAck(bool sendStatus) { //send a fake ack
+    return sendStatus;
+}
+
+bool timedOut(milliseconds currentTime) {
+    if(currentTime.count() > waitTime.count()) {
+        return true;
+    }
+    return false;
+}
+
+void senderGetTimeout() { //determining how long set wait time (dynamic wait time)
+    bool ackReceived;
+    //Send config over socket
+    start = Clock::now();
+    sendConfig(contentToSend);
+
+    // Receive ack
+    sleep_for(milliseconds(20)); // Simulate time taken for packets to send
+    ackReceived = simulateSendAck(true);
+    time_point<Clock> end = Clock::now();
+    milliseconds diff = duration_cast<milliseconds>(end - start);
+    latency = diff;
+    //dynamic
+    waitTime = latency*10;
+    cout << "Latency for one round trip: " << latency.count() << "ms" << std::endl;
+}
+
+void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wait
+
+}
+
+bool receiverStopAndWait() { //simulating receiver sending back an ack for stop and wait
+
+}
 
 /*
  * similarly, the receiver will have a similar structure,
@@ -614,8 +652,8 @@ int main() {
     //TODO: send packets here
     // Send packets here
     // Corrupt packets use compliment()
-    stopAndWait();
 
+    senderGetTimeout();
     return 0;
 }
 
