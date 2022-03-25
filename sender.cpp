@@ -531,16 +531,17 @@ void setBitsFromFile(string file) {
 
 // Testing simulation functions
 void sendConfig(string configMessage) {}
+void sendPacket(string packetMessage) {}
 
 bool simulateSendAck(bool sendStatus) { //send a fake ack
     return sendStatus;
 }
 
-bool timedOut(milliseconds currentTime) {
+bool notTimedOut(milliseconds currentTime) {
     if(currentTime.count() > waitTime.count()) {
-        return true;
+        return false;
     }
-    return false;
+    return true;
 }
 
 void senderGetTimeout() { //determining how long set wait time (dynamic wait time)
@@ -551,17 +552,38 @@ void senderGetTimeout() { //determining how long set wait time (dynamic wait tim
 
     // Receive ack
     sleep_for(milliseconds(20)); // Simulate time taken for packets to send
-    ackReceived = simulateSendAck(true);
+    ackReceived = simulateSendAck(true); // socket code: if error try again
     time_point<Clock> end = Clock::now();
     milliseconds diff = duration_cast<milliseconds>(end - start);
     latency = diff;
-    //dynamic
-    waitTime = latency*10;
     cout << "Latency for one round trip: " << latency.count() << "ms" << std::endl;
+    if (staticOrDynamic == 0) {
+        waitTime = milliseconds(staticSeconds);
+        cout << "Wait time mode: static, wait time is " << waitTime.count() << "ms" << endl;
+    } else {
+        waitTime = (latency.count()*milliseconds(dynamicRoundTripTimeMultiplier));
+        cout << "Wait time mode: dynamic, wait time is " << waitTime.count() << "ms" << endl;
+    }
+
 }
 
 void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wait
+    bool receivedAck;
+    for (int i = 0; i < packets.size(); ++i) {
+        time_point<Clock> timeoutStart = Clock::now();
+        milliseconds currentTimeCount = duration_cast<milliseconds>(milliseconds (0)- milliseconds(0));
+        while (notTimedOut(currentTimeCount)) {
+            sendPacket(packets[i].getPacketMessage());
+            time_point<Clock> timeoutend = Clock::now();
+            if(packetsToDrop[0] == i) {
+                packetsToDrop.erase(packetsToDrop.begin());
+                sleep_for(milliseconds(250));
+                cout << "Packet " << i << " timed out" << endl;
+            }
+            currentTimeCount = duration_cast<milliseconds>(timeoutend - start);
+        }
 
+    }
 }
 
 bool receiverStopAndWait() { //simulating receiver sending back an ack for stop and wait
@@ -601,12 +623,9 @@ int main() {
 
     cout << "\nNumber of packets: " << numOfPackets << endl;
     //cout << "All bits: " << allBits << endl; Test print all bits
-
-
-    // TODO: Test checksum code
-    string testChecksum = checksum("000110");
-    cout << "\nCkSUM: " << testChecksum;
-    cout << "\nCompl: " << compliment(testChecksum) << "\n";
+//    string testChecksum = checksum("000110");
+//    cout << "\nCkSUM: " << testChecksum;
+//    cout << "\nCompl: " << compliment(testChecksum) << "\n";
 
     // Putting bit strings into packets based on user input size of packets
     remove(allBits.begin(), allBits.end(), ' ');
@@ -644,6 +663,8 @@ int main() {
         runOnce = false;
     }
 
+    setPacketErrors(errorPercentage, numOfPackets);
+
     // Test print all packet objects getMessage()
 //    for (int i = 0; i < packets.size(); ++i) {
 //        cout << packets[i].getPacketMessage() << endl; Test print all packets
@@ -653,7 +674,21 @@ int main() {
     // Send packets here
     // Corrupt packets use compliment()
 
+
     senderGetTimeout();
+    start = Clock::now(); // for total elapsed time
+    // add protocol calls
+
+    cout << "\n************ Protocol work ************" << endl;
+    senderStopAndWait(packets);
+    cout << endl;
+
+    time_point<Clock> end = Clock::now();
+    milliseconds totalElapsedTime = duration_cast<milliseconds>(end - start);
+    cout << "Total elapsed time: " << totalElapsedTime.count() << "ms" << std::endl;
+
+
+
     return 0;
 }
 
