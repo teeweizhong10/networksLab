@@ -79,7 +79,7 @@ int packetNumber;
 string bitData;
 int currentSeqNum;
 int currentPacketNum;
-
+string bitDataComp;
 void receiverWelcomeMessage() {
     cout << "Creating instance for: receiver." << endl;
 }
@@ -238,8 +238,20 @@ temp += ((size_a >= 0)? a[size_a] - '0': 0);
 
 }
 
+bool passesChecksum(string originalCksum, string passedCksum){
+	 if(addBinary(originalCksum, passedCksum)== "1111111111111111"){
+            return true;
+    }else{
+            return false;
+    }
+}
+
+
 //TODO: ask Lauren about checksum errors
-bool passesChecksum(string inPacket, string compliment){
+string checksum(string inPacket){
+//	cout << "In Packet: " << inPacket << "\nComp: " << compliment << endl;
+
+
     //Takes 16 bits of the data and adds
         string addition = "";
     for(signed int i = 1; i <= inPacket.length();i++){
@@ -258,11 +270,7 @@ bool passesChecksum(string inPacket, string compliment){
     addition = addBinary(addition.substr(0, minus16), addition.substr(minus16, minus1));
     }
 
-    if(addBinary(addition, compliment)== "0"){
-	    return true;
-    }else{
-	    return false;
-    }
+    return addition;
 }
 //*************************************************************************************************************************
 void setBitsToFile(string bitString){
@@ -353,63 +361,93 @@ void parseReceivingPacket(string input) {
     //cout << "Bit Content: " << bitContent << endl;
     bitData = bitContent;
     //cout << "Checksum value: " << checksumVal << endl;
+    bitDataComp = checksumVal;
     //cout << "Ack received value: " << ackReceived << endl;
 }
 //*************************************************************************************************************************
 
-string read_(tcp::socket & socket) {
+string getData(tcp::socket & socket) {
        boost::asio::streambuf buf;
        boost::asio::read_until( socket, buf, "\n" );
        string data = boost::asio::buffer_cast<const char*>(buf.data());
        return data;
 }
-void send_(tcp::socket & socket, const string& message) {
+void sendData(tcp::socket & socket, const string& message) {
        const string msg = message + "\n";
-       boost::asio::write( socket, boost::asio::buffer(message) );
+       boost::asio::write( socket, boost::asio::buffer(msg) );
 }
+
+void stats(){
+	cout << "Last packet seq# received: ______\nNumber of original packets received: ____\nNumber of retransmitted packets received:_____" << endl;
+}
+
+void GBN(){}
+
+void SR(){}
+
+void SNW(tcp::socket & socket){
+	while(true){
+		string recvPkt = getData(socket);
+                if(recvPkt == "alldone\n"){
+			stats();
+                        break;
+                }
+                parseReceivingPacket(recvPkt);
+//		cout << "Cksum: " << checksum(bitData) << endl;
+//		cout << "Addition: " << addBinary(checksum(bitData), bitDataComp) << endl;		
+		
+		cout << "Packet " << packetNumber << " received"  << endl;
+		if(passesChecksum(checksum(bitData), bitDataComp)){
+			cout << "Checksum OK" << endl;
+			finalBits += bitData;
+                string ack = "ACK " + to_string(packetNumber);
+                sendData(socket, ack);
+                cout << ack << " sent" << endl;
+                cout << "Current window = [" << packetNumber << "]" << endl;
+        }else{
+			cout << "Checksum failed" << endl;
+			cout << "Current window = [" << packetNumber << "]" << endl;
+		}
+	}	
+}
+
+
+
 
 
 void receiverSimulation(){
-	bool end = false;
+	boost::asio::io_service io_service;
 
-	while(!end){
-boost::asio::io_service io_service;
-//listen for new connection
-      tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 1234 ));
-//socket creation
-      tcp::socket socket(io_service);
-//waiting for connection
-      acceptor.accept(socket);
-//read operation
-      string message = read_(socket);
-      if(message != "alldone\n"){
-      parseReceivingPacket(message);
+	boost::asio::ip::tcp::acceptor acceptor(io_service, tcp::endpoint(boost::asio::ip::tcp::v4(), 1234));
+	boost::asio::ip::tcp::socket socket(io_service);
+	acceptor.accept(socket);
 
+	string recv = getData(socket);
+	if(recv == "Begin transaction...\n"){
 
-//different protocols
-	if(selectedAlgorithm==2){
-		//Stop and Wait
-	     cout << "\nPacket " << packetNumber << " received.";
-
-	     finalBits += bitData;
-      //write operation
-	string temp = "ACK" + to_string(packetNumber);
-      		send_(socket, temp);
-      		cout << temp << " sent."  << endl;
-	}if(selectedAlgorithm == 1){}
-	if(selectedAlgorithm == 3){}
-
-      }else{
-		end = true;
-		cout << "Received finish message. Closing out...";
-		socket.close();
+	sendData(socket, "Begin transaction...");
 	}
-}
+//	cout << "Begin alg..." << endl;
 
-}
+		switch(selectedAlgorithm){
+			case 1:{
+				       GBN();
+				       break;
+			       }
+			case 2:{
+				       SNW(socket);
+				       break;
+			       }
+			case 3:{
+				       SR();
+				       break;
+			       }
+		}
 
+	}
 
 //*************************************************************************************************************************
+
 int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();

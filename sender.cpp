@@ -14,6 +14,9 @@
 #include <algorithm>
 #include "packet.h"
 #include <boost/asio.hpp>
+#include <chrono>
+#include <thread>
+
 
 using namespace std;
 using namespace boost::asio;
@@ -22,6 +25,13 @@ using std::string;
 using std::cout;
 using std::endl;
 using std::cin;
+
+using Clock = std::chrono::steady_clock;
+using std::chrono::time_point;
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using namespace std::literals::chrono_literals;
+using std::this_thread::sleep_for;
 
 
 class Sender {
@@ -109,6 +119,8 @@ string filePath;
 string allBits;
 string contentToSend;
 int numOfPackets;
+time_point<Clock> startTimer;
+time_point<Clock> endTimeInSeconds;
 
 vector<packet> packets;
 
@@ -513,72 +525,132 @@ void setBitsFromFile(string file) {
         allBits = bits;
     }
 }
-
 //*************************************************************************************************************************
+void startTotalTimer(){
+        startTimer = Clock::now();
+}
+
+void dropTimer(milliseconds secs){
+    sleep_for(secs*100);
+}
+
+void timeoutTimerStart(){
+}
+
+string endTotalTimer(){
+   endTimeInSeconds = Clock::now();
+    milliseconds difftime = duration_cast<milliseconds>(endTimeInSeconds - startTimer);
+    return to_string(difftime.count());
+}
+//*************************************************************************************************************************
+string getData(tcp::socket& socket){
+	boost::asio::streambuf buf;
+	boost::asio::read_until(socket, buf, "\n");
+	string data =  boost::asio::buffer_cast<const char*>(buf.data());
+	return data;
+}
+
+void sendData(tcp::socket& socket, const string& msg){
+	 boost::asio::write(socket, buffer(msg + "\n"));
+}
+
+void stats(){
+	cout << "Number of original packets sent: _____\nNumber of retransmitted packets:______\nTotal elapsed time:_____\ntotal throughput (Mbps):_______\nEffective throughput:______" << endl;
+}
+
+void whatsInThisVector(vector<int> vec){
+	cout << "\n\n\n";
+	for (int i = 0; i < vec.size(); i++){
+		cout << to_string(vec[i]) <<endl;
+	}
+}
+
 void GBN(){}
-
-void SNW(){
-	//SOCKET
-  //estabilishes service
-        for(int i = 0; i <= packets.size();i++){
-        boost::asio::io_service io_service;
-
-        //creates socket
-        tcp::socket socket(io_service);
-
-        //connects socket to server
-        socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234));
+void SR(){}
+void SNW(tcp::socket& socket){
+	for(int i = 0; i <= packets.size(); i++){
+//		cout << "Comp: " << packets[i].getChecksumValue() << endl;
+		if(i == packets.size()){
+			sendData(socket, "alldone");
+			cout << "Session successfully terminated" << endl;
+			stats();
+			endTotalTimer();
+		}else{
 	
-	if(i==packets.size()){
-         boost::system::error_code error;
-        boost::asio::write(socket, boost::asio::buffer("alldone\n"), error);
-        if(!error){
-                cout<<"Finished message sent." <<endl;
-        }else{
-                cout<<"Send failed"<<endl;
-        }
+			int index;
+			vector<int>::iterator itr;
+			//fails cksum
+			
+//			whatsInThisVector(packetsToFailChecksum);
+			if(count(packetsToFailChecksum.begin(), packetsToFailChecksum.end(), packets[i].getSeqNum())>0){
+				packets[i].setChecksumValue(compliment(checksum(packets[i].getBitContent())));
+				//take out of fail cksum vector
+//				cout << "new Comp: " << packets[i].getChecksumValue();
+				itr  = find(packetsToFailChecksum.begin(), packetsToFailChecksum.end(), packets[i].getSeqNum());
+				if(itr != packetsToFailChecksum.cend()){
+					index = std::distance(packetsToFailChecksum.begin(), itr);
+					cout << "Removing: " << to_string(packetsToFailChecksum[index]) << "at index " << to_string(index) << endl;
+				}
+				
+				
+				packetsToFailChecksum.erase(packetsToFailChecksum.begin() + index - 1);
+			}
+			
+			
+			//to drop
+			if(count(packetsToDrop.begin(), packetsToDrop.end(), packets[i].getPacketNum())>0){
+//			whatsInThisVector(packetsToDrop);
+				//drop packet
+			}
 
-        }else{
-	//	if(count(packetsToFailChecksum.begin(), packetsToFailChecksum.end(), packets[i].getPacketNum())>0){
-	//		packets[i].setBitContent(compliment(packets[i].getBitContent()));
-	//	}if(count(packetsToDrop.begin(), packetsToDrop.end(), packets[i].getPacketNum())>0){
-                        //drop
-        //        }
 
 
-		//HANDLE TIMEOUT
-	
+		sendData(socket, packets[i].getPacketMessage());
+		//timeout start
+		cout << "Packet " << to_string(packets[i].getPacketNum()) << " sent..." << endl;
+		string ack = getData(socket);
+		string temp = "ACK " + to_string(packets[i].getPacketNum()) +  "\n";
 
-
-        ///////////////////////////////////////
-        boost::system::error_code error;
-        boost::asio::write(socket, boost::asio::buffer(packets[i].getPacketMessage() + "\n"), error);
-        if(!error){
-		cout<<"\nPacket " << packets[i].getPacketNum() << " sent.";
-        }else{
-                cout<<"Send failed"<<endl;
-        }
-	
-/////////////////////////////
-        //server response
-        boost::asio::streambuf recv_buf;
-          boost::asio::read(socket, recv_buf, boost::asio::transfer_all(), error);
-
-          if(error && error != boost::asio::error::eof){
-                cout<<"recv failed"<<endl;
-        }else{
-                const char* data = boost::asio::buffer_cast<const char*>(recv_buf.data());
-                string temp = "ACK" + to_string(packets[i].getPacketNum());
-                if(data != temp){
-                        i=i-1;
-                }
-                cout<< data<<endl;
-        }
-        }
-        }
+		if(ack != temp){
+		cout << "Packet " << packets[i].getPacketNum() << " Re-transmitted." << endl;
+			i = i-1;
+			}else{
+			cout << "ACK " << packets[i].getPacketNum() << " received." << endl;
+			cout << "Current Window = [" << packets[i].getPacketNum() << "]"  << endl;
+		}
 	}
 
-	void SR(){}
+}
+
+}
+
+void beginTransaction(){
+	boost::asio::io_service io_service;
+	boost::asio::ip::tcp::socket socket(io_service);
+	socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234));
+	startTotalTimer();
+
+
+	sendData(socket, "Begin transaction...");
+
+	string response = getData(socket);
+	if(response == "Begin transaction...\n"){
+	       switch(selectedAlgorithm){
+		       case 1:{
+		       GBN();
+			break;
+			      }
+		       case 2:{
+			SNW(socket);
+			break;
+			      }
+		       case 3:{
+			SR();
+			break;
+			      }
+	       }
+	}
+}	
 //*************************************************************************************************************************
 int main() {
     Sender senderInstance;
@@ -644,10 +716,7 @@ senderWelcomeMessage();
         }
         runOnce = false;
     }
-/////////
-if(selectedAlgorithm==2){
-	SNW();
-}
+	beginTransaction();
 return 0;
 }
 
