@@ -8,10 +8,19 @@
 #include <cstring>
 #include <stdio.h>
 #include <sstream>
+#include <algorithm>
 #include <bitset>
-#include <bits/stdc++.h>
+#include <boost/asio.hpp>
+
 
 using namespace std;
+using namespace boost::asio;
+using ip::tcp;
+using std::string;
+using std::cout;
+using std::endl;
+using std::cin;
+
 
 class Receiver {
 private:
@@ -53,7 +62,7 @@ public:
     void setFilePath(string input) {filePath = input;};
     string getFilePath() {return filePath;};
 };
-
+//*************************************************************************************************************************
 int selectedAlgorithm;
 int receiverMaxWindowSize;
 int sizeOfPacket;
@@ -64,6 +73,12 @@ int errorPercentage; //0 if none
 vector<int> packetsToLoseAck; //empty if none
 vector<int> packetsToFailChecksum; //empty if none
 string filePath;
+
+string finalBits;
+int packetNumber;
+string bitData;
+int currentSeqNum;
+int currentPacketNum;
 
 void receiverWelcomeMessage() {
     cout << "Creating instance for: receiver." << endl;
@@ -113,7 +128,7 @@ void getNetworkConfigFrom(string fileName) {
     }
 }
 
-void parseFromString(string input) {
+void parseConfigFromString(string input) {
     cout << "Current input: " << endl;
     istringstream f(input);
     string line;
@@ -128,7 +143,7 @@ void parseFromString(string input) {
         } else if (itemCount == 2) {
             sizeOfPacket = stoi(line);
         } else if (itemCount == 3) { // seq num lower bound
-            seqNumberLowerBound = stoi(line);
+             seqNumberLowerBound = stoi(line);
         } else if (itemCount == 4) { //seq num upper bound
             seqNumberUpperBound = stoi(line);
         } else if (itemCount == 5) { // error type
@@ -204,92 +219,208 @@ Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, i
     receiverInstance.setPacketsToLoseAck(packetsToLoseAck);
     return receiverInstance;
 }
-
-
+//*************************************************************************************************************************
 //addBinary: takes in two strings of binary characters and adds them
 string addBinary (string a, string b){
+string result = "";
+int temp = 0;
+int size_a = a.size() - 1;
+int size_b = b.size() - 1;
 
-        if(a.length() > b.length()){
-                return addBinary(b, a);
-        }
+while(size_a >= 0 || size_b >= 0 || temp ==1){
+temp += ((size_a >= 0)? a[size_a] - '0': 0);
+      temp += ((size_b >= 0)? b[size_b] - '0': 0);
+      result = char(temp % 2 + '0') + result;
+      temp /= 2;
+      size_a--; size_b--;
+   }
+   return result;
 
-        int diff = b.length() - a.length();
-        string padding;
-
-        for (int i = 0; i < diff; i++){
-                padding.push_back('0');
-        }
-
-        a = padding + a;
-        string res;
-        char carry = '0';
-
-        for(int i = a.length() - 1; i >= 0; i--){
-                if(a[i] == '1' && b[i]){
-                        if(carry == '1'){
-                                res.push_back('1');
-                                carry = '1';
-                        }else{
-                                res.push_back('0');
-                                carry = '1';
-                        }
-                }else if (a[i] == '0' && b[i] == '0'){
-                        if(carry == '1'){
-                                res.push_back('1');
-                                carry = '0';
-                        }else{
-                                res.push_back('0');
-                                carry = '0';
-                        }
-                }else if (a[i] != b[i]){
-                        if(carry == '1'){
-                                res.push_back('0');
-				carry = '1';
-                        }else{
-                                res.push_back('1');
-                                carry = '0';
-                        }
-                }
-        }
-
-                if (carry == '1'){
-                        res.push_back(carry);
-                }
-                reverse(res.begin(), res.end());
-
-                return res;
-        }
-
-string checksum(string inPacket){
-        string addition = "";
-
-        //Takes 16 bits of the data and adds
-        for(int i = 0; i < inPacket.length();i++){
-                if (i % 16 == 0){       //split data into this many bit segments
-                        addition = addBinary(addition, inPacket.substr(i, 16));
-                        i = i + 15;
-                }else if ( (i > inPacket.length() - 16)){
-                        addition = addBinary(addition, inPacket.substr(i, inPacket.length()-i));
-                        i = inPacket.length();
-
-
-                }
-        }
-
-        addition = addBinary(addition.substr(0, addition.length()-16), addition.substr(addition.length()-16, addition.length()-1));
-
-
-        return addition;
 }
 
+//TODO: ask Lauren about checksum errors
+bool passesChecksum(string inPacket, string compliment){
+    //Takes 16 bits of the data and adds
+        string addition = "";
+    for(signed int i = 1; i <= inPacket.length();i++){
+        if ((i%16 == 0) && (i >= 16)) { //split data into this many bit segments
+
+                addition = addBinary(addition, inPacket.substr((signed)(i-16),16));
+
+        } else if (i >= (signed)((inPacket.length() - (signed)(inPacket.length()%16)))){
+            addition = addBinary(addition, inPacket.substr(i-1, inPacket.length()-1));
+            i = inPacket.length();
+        }
+    }
+    while ((signed)(addition.length() > 16)){
+    signed int minus16 = addition.length() - 16;
+    signed int minus1 = addition.length() - 1;
+    addition = addBinary(addition.substr(0, minus16), addition.substr(minus16, minus1));
+    }
+
+    if(addBinary(addition, compliment)== "0"){
+	    return true;
+    }else{
+	    return false;
+    }
+}
+//*************************************************************************************************************************
+void setBitsToFile(string bitString){
+ofstream output;
+output.open("OUTPUTFILE");
+
+//cout << "\nBITSTRING: " << bitString;
+for (int i = 0; i < bitString.length(); i++){
+        string bitTemp = bitString.substr(i, 8);
+        bitset<8> temp(bitTemp);
+        output << char(temp.to_ulong());
+        i= i+7;
+}
+output.close();
+}
+
+void parseReceivingPacket(string input) {
+  //  cout << "\nReceived packet: " << input << endl;
+
+    int len = input.length();
+    char lineChars[len + 1];
+    strcpy(lineChars, input.c_str());
+    int itemCount = 0;
+
+    string item = "";
+    int packetNum = 0;
+    int seqNum = 0;
+    string bitContent = "";
+    string checksumVal = "";
+    int ackReceived = 0;
+
+    for (int i = 0; i < len; ++i) {
+        //cout << lineChars [i] << endl;
+        if(itemCount == 0) {
+            if(lineChars[i] != '|') { // packet number
+                item += lineChars[i];
+            } else {
+                itemCount = 1;
+                i++;
+                packetNum = stoi(item);
+                item = "";
+            }
+        }
+
+        if(itemCount == 1) {
+            if(lineChars[i] != '|') { // seq number
+                item += lineChars[i];
+            } else {
+                itemCount = 2;
+                i++;
+                seqNum = stoi(item);
+                item = "";
+            }
+        }
+
+        if(itemCount == 2) { // bit content
+            if(lineChars[i] != '|') {
+                bitContent += lineChars[i];
+            } else {
+                itemCount = 3;
+                i++;
+            }
+        }
+
+        if(itemCount == 3) { // checksum value
+            if(lineChars[i] != '|') {
+                checksumVal += lineChars[i];
+            } else {
+                itemCount = 4;
+                i++;
+            }
+        }
+
+        if(itemCount == 4) {
+            if(lineChars[i] != '|') { // ack received
+                item += lineChars[i];
+            } else {
+                itemCount = 2;
+                i++;
+                ackReceived = stoi(item);
+                item = "";
+            }
+        }
+    }
+    //cout << "Packet number: " << packetNum << endl;
+    packetNumber = packetNum;
+    //cout << "Sequence number: " << seqNum << endl;
+    //cout << "Bit Content: " << bitContent << endl;
+    bitData = bitContent;
+    //cout << "Checksum value: " << checksumVal << endl;
+    //cout << "Ack received value: " << ackReceived << endl;
+}
+//*************************************************************************************************************************
+
+string read_(tcp::socket & socket) {
+       boost::asio::streambuf buf;
+       boost::asio::read_until( socket, buf, "\n" );
+       string data = boost::asio::buffer_cast<const char*>(buf.data());
+       return data;
+}
+void send_(tcp::socket & socket, const string& message) {
+       const string msg = message + "\n";
+       boost::asio::write( socket, boost::asio::buffer(message) );
+}
+
+
+void receiverSimulation(){
+	bool end = false;
+
+	while(!end){
+boost::asio::io_service io_service;
+//listen for new connection
+      tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 1234 ));
+//socket creation
+      tcp::socket socket(io_service);
+//waiting for connection
+      acceptor.accept(socket);
+//read operation
+      string message = read_(socket);
+      if(message != "alldone\n"){
+      parseReceivingPacket(message);
+
+
+//different protocols
+	if(selectedAlgorithm==2){
+		//Stop and Wait
+	     cout << "\nPacket " << packetNumber << " received.";
+
+	     finalBits += bitData;
+      //write operation
+	string temp = "ACK" + to_string(packetNumber);
+      		send_(socket, temp);
+      		cout << temp << " sent."  << endl;
+	}if(selectedAlgorithm == 1){}
+	if(selectedAlgorithm == 3){}
+
+      }else{
+		end = true;
+		cout << "Received finish message. Closing out...";
+		socket.close();
+	}
+}
+
+}
+
+
+//*************************************************************************************************************************
 int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();
-    string test = "3\n1\n64000\n1\n100\n2\n4,5,6,64,99,";
-    parseFromString(test);
-    //getNetworkConfigFrom("config.txt");
-    cout << selectedAlgorithm;
+    //receive config by sockets
+    getNetworkConfigFrom("config.txt");
     receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck);
     showCurrentConfig(receiverInstance);
+
+
+    receiverSimulation();
+    setBitsToFile(finalBits);
     return 0;
 }
+
