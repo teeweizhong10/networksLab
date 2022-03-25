@@ -574,6 +574,7 @@ void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wa
         milliseconds currentTimeCount = duration_cast<milliseconds>(milliseconds (0)- milliseconds(0));
         while (notTimedOut(currentTimeCount)) {
             sendPacket(packets[i].getPacketMessage());
+            // TODO: Simulate receive ack, corrupt and lose ack
             time_point<Clock> timeoutend = Clock::now();
             if(packetsToDrop[0] == i) {
                 packetsToDrop.erase(packetsToDrop.begin());
