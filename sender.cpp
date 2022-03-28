@@ -572,15 +572,21 @@ void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wa
     for (int i = 0; i < packets.size(); ++i) {
         time_point<Clock> timeoutStart = Clock::now();
         milliseconds currentTimeCount = duration_cast<milliseconds>(milliseconds (0)- milliseconds(0));
-        while (notTimedOut(currentTimeCount)) {
-            sendPacket(packets[i].getPacketMessage());
+        while (notTimedOut(currentTimeCount)) { // Check for timeout
             // TODO: Simulate receive ack, corrupt and lose ack
-            time_point<Clock> timeoutend = Clock::now();
-            if(packetsToDrop[0] == i) {
+            if(packetsToDrop[0] == i) { // If packet is meant to be dropped
                 packetsToDrop.erase(packetsToDrop.begin());
                 sleep_for(milliseconds(250));
                 cout << "Packet " << i << " timed out" << endl;
+               // packet not sent
+            } else if (packetsToFailChecksum[0] == i){
+                packetsToFailChecksum.erase(packetsToFailChecksum.begin());
+                cout << "Packet " << i << " was corrupted" << endl;
+                sendPacket(compliment(packets[i].getPacketMessage())); // send corrupted message
+            } else {
+                sendPacket(packets[i].getPacketMessage()); // send packet
             }
+            time_point<Clock> timeoutend = Clock::now();
             currentTimeCount = duration_cast<milliseconds>(timeoutend - start);
         }
 
@@ -675,7 +681,6 @@ int main() {
     // Send packets here
     // Corrupt packets use compliment()
 
-
     senderGetTimeout();
     start = Clock::now(); // for total elapsed time
     // add protocol calls
@@ -687,8 +692,6 @@ int main() {
     time_point<Clock> end = Clock::now();
     milliseconds totalElapsedTime = duration_cast<milliseconds>(end - start);
     cout << "Total elapsed time: " << totalElapsedTime.count() << "ms" << std::endl;
-
-
 
     return 0;
 }
