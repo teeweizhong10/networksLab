@@ -569,22 +569,31 @@ void senderGetTimeout() { //determining how long set wait time (dynamic wait tim
 
 void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wait
     bool receivedAck;
-    for (int i = 0; i < packets.size(); ++i) {
+    int packetsSent = 0;
+    while (packetsSent!=numOfPackets) {
         time_point<Clock> timeoutStart = Clock::now();
         milliseconds currentTimeCount = duration_cast<milliseconds>(milliseconds (0)- milliseconds(0));
         while (notTimedOut(currentTimeCount)) { // Check for timeout
             // TODO: Simulate receive ack, corrupt and lose ack
-            if(packetsToDrop[0] == i) { // If packet is meant to be dropped
-                packetsToDrop.erase(packetsToDrop.begin());
-                sleep_for(milliseconds(250));
-                cout << "Packet " << i << " timed out" << endl;
-               // packet not sent
-            } else if (packetsToFailChecksum[0] == i){
+            if(!packetsToDrop.empty()) { // Time out and don't send dropped packet if there are packets to be dropped
+                if(packetsToDrop[0] == packetsSent) { // If packet is meant to be dropped
+                    packetsToDrop.erase(packetsToDrop.begin());
+                    sleep_for(milliseconds(250));
+                    cout << "Packet " << packetsSent << " timed out" << endl;
+                    // packet not sent
+                }
+            }
+
+            if (packetsToFailChecksum[0] == packetsSent){
                 packetsToFailChecksum.erase(packetsToFailChecksum.begin());
-                cout << "Packet " << i << " was corrupted" << endl;
-                sendPacket(compliment(packets[i].getPacketMessage())); // send corrupted message
+                cout << "Packet " << packetsSent << " was corrupted" << endl;
+                sendPacket(compliment(packets[packetsSent].getPacketMessage())); // send corrupted message
+                cout << "Packet " << packetsSent << " was sent" << endl;
+                packetsSent++;
             } else {
-                sendPacket(packets[i].getPacketMessage()); // send packet
+                sendPacket(packets[packetsSent].getPacketMessage()); // send packet
+                cout << "Packet " << packetsSent << " was sent" << endl;
+                packetsSent++;
             }
             //TODO: Wait on packet ack to be received before continuing
             time_point<Clock> timeoutend = Clock::now();
@@ -672,6 +681,18 @@ int main() {
 
     setPacketErrors(errorPercentage, numOfPackets);
 
+    cout << "Packets to drop: ";
+    for (int i = 0; i < packetsToDrop.size(); ++i) {
+        cout << packetsToDrop[i] << "\t"; //Test print packets to drop
+    }
+    cout << endl;
+
+    cout << "Packets to corrupt: ";
+    for (int i = 0; i < packetsToFailChecksum.size(); ++i) {
+        cout << packetsToFailChecksum[i] << "\t"; //Test print packets to drop
+    }
+    cout << endl;
+
     // Test print all packet objects getMessage()
 //    for (int i = 0; i < packets.size(); ++i) {
 //        cout << packets[i].getPacketMessage() << endl; Test print all packets
@@ -686,6 +707,7 @@ int main() {
     // add protocol calls
 
     cout << "\n************ Protocol work ************" << endl;
+
     senderStopAndWait(packets);
     cout << endl;
 
