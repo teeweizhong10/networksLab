@@ -586,10 +586,10 @@ void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wa
             } else {
                 sendPacket(packets[i].getPacketMessage()); // send packet
             }
+            //TODO: Wait on packet ack to be received before continuing
             time_point<Clock> timeoutend = Clock::now();
             currentTimeCount = duration_cast<milliseconds>(timeoutend - start);
         }
-
     }
 }
 
