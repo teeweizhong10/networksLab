@@ -629,8 +629,7 @@ void beginTransaction(){
     boost::asio::ip::tcp::socket socket(io_service);
     boost::asio::ip::address address;
     address.from_string("137.28.231.240");
-    boost::asio::ip::tcp::endpoint endpoint(address, 1234);
-    socket.connect(socket, endpoint);
+    socket.connect(socket,  boost::asio::ip::tcp::endpoint(address, 1234));
     startTotalTimer();
 
 
