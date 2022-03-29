@@ -116,6 +116,8 @@ time_point<Clock> start;
 milliseconds latency;
 milliseconds waitTime = milliseconds(0);
 
+
+
 int getNumOfPackets(string bits) {
     numOfPackets = 0;
     return numOfPackets;
@@ -567,44 +569,149 @@ void senderGetTimeout() { //determining how long set wait time (dynamic wait tim
 
 }
 
+bool receiverStopAndWait(string packetMessage) { //simulating receiver sending back an ack for stop and wait
+    // Parsing the packet message (in receiver.cpp already)
+    //cout << "\nReceived packet: " << packetMessage << endl;
+
+    int len = packetMessage.length();
+    char lineChars[len + 1];
+    strcpy(lineChars, packetMessage.c_str());
+    int itemCount = 0;
+
+    string item = "";
+    int packetNum = 0;
+    int seqNum = 0;
+    string bitContent = "";
+    string checksumVal = "";
+    int ackReceived = 0;
+
+    for (int i = 0; i < len; ++i) {
+        //cout << lineChars [i] << endl;
+        if(itemCount == 0) {
+            if(lineChars[i] != '|') { // packet number
+                item += lineChars[i];
+            } else {
+                itemCount = 1;
+                i++;
+                packetNum = stoi(item);
+                item = "";
+            }
+        }
+
+        if(itemCount == 1) {
+            if(lineChars[i] != '|') { // seq number
+                item += lineChars[i];
+            } else {
+                itemCount = 2;
+                i++;
+                seqNum = stoi(item);
+                item = "";
+            }
+        }
+
+        if(itemCount == 2) { // bit content
+            if(lineChars[i] != '|') {
+                bitContent += lineChars[i];
+            } else {
+                itemCount = 3;
+                i++;
+            }
+        }
+
+        if(itemCount == 3) { // checksum value
+            if(lineChars[i] != '|') {
+                checksumVal += lineChars[i];
+            } else {
+                itemCount = 4;
+                i++;
+            }
+        }
+
+        if(itemCount == 4) {
+            if(lineChars[i] != '|') { // ack received
+                item += lineChars[i];
+            } else {
+                itemCount = 2;
+                i++;
+                ackReceived = stoi(item);
+                item = "";
+            }
+        }
+    }
+//    cout << "Packet number: " << packetNum << endl;
+//    cout << "Sequence number: " << seqNum << endl;
+//    cout << "Bit Content: " << bitContent << endl;
+//    cout << "Checksum value: " << checksumVal << endl;
+//    cout << "Ack received value: " << ackReceived << endl;
+
+    sleep_for(milliseconds(10)); //Simulate time taken to process and send ack
+
+    // TODO: Do checksum
+
+
+    // If checksum is bad or lose ack
+    for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+        //TODO: add checksum check
+        if(packetNum == packetsToLoseAck[i]) {
+            packetsToLoseAck.erase(packetsToLoseAck.begin());
+            sleep_for(waitTime + milliseconds(100)); // let it time out
+            return false;
+        }
+    }
+
+    // If checksum is good, send back ack
+    return true;
+}
+
 void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wait
     bool receivedAck;
+    bool packetSent;
     int packetsSent = 0;
     while (packetsSent!=numOfPackets) {
         time_point<Clock> timeoutStart = Clock::now();
         milliseconds currentTimeCount = duration_cast<milliseconds>(milliseconds (0)- milliseconds(0));
         while (notTimedOut(currentTimeCount)) { // Check for timeout
+            packetSent = false;
             // TODO: Simulate receive ack, corrupt and lose ack
             if(!packetsToDrop.empty()) { // Time out and don't send dropped packet if there are packets to be dropped
                 if(packetsToDrop[0] == packetsSent) { // If packet is meant to be dropped
                     packetsToDrop.erase(packetsToDrop.begin());
-                    sleep_for(milliseconds(250));
+                    sleep_for(waitTime + milliseconds(100)); // Let it time out
                     cout << "Packet " << packetsSent << " timed out" << endl;
                     // packet not sent
                 }
             }
 
-            if (packetsToFailChecksum[0] == packetsSent){
-                packetsToFailChecksum.erase(packetsToFailChecksum.begin());
-                cout << "Packet " << packetsSent << " was corrupted" << endl;
-                sendPacket(compliment(packets[packetsSent].getPacketMessage())); // send corrupted message
-                cout << "Packet " << packetsSent << " was sent" << endl;
-                packetsSent++;
-            } else {
+            if(!packetsToFailChecksum.empty()) {
+                if (packetsToFailChecksum[0] == packetsSent){
+                    packetsToFailChecksum.erase(packetsToFailChecksum.begin());
+                    cout << "Packet " << packetsSent << " was corrupted" << endl;
+                    sendPacket(compliment(packets[packetsSent].getPacketMessage())); // send corrupted message
+                    cout << "Corrupted Packet " << packetsSent << " was sent" << endl;
+                    packetSent = true;
+                }
+            }
+            if (!packetSent) {
                 sendPacket(packets[packetsSent].getPacketMessage()); // send packet
                 cout << "Packet " << packetsSent << " was sent" << endl;
-                packetsSent++;
+                packetSent = true;
             }
             //TODO: Wait on packet ack to be received before continuing
+
+            receivedAck = receiverStopAndWait(packets[packetsSent].getPacketMessage());
+            if (receivedAck) {
+                cout << "ACK for packet " << packetsSent << " was received." << endl;
+                packetsSent++;
+            } else {
+                cout << "Failed to receive ACK for packet " << packetsSent << " and timed out. Trying again." << endl;
+            }
             time_point<Clock> timeoutend = Clock::now();
             currentTimeCount = duration_cast<milliseconds>(timeoutend - start);
         }
     }
 }
 
-bool receiverStopAndWait() { //simulating receiver sending back an ack for stop and wait
 
-}
 
 /*
  * similarly, the receiver will have a similar structure,
@@ -690,6 +797,12 @@ int main() {
     cout << "Packets to corrupt: ";
     for (int i = 0; i < packetsToFailChecksum.size(); ++i) {
         cout << packetsToFailChecksum[i] << "\t"; //Test print packets to drop
+    }
+    cout << endl;
+
+    cout << "Packets to lose ack: ";
+    for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+        cout << packetsToLoseAck[i] << "\t"; //Test print packets to drop
     }
     cout << endl;
 
