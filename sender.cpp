@@ -627,9 +627,7 @@ void SNW(tcp::socket& socket){
 void beginTransaction(){
     boost::asio::io_service io_service;
     boost::asio::ip::tcp::socket socket(io_service);
-    boost::asio::ip::address address;
-    address.from_string("137.28.231.240");
-    socket.connect(socket,  boost::asio::ip::tcp::endpoint(address, 1234));
+    socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("137.28.231.240"), 1234));
     startTotalTimer();
 
 
@@ -721,9 +719,3 @@ int main() {
     beginTransaction();
     return 0;
 }
-
-
-
-
-
-
