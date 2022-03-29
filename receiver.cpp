@@ -143,7 +143,7 @@ void parseConfigFromString(string input) {
         } else if (itemCount == 2) {
             sizeOfPacket = stoi(line);
         } else if (itemCount == 3) { // seq num lower bound
-             seqNumberLowerBound = stoi(line);
+            seqNumberLowerBound = stoi(line);
         } else if (itemCount == 4) { //seq num upper bound
             seqNumberUpperBound = stoi(line);
         } else if (itemCount == 5) { // error type
@@ -222,27 +222,27 @@ Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, i
 //*************************************************************************************************************************
 //addBinary: takes in two strings of binary characters and adds them
 string addBinary (string a, string b){
-string result = "";
-int temp = 0;
-int size_a = a.size() - 1;
-int size_b = b.size() - 1;
+    string result = "";
+    int temp = 0;
+    int size_a = a.size() - 1;
+    int size_b = b.size() - 1;
 
-while(size_a >= 0 || size_b >= 0 || temp ==1){
-temp += ((size_a >= 0)? a[size_a] - '0': 0);
-      temp += ((size_b >= 0)? b[size_b] - '0': 0);
-      result = char(temp % 2 + '0') + result;
-      temp /= 2;
-      size_a--; size_b--;
-   }
-   return result;
+    while(size_a >= 0 || size_b >= 0 || temp ==1){
+        temp += ((size_a >= 0)? a[size_a] - '0': 0);
+        temp += ((size_b >= 0)? b[size_b] - '0': 0);
+        result = char(temp % 2 + '0') + result;
+        temp /= 2;
+        size_a--; size_b--;
+    }
+    return result;
 
 }
 
 bool passesChecksum(string originalCksum, string passedCksum){
-	 if(addBinary(originalCksum, passedCksum)== "1111111111111111"){
-            return true;
+    if(addBinary(originalCksum, passedCksum)== "1111111111111111"){
+        return true;
     }else{
-            return false;
+        return false;
     }
 }
 
@@ -253,11 +253,11 @@ string checksum(string inPacket){
 
 
     //Takes 16 bits of the data and adds
-        string addition = "";
+    string addition = "";
     for(signed int i = 1; i <= inPacket.length();i++){
         if ((i%16 == 0) && (i >= 16)) { //split data into this many bit segments
 
-                addition = addBinary(addition, inPacket.substr((signed)(i-16),16));
+            addition = addBinary(addition, inPacket.substr((signed)(i-16),16));
 
         } else if (i >= (signed)((inPacket.length() - (signed)(inPacket.length()%16)))){
             addition = addBinary(addition, inPacket.substr(i-1, inPacket.length()-1));
@@ -265,30 +265,30 @@ string checksum(string inPacket){
         }
     }
     while ((signed)(addition.length() > 16)){
-    signed int minus16 = addition.length() - 16;
-    signed int minus1 = addition.length() - 1;
-    addition = addBinary(addition.substr(0, minus16), addition.substr(minus16, minus1));
+        signed int minus16 = addition.length() - 16;
+        signed int minus1 = addition.length() - 1;
+        addition = addBinary(addition.substr(0, minus16), addition.substr(minus16, minus1));
     }
 
     return addition;
 }
 //*************************************************************************************************************************
 void setBitsToFile(string bitString){
-ofstream output;
-output.open("OUTPUTFILE");
+    ofstream output;
+    output.open("OUTPUTFILE");
 
 //cout << "\nBITSTRING: " << bitString;
-for (int i = 0; i < bitString.length(); i++){
+    for (int i = 0; i < bitString.length(); i++){
         string bitTemp = bitString.substr(i, 8);
         bitset<8> temp(bitTemp);
         output << char(temp.to_ulong());
         i= i+7;
-}
-output.close();
+    }
+    output.close();
 }
 
 void parseReceivingPacket(string input) {
-  //  cout << "\nReceived packet: " << input << endl;
+    //  cout << "\nReceived packet: " << input << endl;
 
     int len = input.length();
     char lineChars[len + 1];
@@ -367,18 +367,18 @@ void parseReceivingPacket(string input) {
 //*************************************************************************************************************************
 
 string getData(tcp::socket & socket) {
-       boost::asio::streambuf buf;
-       boost::asio::read_until( socket, buf, "\n" );
-       string data = boost::asio::buffer_cast<const char*>(buf.data());
-       return data;
+    boost::asio::streambuf buf;
+    boost::asio::read_until( socket, buf, "\n" );
+    string data = boost::asio::buffer_cast<const char*>(buf.data());
+    return data;
 }
 void sendData(tcp::socket & socket, const string& message) {
-       const string msg = message + "\n";
-       boost::asio::write( socket, boost::asio::buffer(msg) );
+    const string msg = message + "\n";
+    boost::asio::write( socket, boost::asio::buffer(msg) );
 }
 
 void stats(){
-	cout << "Last packet seq# received: ______\nNumber of original packets received: ____\nNumber of retransmitted packets received:_____" << endl;
+    cout << "Last packet seq# received: ______\nNumber of original packets received: ____\nNumber of retransmitted packets received:_____" << endl;
 }
 
 void GBN(){}
@@ -386,29 +386,29 @@ void GBN(){}
 void SR(){}
 
 void SNW(tcp::socket & socket){
-	while(true){
-		string recvPkt = getData(socket);
-                if(recvPkt == "alldone\n"){
-			stats();
-                        break;
-                }
-                parseReceivingPacket(recvPkt);
+    while(true){
+        string recvPkt = getData(socket);
+        if(recvPkt == "alldone\n"){
+            stats();
+            break;
+        }
+        parseReceivingPacket(recvPkt);
 //		cout << "Cksum: " << checksum(bitData) << endl;
 //		cout << "Addition: " << addBinary(checksum(bitData), bitDataComp) << endl;		
-		
-		cout << "Packet " << packetNumber << " received"  << endl;
-		if(passesChecksum(checksum(bitData), bitDataComp)){
-			cout << "Checksum OK" << endl;
-			finalBits += bitData;
-                string ack = "ACK " + to_string(packetNumber);
-                sendData(socket, ack);
-                cout << ack << " sent" << endl;
-                cout << "Current window = [" << packetNumber << "]" << endl;
+
+        cout << "Packet " << packetNumber << " received"  << endl;
+        if(passesChecksum(checksum(bitData), bitDataComp)){
+            cout << "Checksum OK" << endl;
+            finalBits += bitData;
+            string ack = "ACK " + to_string(packetNumber);
+            sendData(socket, ack);
+            cout << ack << " sent" << endl;
+            cout << "Current window = [" << packetNumber << "]" << endl;
         }else{
-			cout << "Checksum failed" << endl;
-			cout << "Current window = [" << packetNumber << "]" << endl;
-		}
-	}	
+            cout << "Checksum failed" << endl;
+            cout << "Current window = [" << packetNumber << "]" << endl;
+        }
+    }
 }
 
 
@@ -416,35 +416,35 @@ void SNW(tcp::socket & socket){
 
 
 void receiverSimulation(){
-	boost::asio::io_service io_service;
+    boost::asio::io_service io_service;
 
-	boost::asio::ip::tcp::acceptor acceptor(io_service, tcp::endpoint(boost::asio::ip::tcp::v4(), 1234));
-	boost::asio::ip::tcp::socket socket(io_service);
-	acceptor.accept(socket);
+    boost::asio::ip::tcp::acceptor acceptor(io_service, tcp::endpoint(boost::asio::ip::tcp::v4(), 1234));
+    boost::asio::ip::tcp::socket socket(io_service);
+    acceptor.accept(socket);
 
-	string recv = getData(socket);
-	if(recv == "Begin transaction...\n"){
+    string recv = getData(socket);
+    if(recv == "Begin transaction...\n"){
 
-	sendData(socket, "Begin transaction...");
-	}
+        sendData(socket, "Begin transaction...");
+    }
 //	cout << "Begin alg..." << endl;
 
-		switch(selectedAlgorithm){
-			case 1:{
-				       GBN();
-				       break;
-			       }
-			case 2:{
-				       SNW(socket);
-				       break;
-			       }
-			case 3:{
-				       SR();
-				       break;
-			       }
-		}
+    switch(selectedAlgorithm){
+        case 1:{
+            GBN();
+            break;
+        }
+        case 2:{
+            SNW(socket);
+            break;
+        }
+        case 3:{
+            SR();
+            break;
+        }
+    }
 
-	}
+}
 
 //*************************************************************************************************************************
 
