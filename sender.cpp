@@ -627,7 +627,10 @@ void SNW(tcp::socket& socket){
 void beginTransaction(){
     boost::asio::io_service io_service;
     boost::asio::ip::tcp::socket socket(io_service);
-    socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234));
+    boost::asio::ip::address address;
+    address.from_string("137.28.231.240");
+    boost::asio::ip::tcp::endpoint endpoint(address, 1234);
+    socket.connect(socket, endpoint);
     startTotalTimer();
 
 
