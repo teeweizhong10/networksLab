@@ -11,9 +11,28 @@
 #include <time.h>
 #include <stdlib.h>
 #include <bitset>
+#include <algorithm>
 #include "packet.h"
+#include <boost/asio.hpp>
+#include <chrono>
+#include <thread>
+
 
 using namespace std;
+using namespace boost::asio;
+using ip::tcp;
+using std::string;
+using std::cout;
+using std::endl;
+using std::cin;
+
+using Clock = std::chrono::steady_clock;
+using std::chrono::time_point;
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using namespace std::literals::chrono_literals;
+using std::this_thread::sleep_for;
+
 
 class Sender {
 private:
@@ -80,7 +99,7 @@ public:
     void setFilePath(string input) {filePath = input;};
     string getFilePath() {return filePath;};
 };
-
+//*************************************************************************************************************************
 int selectedAlgorithm;
 int senderMaxWindowSize;
 int receiverMaxWindowSize;
@@ -100,6 +119,8 @@ string filePath;
 string allBits;
 string contentToSend;
 int numOfPackets;
+time_point<Clock> startTimer;
+time_point<Clock> endTimeInSeconds;
 
 vector<packet> packets;
 
@@ -309,7 +330,7 @@ Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int rec
     senderInstance.setFilePath(filePath);
     return senderInstance;
 }
-
+//*************************************************************************************************************************
 void setRandomPacketsToDrop(int percentage, int numOfPackets) {
     packetsToDrop.clear();
     int packetsDropCount = numOfPackets * percentage/100;
@@ -419,76 +440,46 @@ void setPacketErrors(int percentage, int numOfPackets) {
     sort(packetsToLoseAck.begin(), packetsToLoseAck.end());
     sort(packetsToFailChecksum.begin(), packetsToFailChecksum.end());
 }
-
+//*************************************************************************************************************************
 //addBinary: takes in two strings of binary characters and adds them
 string addBinary (string a, string b){
+string result = "";
+int temp = 0;
+int size_a = a.size() - 1;
+int size_b = b.size() - 1;
 
-        if(a.length() > b.length()){
-                return addBinary(b, a);
-        }
+while(size_a >= 0 || size_b >= 0 || temp ==1){
+temp += ((size_a >= 0)? a[size_a] - '0': 0);
+      temp += ((size_b >= 0)? b[size_b] - '0': 0);
+      result = char(temp % 2 + '0') + result;
+      temp /= 2;
+      size_a--; size_b--;
+   }
+   return result;
 
-        int diff = b.length() - a.length();
-        string padding;
-
-        for (int i = 0; i < diff; i++){
-                padding.push_back('0');
-        }
-
-        a = padding + a;
-        string res;
-        char carry = '0';
-
-        for(int i = a.length() - 1; i >= 0; i--){
-                if(a[i] == '1' && b[i]){
-                        if(carry == '1'){
-                                res.push_back('1');
-                                carry = '1';
-                        }else{
-                                res.push_back('0');
-                                carry = '1';
-                        }
-                }else if (a[i] == '0' && b[i] == '0'){
-                        if(carry == '1'){
-                                res.push_back('1');
-                                carry = '0';
-                        }else{
-                                res.push_back('0');
-                                carry = '0';
-                        }
-                }else if (a[i] != b[i]){
-                        if(carry == '1'){
-                                res.push_back('0');
-				carry = '1';
-                        }else{
-                                res.push_back('1');
-                                carry = '0';
-                        }
-                }
-        }
-
-                if (carry == '1'){
-                        res.push_back(carry);
-                }
-                reverse(res.begin(), res.end());
-
-                return res;
-        }
+}
 
 
 //TODO: ask Lauren about checksum errors
 string checksum(string inPacket){
     //Takes 16 bits of the data and adds
 	string addition = "";
-    for(int i = 0; i < inPacket.length();i++){
-        if (i % 16 == 0) { //split data into this many bit segments
-            addition = addBinary(addition, inPacket.substr(i, 16));
-            i = i + 15;
-        } else if ((i > inPacket.length() - 16)){
-            addition = addBinary(addition, inPacket.substr(i, inPacket.length()-i));
-            i = inPacket.length();
+    for(signed int i = 1; i <= inPacket.length();i++){
+        if ((i%16 == 0) && (i >= 16)) { //split data into this many bit segments
+            
+		addition = addBinary(addition, inPacket.substr((signed)(i-16),16));
+
+        } else if (i >= (signed)((inPacket.length() - (signed)(inPacket.length()%16)))){
+            addition = addBinary(addition, inPacket.substr(i-1, inPacket.length()-1));
+	    i = inPacket.length();
         }
     }
-    addition = addBinary(addition.substr(0, addition.length()-16), addition.substr(addition.length()-16, addition.length()-1));
+    while ((signed)(addition.length() > 16)){
+    signed int minus16 = addition.length() - 16;
+    signed int minus1 = addition.length() - 1;
+    addition = addBinary(addition.substr(0, minus16), addition.substr(minus16, minus1));
+    }
+
     return addition;
 }
 
@@ -506,23 +497,14 @@ string compliment(string cksum){
         return compli;
 }
 
-
-
-void setBitsToFile(string bitString){
-ofstream output;
-output.open("OUTPUTFILE");
-
-cout << "\nBITSTRING: " << bitString;
-for (int i = 0; i < bitString.length(); i++){
-	string bitTemp = bitString.substr(i, 8);
-	cout << "\nSubstring: " << bitTemp;
-	bitset<8> temp(bitTemp);
-	output << char(temp.to_ulong());
-	i= i+7;
-}
-output.close();
+string getChecksumVal(string input) {
+    string com = checksum(input);
+    com = compliment(com);
+    return com;
 }
 
+
+//*************************************************************************************************************************
 void setBitsFromFile(string file) {
     vector<char> bytes;
     char byte = 0;
@@ -541,13 +523,138 @@ void setBitsFromFile(string file) {
             bits += bitset<8>(byte).to_string();
         }
         allBits = bits;
-	setBitsToFile(allBits);
     }
 }
+//*************************************************************************************************************************
+void startTotalTimer(){
+        startTimer = Clock::now();
+}
 
+void dropTimer(milliseconds secs){
+    sleep_for(secs*100);
+}
+
+void timeoutTimerStart(){
+}
+
+string endTotalTimer(){
+   endTimeInSeconds = Clock::now();
+    milliseconds difftime = duration_cast<milliseconds>(endTimeInSeconds - startTimer);
+    return to_string(difftime.count());
+}
+//*************************************************************************************************************************
+string getData(tcp::socket& socket){
+	boost::asio::streambuf buf;
+	boost::asio::read_until(socket, buf, "\n");
+	string data =  boost::asio::buffer_cast<const char*>(buf.data());
+	return data;
+}
+
+void sendData(tcp::socket& socket, const string& msg){
+	 boost::asio::write(socket, buffer(msg + "\n"));
+}
+
+void stats(){
+	cout << "Number of original packets sent: _____\nNumber of retransmitted packets:______\nTotal elapsed time:_____\ntotal throughput (Mbps):_______\nEffective throughput:______" << endl;
+}
+
+void whatsInThisVector(vector<int> vec){
+	cout << "\n\n\n";
+	for (int i = 0; i < vec.size(); i++){
+		cout << to_string(vec[i]) <<endl;
+	}
+}
+
+void GBN(){}
+void SR(){}
+void SNW(tcp::socket& socket){
+	for(int i = 0; i <= packets.size(); i++){
+//		cout << "Comp: " << packets[i].getChecksumValue() << endl;
+		if(i == packets.size()){
+			sendData(socket, "alldone");
+			cout << "Session successfully terminated" << endl;
+			stats();
+			endTotalTimer();
+		}else{
+	
+			int index;
+			vector<int>::iterator itr;
+			//fails cksum
+			
+//			whatsInThisVector(packetsToFailChecksum);
+			if(count(packetsToFailChecksum.begin(), packetsToFailChecksum.end(), packets[i].getSeqNum())>0){
+				packets[i].setChecksumValue(compliment(checksum(packets[i].getBitContent())));
+				//take out of fail cksum vector
+//				cout << "new Comp: " << packets[i].getChecksumValue();
+				itr  = find(packetsToFailChecksum.begin(), packetsToFailChecksum.end(), packets[i].getSeqNum());
+				if(itr != packetsToFailChecksum.cend()){
+					index = std::distance(packetsToFailChecksum.begin(), itr);
+					cout << "Removing: " << to_string(packetsToFailChecksum[index]) << "at index " << to_string(index) << endl;
+				}
+				
+				
+				packetsToFailChecksum.erase(packetsToFailChecksum.begin() + index - 1);
+			}
+			
+			
+			//to drop
+			if(count(packetsToDrop.begin(), packetsToDrop.end(), packets[i].getPacketNum())>0){
+//			whatsInThisVector(packetsToDrop);
+				//drop packet
+			}
+
+
+
+		sendData(socket, packets[i].getPacketMessage());
+		//timeout start
+		cout << "Packet " << to_string(packets[i].getPacketNum()) << " sent..." << endl;
+		string ack = getData(socket);
+		string temp = "ACK " + to_string(packets[i].getPacketNum()) +  "\n";
+
+		if(ack != temp){
+		cout << "Packet " << packets[i].getPacketNum() << " Re-transmitted." << endl;
+			i = i-1;
+			}else{
+			cout << "ACK " << packets[i].getPacketNum() << " received." << endl;
+			cout << "Current Window = [" << packets[i].getPacketNum() << "]"  << endl;
+		}
+	}
+
+}
+
+}
+
+void beginTransaction(){
+	boost::asio::io_service io_service;
+	boost::asio::ip::tcp::socket socket(io_service);
+	socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234));
+	startTotalTimer();
+
+
+	sendData(socket, "Begin transaction...");
+
+	string response = getData(socket);
+	if(response == "Begin transaction...\n"){
+	       switch(selectedAlgorithm){
+		       case 1:{
+		       GBN();
+			break;
+			      }
+		       case 2:{
+			SNW(socket);
+			break;
+			      }
+		       case 3:{
+			SR();
+			break;
+			      }
+	       }
+	}
+}	
+//*************************************************************************************************************************
 int main() {
     Sender senderInstance;
-    senderWelcomeMessage();
+senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
     if (selectedErrorType == 2) { // set errors for random percentage
         setPacketErrors(errorPercentage, numOfPackets);
@@ -560,7 +667,7 @@ int main() {
     showCurrentConfig(senderInstance);
     cout << endl;
 
-    //allBits += "0101011111010111"; // Test adding bits
+    //allBits += "0101011110101010101011101010110101110101010101011100"; // Test adding bits
 
     // Begin coding here
     // Get the amount of packets based on the string length
@@ -571,23 +678,17 @@ int main() {
     }
 
     cout << "\nNumber of packets: " << numOfPackets << endl;
-    cout << "All bits: " << allBits << endl;
 
 
-    // TODO: Test checksum code
-    //string testChecksum = checksum("0");
-    //cout << testChecksum;
 
     // Putting bit strings into packets based on user input size of packets
-    //remove(allBits.begin(), allBits.end(), ' ');
+    remove(allBits.begin(), allBits.end(), ' ');
     vector<char> bitArray(allBits.begin(), allBits.end());
     string currentSet = "";
     int j = 0;
     bool runOnce = true;
     int packetCounter = 0;
     int seqNumCounter = 0;
-
-    //TODO: Add checksum code to the packet instantiation
     for (int i = 0; i < numOfPackets; ++i) {
         while (j < allBits.length()) {
             currentSet += bitArray[j];
@@ -595,7 +696,7 @@ int main() {
             if (j%sizeOfPacket == 0) {
                 //cout << "Current set: " << currentSet << endl;
                 seqNumCounter=(packetCounter)%(seqNumberUpperBound+1);
-                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,"00");
+                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,getChecksumVal(currentSet),0);
                 packets.push_back(newPacket);
                 currentSet = "";
                 packetCounter++;
@@ -609,16 +710,18 @@ int main() {
                 } else {
                     seqNumCounter = 0;
                 }
-                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,"00");
+                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,getChecksumVal(currentSet),0);
                 packets.push_back(newPacket);
             }
         }
         runOnce = false;
     }
-
-    // Test print all packet objects getMessage()
-    for (int i = 0; i < packets.size(); ++i) {
-        cout << packets[i].getPacketMessage() << endl;
-    }
-    return 0;
+	beginTransaction();
+return 0;
 }
+
+
+
+
+
+
