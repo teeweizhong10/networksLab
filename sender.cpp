@@ -647,7 +647,14 @@ bool receiverStopAndWait(string packetMessage) { //simulating receiver sending b
     sleep_for(milliseconds(10)); //Simulate time taken to process and send ack
 
     // TODO: Do checksum
-
+    string receivedCk = checksum(bitContent);
+    std::string s = addBinary(checksumVal, receivedCk);
+    if (s.find('0') != std::string::npos) {
+        cout << "Packet did not pass checksum." << endl;
+        sleep_for(waitTime + milliseconds(100)); // let it time out
+        return false; // checksum failed, doesn't add up to all 1s
+    }
+        //else checksum succeeds
 
     // If checksum is bad or lose ack
     for (int i = 0; i < packetsToLoseAck.size(); ++i) {
@@ -686,7 +693,7 @@ void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wa
                 if (packetsToFailChecksum[0] == packetsSent){
                     packetsToFailChecksum.erase(packetsToFailChecksum.begin());
                     cout << "Packet " << packetsSent << " was corrupted" << endl;
-                    sendPacket(compliment(packets[packetsSent].getPacketMessage())); // send corrupted message
+                    sendPacket(packets[packetsSent].getCorruptedPacketMessage()); // send corrupted message
                     cout << "Corrupted Packet " << packetsSent << " was sent" << endl;
                     packetSent = true;
                 }

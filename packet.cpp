@@ -41,3 +41,25 @@ void packet::setPacketMessage() {
     packetMessage = message;
 }
 
+string packet::getCorruptedPacketMessage() {
+    char char_array[bitContent.length() + 1];
+    strcpy(char_array, bitContent.c_str());
+    if (char_array[0] == '1') {
+        bitContent.replace(0,1,"0");
+    } else {
+        bitContent.replace(0,1,"1");
+    }
+
+    string message =std::to_string(packetNum);
+    message += "|";
+    message += std::to_string(seqNum);
+    message += "|";
+    message += bitContent;
+    message += "|";
+    message += checksumValue;
+    message += "|";
+    message += std::to_string(ackReceived);
+    packetMessage = message;
+    return packetMessage;
+}
+
