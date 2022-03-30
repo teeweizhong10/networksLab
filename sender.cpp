@@ -696,17 +696,18 @@ void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wa
                     sendPacket(packets[packetsSent].getCorruptedPacketMessage()); // send corrupted message
                     cout << "Corrupted Packet " << packetsSent << " was sent" << endl;
                     packetSent = true;
-                    receivedAck = receiverStopAndWait(packets[packetsSent].getCorruptedPacketMessage());
+                    receivedAck = receiverStopAndWait(packets[packetsSent].getCorruptedPacketMessage()); // Receiver gets corrupted packet
                 }
             }
             if (!packetSent) {
                 sendPacket(packets[packetsSent].getPacketMessage()); // send packet
                 cout << "Packet " << packetsSent << " was sent" << endl;
                 packetSent = true;
-                receivedAck = receiverStopAndWait(packets[packetsSent].getPacketMessage());
+                receivedAck = receiverStopAndWait(packets[packetsSent].getPacketMessage()); // Receiver gets good packet
             }
             if (receivedAck) {
                 cout << "ACK for packet " << packetsSent << " was received." << endl;
+                packets[packetsSent].setAckReceived(1); // Set ack received for given packet
                 packetsSent++;
             } else {
                 cout << "Failed to receive ACK for packet " << packetsSent << " and timed out. Trying again." << endl;
