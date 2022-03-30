@@ -230,7 +230,7 @@ void showCurrentConfig(Sender currentSender) {
             cout << "Selective Repeat" << endl;
             break;
     }
-    contentToSend += std::to_string(currentSender.getSelectedAlgorithm());
+    contentToSend += std::to_string(currentSender.getSelectedAlgorithm()+1);
     contentToSend += "\n";
     cout << "Sender Window Size: " << currentSender.getSenderMaxWindowSize() << endl;
     cout << "Receiver Window Size: " << currentSender.getReceiverMaxWindowSize() << endl;
@@ -532,7 +532,7 @@ void setBitsFromFile(string file) {
 }
 
 // Testing simulation functions
-void sendConfig(string configMessage) {}
+void sendConfig(string configMessage) {cout << "Config being sent to receiver: " << configMessage << endl;}
 void sendPacket(string packetMessage) {}
 
 bool simulateSendAck(bool sendStatus) { //send a fake ack
