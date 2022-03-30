@@ -349,7 +349,7 @@ int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();
     //receive config by sockets
-    string test = "2\n1\n64000\n0\n100\n2\n4,5,6,64,99,";
+    string test = "2\n1\n64000\n0\n10\n2\n31,38,48,50,66,69,74,81,87,92,97,";
     parseConfigFromString(test);
     //getNetworkConfigFrom("config.txt");
     cout << selectedAlgorithm;

@@ -230,7 +230,7 @@ void showCurrentConfig(Sender currentSender) {
             cout << "Selective Repeat" << endl;
             break;
     }
-    contentToSend += std::to_string(currentSender.getSelectedAlgorithm()+1);
+    contentToSend += std::to_string(selectedAlgorithm);
     contentToSend += "\n";
     cout << "Sender Window Size: " << currentSender.getSenderMaxWindowSize() << endl;
     cout << "Receiver Window Size: " << currentSender.getReceiverMaxWindowSize() << endl;
@@ -255,7 +255,6 @@ void showCurrentConfig(Sender currentSender) {
     }
     cout << "Selected error type: " << currentSender.getErrorType() << endl;
     contentToSend += std::to_string(currentSender.getErrorType());
-    contentToSend += "\n";
     switch (currentSender.getErrorType()) {
         case 0:
             cout << "None" << endl;
@@ -433,6 +432,12 @@ void setPacketErrors(int percentage, int numOfPackets) {
     sort(packetsToDrop.begin(), packetsToDrop.end());
     sort(packetsToLoseAck.begin(), packetsToLoseAck.end());
     sort(packetsToFailChecksum.begin(), packetsToFailChecksum.end());
+    if (!packetsToLoseAck.empty()) {
+        for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+            contentToSend += std::to_string(packetsToLoseAck[i]);
+            contentToSend += ",";
+        }
+    }
 }
 
 //addBinary: takes in two strings of binary characters and adds them
