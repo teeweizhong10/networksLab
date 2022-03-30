@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <iterator>
-
+#include <cstring>
 #include "inputManager.h"
 
 using namespace std;
@@ -32,6 +32,8 @@ void inputManager::getInput() {
     std::vector<int> packetsToFailChecksum; //empty if none
     std::vector<string> allInput; //empty if none
     welcomeMessage();
+    string ipAddr;
+    int port;
 
     int input;
     // Select protocol
@@ -221,6 +223,57 @@ void inputManager::getInput() {
     cin >> fileName;
     cout << "Getting File: " << fileName << endl;
     allInput.push_back(fileName);
+    allInput.push_back("\n");
+
+    //Input IP and PORT
+    int server;
+    cout << endl << "Input which Poseidon Server the receiver will be run on (0,1,2,3): " << endl;
+    cout << "Input: ";
+    cin >> server;
+    cout << endl << "Input the port number (>9000 & <10000): " << endl;
+    cout << "Input: ";
+    cin >> port;
+
+
+    switch(server){
+        case 0:{
+            //Poseidon0
+            ipAddr = "10.35.195.219";
+            allInput.push_back(ipAddr);
+            allInput.push_back("\n");
+            break;
+        }
+        case 1:{
+            //Poseidon1
+            ipAddr = "10.35.195.240";
+            allInput.push_back(ipAddr);
+            allInput.push_back("\n");
+            break;
+        }
+        case 2:{
+            //Poseidon2
+            ipAddr = "10.35.195.220";
+            allInput.push_back(ipAddr);
+            allInput.push_back("\n");
+            break;
+        }
+        case 3:{
+            //Poseidon3
+            ipAddr = "10.35.195.202";
+            allInput.push_back(ipAddr);
+            allInput.push_back("\n");
+            break;
+        }
+    }
+
+    allInput.push_back(std::to_string(port));
+
+
+
+
+
+
+
     for (int i = 0; i < allInput.size(); ++i) {
         cout << allInput[i];
     }

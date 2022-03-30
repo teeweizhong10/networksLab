@@ -121,6 +121,8 @@ string contentToSend;
 int numOfPackets;
 time_point<Clock> startTimer;
 time_point<Clock> endTimeInSeconds;
+string ipAddr;
+int port;
 
 vector<packet> packets;
 
@@ -216,6 +218,10 @@ void getNetworkConfigFrom(string fileName) {
                 }
             } else if (itemCount == 14) { // Skip items 12 to 13, File path
                 filePath = line;
+            }else if(itemCount == 15){
+                ipAddr = line;
+            }else if(itemCount == 16){
+                port = stoi(line);
             }
             itemCount++;
         }
@@ -625,9 +631,11 @@ void SNW(tcp::socket& socket){
 }
 
 void beginTransaction(){
+    cout << "IP: " << ipAddr << endl;
+    cout << "PORT: " << port << endl;
     boost::asio::io_service io_service;
     boost::asio::ip::tcp::socket socket(io_service);
-    socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("137.28.231.240"), 1234));
+    socket.connect(tcp::endpoint(boost::asio::ip::address::from_string(ipAddr), port));
     startTotalTimer();
 
 

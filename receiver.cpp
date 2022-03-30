@@ -12,7 +12,6 @@
 #include <bitset>
 #include <boost/asio.hpp>
 
-
 using namespace std;
 using namespace boost::asio;
 using ip::tcp;
@@ -33,6 +32,7 @@ private:
     int errorPercentage; //0 if none
     vector<int> packetsToLoseAck; //empty if none
     string filePath;
+    int port;
 
 public:
     void setAlgorithmType(int input) {selectedAlgorithm = (input - 1);};
@@ -61,6 +61,9 @@ public:
 
     void setFilePath(string input) {filePath = input;};
     string getFilePath() {return filePath;};
+
+    void setPortNumber(int input) { port = input;};
+    int getPortNumber(){return port;};
 };
 //*************************************************************************************************************************
 int selectedAlgorithm;
@@ -73,7 +76,7 @@ int errorPercentage; //0 if none
 vector<int> packetsToLoseAck; //empty if none
 vector<int> packetsToFailChecksum; //empty if none
 string filePath;
-
+int port;
 string finalBits;
 int packetNumber;
 string bitData;
@@ -115,13 +118,16 @@ void getNetworkConfigFrom(string fileName) {
                 for (int i = 0; i < len; ++i) {
                     if(lineChars[i] != ',') {
                         currentNum += lineChars[i];
-                    } else {
+                    }else {
                         //cout << "Current number end: " << currentNum << endl;
                         int packet = stoi(currentNum);
                         packetsToLoseAck.push_back(packet);
                         currentNum = "";
                     }
                 }
+            }else if(itemCount == 16){
+                port = stoi(line);
+                cout << "POrt in method: " << to_string(port) << endl;
             }
             itemCount++;
         }
@@ -184,6 +190,8 @@ void showCurrentConfig(Receiver currentReceiver) {
     cout << "Seq Num Lower Bound: " << currentReceiver.getSeqNumberLowerBound() << endl;
     cout << "Seq Num Upper Bound: " << currentReceiver.getSeqNumberUpperBound() << endl;
     cout << "Selected error type: " << currentReceiver.getErrorType() << endl;
+    cout << "Selected port number: " << currentReceiver.getPortNumber() << endl;
+
     switch (currentReceiver.getErrorType()) {
         case 0:
             cout << "None" << endl;
@@ -202,12 +210,13 @@ void showCurrentConfig(Receiver currentReceiver) {
             for (int i = 0; i < packetsToLoseAck.size(); ++i) {
                 cout << packetsToLoseAck[i] << "\t";
             }
+
             cout << endl;
             break;
     }
 }
 
-Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, int seqNumLowerBound, int seqNumUpperBound, int sizeOfPacket, int selectedErrorType, int errorPercentage, vector<int> packetsToLoseAck) {
+Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, int seqNumLowerBound, int seqNumUpperBound, int sizeOfPacket, int selectedErrorType, int errorPercentage, vector<int> packetsToLoseAck, int port){
     Receiver receiverInstance;
     receiverInstance.setAlgorithmType(selectedAlgorithm);
     receiverInstance.setReceiverMaxWindowSize(receiverMaxWindowSize);
@@ -217,6 +226,7 @@ Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, i
     receiverInstance.setErrorType(selectedErrorType);
     receiverInstance.setErrorPercentage(errorPercentage);
     receiverInstance.setPacketsToLoseAck(packetsToLoseAck);
+    receiverInstance.setPortNumber(port);
     return receiverInstance;
 }
 //*************************************************************************************************************************
@@ -394,7 +404,7 @@ void SNW(tcp::socket & socket){
         }
         parseReceivingPacket(recvPkt);
 //		cout << "Cksum: " << checksum(bitData) << endl;
-//		cout << "Addition: " << addBinary(checksum(bitData), bitDataComp) << endl;		
+//		cout << "Addition: " << addBinary(checksum(bitData), bitDataComp) << endl;
 
         cout << "Packet " << packetNumber << " received"  << endl;
         if(passesChecksum(checksum(bitData), bitDataComp)){
@@ -418,11 +428,12 @@ void SNW(tcp::socket & socket){
 void receiverSimulation(){
     boost::asio::io_service io_service;
 
-    boost::asio::ip::tcp::acceptor acceptor(io_service, tcp::endpoint(boost::asio::ip::tcp::v4(), 1234));
+    boost::asio::ip::tcp::acceptor acceptor(io_service, tcp::endpoint(boost::asio::ip::tcp::v4(), port));
     boost::asio::ip::tcp::socket socket(io_service);
     acceptor.accept(socket);
 
     string recv = getData(socket);
+    //break into "begin transaction..." and port number and set port
     if(recv == "Begin transaction...\n"){
 
         sendData(socket, "Begin transaction...");
@@ -447,18 +458,20 @@ void receiverSimulation(){
 }
 
 //*************************************************************************************************************************
-
 int main() {
     Receiver receiverInstance;
     receiverWelcomeMessage();
     //receive config by sockets
     getNetworkConfigFrom("config.txt");
-    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck);
-    showCurrentConfig(receiverInstance);
+    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck, port);    showCurrentConfig(receiverInstance);
 
 
     receiverSimulation();
     setBitsToFile(finalBits);
+
+    hashwrapper *rap = new md5wrapper();
+    std::string hash = rap->getHashFromFile("OUTPUTFILE");
+    cout << "md5sum of OUTPUTFILE: " << hash << endl;
     return 0;
 }
 
