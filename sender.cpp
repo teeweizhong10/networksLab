@@ -696,16 +696,15 @@ void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wa
                     sendPacket(packets[packetsSent].getCorruptedPacketMessage()); // send corrupted message
                     cout << "Corrupted Packet " << packetsSent << " was sent" << endl;
                     packetSent = true;
+                    receivedAck = receiverStopAndWait(packets[packetsSent].getCorruptedPacketMessage());
                 }
             }
             if (!packetSent) {
                 sendPacket(packets[packetsSent].getPacketMessage()); // send packet
                 cout << "Packet " << packetsSent << " was sent" << endl;
                 packetSent = true;
+                receivedAck = receiverStopAndWait(packets[packetsSent].getPacketMessage());
             }
-            //TODO: Wait on packet ack to be received before continuing
-
-            receivedAck = receiverStopAndWait(packets[packetsSent].getPacketMessage());
             if (receivedAck) {
                 cout << "ACK for packet " << packetsSent << " was received." << endl;
                 packetsSent++;
