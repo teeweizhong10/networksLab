@@ -685,6 +685,7 @@ int main() {
         numOfPackets = allBits.length()/sizeOfPacket;
     }
 
+    cout << "\nSize of Array: " << bitArray.length() << endl;
     cout << "\nNumber of packets: " << numOfPackets << endl;
 
 
