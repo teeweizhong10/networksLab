@@ -469,9 +469,9 @@ int main() {
     receiverSimulation();
     setBitsToFile(finalBits);
 
-    hashwrapper *rap = new md5wrapper();
+    /*hashwrapper *rap = new md5wrapper();
     std::string hash = rap->getHashFromFile("OUTPUTFILE");
-    cout << "md5sum of OUTPUTFILE: " << hash << endl;
+    cout << "md5sum of OUTPUTFILE: " << hash << endl;*/
     return 0;
 }
 
