@@ -693,7 +693,8 @@ int main() {
     // Putting bit strings into packets based on user input size of packets
     remove(allBits.begin(), allBits.end(), ' ');
     vector<char> bitArray(allBits.begin(), allBits.end());
-    cout << "\nSize of Array: " << bitArray.length() << endl;
+    cout << "\nMaxSize of Array: " << bitArray.max_size() << endl;
+    cout << "\nSize of Array: " << bitArray.size() << endl;
     string currentSet = "";
     int j = 0;
     bool runOnce = true;
