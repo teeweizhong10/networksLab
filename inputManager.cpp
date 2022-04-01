@@ -267,13 +267,6 @@ void inputManager::getInput() {
     }
 
     allInput.push_back(std::to_string(port));
-
-
-
-
-
-
-
     for (int i = 0; i < allInput.size(); ++i) {
         cout << allInput[i];
     }
