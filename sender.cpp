@@ -931,45 +931,45 @@ void refactorSenderStopAndWait(string file) {
 // try again
 
 void trySenderStopAndWait(vector<char>& bytes) {
+    cout << endl;
+    string byteContent;
+    string allBytesBefore(bytes.begin(), bytes.end());
+    string allBytesAfter = "";
     int packetCounter = 0;
     int seqNumCounter = 0;
     bool packetSent = false;
     bool receivedAck = false;
     packet newPacket;
-    while(bytes.size() >= sizeOfPacket) {
-        string byteContent(bytes.begin(), bytes.begin()+sizeOfPacket);;
+    while(packetCounter != numOfPackets) {
+        if (bytes.size() >= sizeOfPacket) {
+            string s(bytes.begin(), bytes.begin()+sizeOfPacket);
+            byteContent = s;
+        } else {
+            string s(bytes.begin(), bytes.end());
+            byteContent = s;
+        }
+
 
         //TODO: SEND BYTES HERE
         cout << "Sending packet " << packetCounter << endl;
         newPacket = packet(packetCounter, seqNumCounter, byteContent, byteContent, 0);
 
 
-
-        bytes.erase(bytes.begin(), bytes.begin()+sizeOfPacket);
         packetCounter++;
         seqNumCounter++;
+        allBytesAfter += byteContent;
+        if (bytes.size() >= sizeOfPacket) {
+            bytes.erase(bytes.begin(), bytes.begin()+sizeOfPacket);
+        }
         if (seqNumCounter == seqNumberUpperBound) {
             seqNumCounter = 0;
         }
     }
-
-    // last byte
-    if(!bytes.empty()) {
-        string byteContent(bytes.begin(), bytes.end());
-        //TODO: SEND LAST PACKET HERE
-        cout << "Sending packet " << packetCounter << endl;
-        newPacket = packet(packetCounter, seqNumCounter, byteContent, byteContent, 0);
-
-
-
-        bytes.erase(bytes.begin(), bytes.begin()+sizeOfPacket);
-        packetCounter++;
-        seqNumCounter++;
-        if (seqNumCounter == seqNumberUpperBound) {
-            seqNumCounter = 0;
-        }
+    if (allBytesBefore == allBytesAfter) {
+        cout << "Byte strings match up" << endl;
+    } else {
+        cerr << "Byte strings do not match up" << endl;
     }
-
 }
 
 int main() {
