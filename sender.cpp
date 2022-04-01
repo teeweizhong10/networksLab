@@ -16,6 +16,7 @@
 #include <thread>
 #include <math.h>
 #include <unistd.h>
+#include <sstream>
 #include "packet.h"
 //#include <bits/stdc++.h>
 
@@ -238,7 +239,7 @@ void showCurrentConfig(Sender currentSender) {
     cout << "Receiver Window Size: " << currentSender.getReceiverMaxWindowSize() << endl;
     contentToSend += std::to_string(currentSender.getReceiverMaxWindowSize());
     contentToSend += "\n";
-    cout << "Size of Packet: " << currentSender.getSizeOfPacket() << endl;
+    cout << "Size of Packet (bytes): " << currentSender.getSizeOfPacket() << endl;
     contentToSend += std::to_string(currentSender.getSizeOfPacket());
     contentToSend += "\n";
     cout << "Seq Num Lower Bound: " << currentSender.getSeqNumberLowerBound() << endl;
@@ -728,14 +729,14 @@ void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wa
 
 // REFACTORING: sending packets as file is broken into bits
 
-void setNumberOfPackets(string file, int sizeOfPackets) {
-    ifstream in_file(file, ios::binary);
-    in_file.seekg(0, ios::end);
-    int file_size = in_file.tellg()*8;
-    if(file_size%sizeOfPacket > 0) {
-        numOfPackets = file_size/sizeOfPacket + 1;
+void setNumberOfPackets(int fileSizeBytes, int sizeOfPackets) {
+//    ifstream in_file(file, ios::binary);
+//    in_file.seekg(0, ios::end);
+//    int file_size = in_file.tellg()*8;
+    if(fileSizeBytes%sizeOfPacket > 0) {
+        numOfPackets = fileSizeBytes/sizeOfPacket + 1;
     } else {
-        numOfPackets = file_size/sizeOfPacket;
+        numOfPackets = fileSizeBytes/sizeOfPacket;
     }
     cout << "Num of packets: " << numOfPackets << endl;
 }
@@ -929,14 +930,71 @@ void refactorSenderStopAndWait(string file) {
 
 // try again
 
+void trySenderStopAndWait(vector<char>& bytes) {
+    int packetCounter = 0;
+    int seqNumCounter = 0;
+    bool packetSent = false;
+    bool receivedAck = false;
+    packet newPacket;
+    while(bytes.size() >= sizeOfPacket) {
+        string byteContent(bytes.begin(), bytes.begin()+sizeOfPacket);;
+
+        //TODO: SEND BYTES HERE
+        cout << "Sending packet " << packetCounter << endl;
+        newPacket = packet(packetCounter, seqNumCounter, byteContent, byteContent, 0);
+
+
+
+        bytes.erase(bytes.begin(), bytes.begin()+sizeOfPacket);
+        packetCounter++;
+        seqNumCounter++;
+        if (seqNumCounter == seqNumberUpperBound) {
+            seqNumCounter = 0;
+        }
+    }
+
+    // last byte
+    if(!bytes.empty()) {
+        string byteContent(bytes.begin(), bytes.end());
+        //TODO: SEND LAST PACKET HERE
+        cout << "Sending packet " << packetCounter << endl;
+        newPacket = packet(packetCounter, seqNumCounter, byteContent, byteContent, 0);
+
+
+
+        bytes.erase(bytes.begin(), bytes.begin()+sizeOfPacket);
+        packetCounter++;
+        seqNumCounter++;
+        if (seqNumCounter == seqNumberUpperBound) {
+            seqNumCounter = 0;
+        }
+    }
+
+}
+
 int main() {
     Sender senderInstance;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
-    setNumberOfPackets(filePath, sizeOfPacket);
+    senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, receiverMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, packetsToLoseAck, packetsToFailChecksum, filePath);
+    showCurrentConfig(senderInstance);
+
+    // read bytes from file
+    std::ifstream input(filePath, std::ios::binary);
+
+    cout << "\n\nReading the file " << filePath << "..." << endl;
+    std::vector<char> bytes(
+            (std::istreambuf_iterator<char>(input)),
+            (std::istreambuf_iterator<char>()));
+
+    input.close();
+
+    cout << "File size in bytes: " << bytes.size() << endl;
+
+    setNumberOfPackets(bytes.size(), sizeOfPacket);
 
     if (selectedErrorType == 2) { // set errors for random percentage
-        refactorGenerateErrors(filePath, numOfPackets, errorPercentage);
+        setPacketErrors(errorPercentage, numOfPackets);
     }
 
     if (selectedErrorType != 0) {
@@ -964,24 +1022,8 @@ int main() {
 
     cout << "\n************ Protocol work ************" << endl;
 
-    std::ifstream input(filePath, std::ios::binary);
+    trySenderStopAndWait(bytes);
 
-    std::vector<char> bytes(
-            (std::istreambuf_iterator<char>(input)),
-            (std::istreambuf_iterator<char>()));
-
-    input.close();
-
-    cout << bytes.size() << endl;
-
-    for (int i = 0; i < 100; ++i) {
-        cout << bytes[i];
-    }
-
-//    if(printLog) {
-//        setBitsFromFile(filePath);
-//        cout << "All bits: " << allBits.length() << endl;
-//    }
 
     //refactorSenderStopAndWait(filePath);
     cout << endl;

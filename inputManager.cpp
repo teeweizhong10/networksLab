@@ -88,7 +88,7 @@ void inputManager::getInput() {
     }
 
     // Size of packet
-    cout << endl << "Choose the size of packets in bits: " << endl;
+    cout << endl << "Choose the size of packets in bytes: " << endl;
     cout << "Input: ";
     cin >> input;
     cout << "You chose: " << input << endl;
