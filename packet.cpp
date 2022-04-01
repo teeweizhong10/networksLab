@@ -30,13 +30,13 @@ packet::packet(int packetNum, int seqNum, string bitContent, string checksumValu
 
 void packet::setPacketMessage() {
     string message =std::to_string(packetNum);
-    message += "|";
+    message += "=||=";
     message += std::to_string(seqNum);
-    message += "|";
+    message += "=||=";
     message += bitContent;
-    message += "|";
+    message += "=||=";
     message += checksumValue;
-    message += "|";
+    message += "=||=";
     message += std::to_string(ackReceived);
     packetMessage = message;
 }
@@ -52,13 +52,13 @@ string packet::getCorruptedPacketMessage() {
     }
 
     string message =std::to_string(packetNum);
-    message += "|";
+    message += "=||=";
     message += std::to_string(seqNum);
-    message += "|";
+    message += "=||=";
     message += corruptBitContent;
-    message += "|";
+    message += "=||=";
     message += checksumValue;
-    message += "|";
+    message += "=||=";
     message += std::to_string(ackReceived);
     string corruptPacketMessage = message;
     return corruptPacketMessage;
