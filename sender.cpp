@@ -520,8 +520,6 @@ void setBitsFromFile(string file) {
     vector<char> bytes;
     char byte = 0;
     string bits="";
-    //just try read into char vector
-    //then convert to binary
 
     fstream input_file;
     input_file.open (file);
@@ -534,7 +532,6 @@ void setBitsFromFile(string file) {
             bits += bitset<8>(byte).to_string();
         }
         allBits = bits;
-	//setBitsToFile(allBits);
     }
 }
 
@@ -560,7 +557,7 @@ void senderGetTimeout() { //determining how long set wait time (dynamic wait tim
     simulateSendConfig(contentToSend);
 
     // Receive ack
-    sleep_for(milliseconds(20)); // Simulate time taken for packets to send
+    sleep_for(milliseconds(1)); // Simulate time taken for packets to send
     ackReceived = simulateSendAck(true); // socket code: if error try again
     time_point<Clock> end = Clock::now();
     milliseconds diff = duration_cast<milliseconds>(end - start);
@@ -651,14 +648,16 @@ bool simulateReceiverStopAndWait(string packetMessage) { //simulating receiver s
 //    cout << "Checksum value: " << checksumVal << endl;
 //    cout << "Ack received value: " << ackReceived << endl;
 
-    sleep_for(milliseconds(10)); //Simulate time taken to process and send ack
+    sleep_for(milliseconds(1)); //Simulate time taken to process and send ack
 
     // TODO: Do checksum
     string receivedCk = checksum(bitContent);
     std::string s = addBinary(checksumVal, receivedCk);
     if (s.find('0') != std::string::npos) {
-        cout << "Packet did not pass checksum." << endl;
-        sleep_for(waitTime + milliseconds(100)); // let it time out
+        if(printLog) {
+            cout << "Packet did not pass checksum." << endl;
+        }
+        sleep_for(waitTime + milliseconds(1)); // let it time out
         return false; // checksum failed, doesn't add up to all 1s
     }
         //else checksum succeeds
@@ -668,7 +667,7 @@ bool simulateReceiverStopAndWait(string packetMessage) { //simulating receiver s
         //TODO: add checksum check
         if(packetNum == packetsToLoseAck[i]) {
             packetsToLoseAck.erase(packetsToLoseAck.begin());
-            sleep_for(waitTime + milliseconds(100)); // let it time out
+            sleep_for(waitTime + milliseconds(1)); // let it time out
             return false;
         }
     }
@@ -691,7 +690,7 @@ void senderStopAndWait(vector<packet> packets) { //simulating sender stop and wa
             if(!packetsToDrop.empty()) { // Time out and don't send dropped packet if there are packets to be dropped
                 if(packetsToDrop[0] == packetsSent) { // If packet is meant to be dropped
                     packetsToDrop.erase(packetsToDrop.begin());
-                    sleep_for(waitTime + milliseconds(100)); // Let it time out
+                    sleep_for(waitTime + milliseconds(1)); // Let it time out
                     cout << "Packet " << packetsSent << " timed out" << endl;
                     // packet not sent
                 }
@@ -797,7 +796,7 @@ void refactorSenderStopAndWait(string file) {
                     if(!packetsToDrop.empty()) {
                         if(packetsToDrop[0] == packetCounter) {
                             packetsToDrop.erase(packetsToDrop.begin());
-                            sleep_for(waitTime + milliseconds(100)); // Let it time out
+                            sleep_for(waitTime + milliseconds(1)); // Let it time out
                             if (printLog) {
                                 cout << "Packet " << packetCounter << " timed out, trying again." << endl;
                             }
@@ -871,7 +870,7 @@ void refactorSenderStopAndWait(string file) {
                 if(!packetsToDrop.empty()) {
                     if(packetsToDrop[0] == packetCounter) {
                         packetsToDrop.erase(packetsToDrop.begin());
-                        sleep_for(waitTime + milliseconds(100)); // Let it time out
+                        sleep_for(waitTime + milliseconds(1)); // Let it time out
                         if (printLog) {
                             cout << "Packet " << packetCounter << " timed out, trying again." << endl;
                         }
@@ -928,7 +927,7 @@ void refactorSenderStopAndWait(string file) {
 //    }
 }
 
-
+// try again
 
 int main() {
     Sender senderInstance;
@@ -965,12 +964,26 @@ int main() {
 
     cout << "\n************ Protocol work ************" << endl;
 
+    std::ifstream input(filePath, std::ios::binary);
+
+    std::vector<char> bytes(
+            (std::istreambuf_iterator<char>(input)),
+            (std::istreambuf_iterator<char>()));
+
+    input.close();
+
+    cout << bytes.size() << endl;
+
+    for (int i = 0; i < 100; ++i) {
+        cout << bytes[i];
+    }
+
 //    if(printLog) {
 //        setBitsFromFile(filePath);
-//        cout << "All bits: " << allBits << endl;
+//        cout << "All bits: " << allBits.length() << endl;
 //    }
 
-    refactorSenderStopAndWait(filePath);
+    //refactorSenderStopAndWait(filePath);
     cout << endl;
 
     time_point<Clock> end = Clock::now();
