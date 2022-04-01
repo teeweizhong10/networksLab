@@ -951,6 +951,7 @@ void trySenderStopAndWait(vector<char>& bytes) {
 
 
         //TODO: SEND BYTES HERE
+        // need checksum working with byte content
         cout << "Sending packet " << packetCounter << endl;
         newPacket = packet(packetCounter, seqNumCounter, byteContent, byteContent, 0);
 
