@@ -83,6 +83,8 @@ string bitData;
 int currentSeqNum;
 int currentPacketNum;
 string bitDataComp;
+
+bool printLog = true;
 void receiverWelcomeMessage() {
     cout << "Creating instance for: receiver." << endl;
 }
@@ -258,34 +260,32 @@ bool passesChecksum(string originalCksum, string passedCksum){
 
 
 string checksum(string inPacket){
-    string checksum(string inPacket){
-        string bytesToBits = "";
-        for (std::size_t i = 0; i < inPacket.size(); ++i)
-        {
-            bytesToBits += bitset<8>(inPacket.c_str()[i]).to_string();
-        }
-        inPacket = bytesToBits;
-
-        //Takes 16 bits of the data and adds
-        string addition = "";
-        for(signed int i = 1; i <= inPacket.length();i++){
-            if ((i%16 == 0) && (i >= 16)) { //split data into this many bit segments
-
-                addition = addBinary(addition, inPacket.substr((signed)(i-16),16));
-
-            } else if (i >= (signed)((inPacket.length() - (signed)(inPacket.length()%16)))){
-                addition = addBinary(addition, inPacket.substr(i-1, inPacket.length()-1));
-                i = inPacket.length();
-            }
-        }
-        while ((signed)(addition.length() > 16)){
-            signed int minus16 = addition.length() - 16;
-            signed int minus1 = addition.length() - 1;
-            addition = addBinary(addition.substr(0, minus16), addition.substr(minus16, minus1));
-        }
-
-        return addition;
+    string bytesToBits = "";
+    for (std::size_t i = 0; i < inPacket.size(); ++i)
+    {
+        bytesToBits += bitset<8>(inPacket.c_str()[i]).to_string();
     }
+    inPacket = bytesToBits;
+
+    //Takes 16 bits of the data and adds
+    string addition = "";
+    for(signed int i = 1; i <= inPacket.length();i++){
+        if ((i%16 == 0) && (i >= 16)) { //split data into this many bit segments
+
+            addition = addBinary(addition, inPacket.substr((signed)(i-16),16));
+
+        } else if (i >= (signed)((inPacket.length() - (signed)(inPacket.length()%16)))){
+            addition = addBinary(addition, inPacket.substr(i-1, inPacket.length()-1));
+            i = inPacket.length();
+        }
+    }
+    while ((signed)(addition.length() > 16)){
+        signed int minus16 = addition.length() - 16;
+        signed int minus1 = addition.length() - 1;
+        addition = addBinary(addition.substr(0, minus16), addition.substr(minus16, minus1));
+    }
+
+    return addition;
 }
 //*************************************************************************************************************************
 void setBitsToFile(string bitString){
@@ -303,6 +303,7 @@ void setBitsToFile(string bitString){
 }
 
 void parseReceivingPacket(string input) {
+    string packetMessage = input;
     int len = packetMessage.length();
     char lineChars[len + 1];
     strcpy(lineChars, packetMessage.c_str());
@@ -388,7 +389,7 @@ void SNW(tcp::socket & socket){
 
         // If checksum is bad or lose ack
         for (int i = 0; i < packetsToLoseAck.size(); ++i) {
-            if(packetNum == packetsToLoseAck[i]) {
+            if(packetNumber == packetsToLoseAck[i]) {
                 packetsToLoseAck.erase(packetsToLoseAck.begin());
                 return;
             }
