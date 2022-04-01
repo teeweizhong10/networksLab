@@ -257,30 +257,35 @@ bool passesChecksum(string originalCksum, string passedCksum){
 }
 
 
-//TODO: ask Lauren about checksum errors
 string checksum(string inPacket){
-//	cout << "In Packet: " << inPacket << "\nComp: " << compliment << endl;
-
-
-    //Takes 16 bits of the data and adds
-    string addition = "";
-    for(signed int i = 1; i <= inPacket.length();i++){
-        if ((i%16 == 0) && (i >= 16)) { //split data into this many bit segments
-
-            addition = addBinary(addition, inPacket.substr((signed)(i-16),16));
-
-        } else if (i >= (signed)((inPacket.length() - (signed)(inPacket.length()%16)))){
-            addition = addBinary(addition, inPacket.substr(i-1, inPacket.length()-1));
-            i = inPacket.length();
+    string checksum(string inPacket){
+        string bytesToBits = "";
+        for (std::size_t i = 0; i < inPacket.size(); ++i)
+        {
+            bytesToBits += bitset<8>(inPacket.c_str()[i]).to_string();
         }
-    }
-    while ((signed)(addition.length() > 16)){
-        signed int minus16 = addition.length() - 16;
-        signed int minus1 = addition.length() - 1;
-        addition = addBinary(addition.substr(0, minus16), addition.substr(minus16, minus1));
-    }
+        inPacket = bytesToBits;
 
-    return addition;
+        //Takes 16 bits of the data and adds
+        string addition = "";
+        for(signed int i = 1; i <= inPacket.length();i++){
+            if ((i%16 == 0) && (i >= 16)) { //split data into this many bit segments
+
+                addition = addBinary(addition, inPacket.substr((signed)(i-16),16));
+
+            } else if (i >= (signed)((inPacket.length() - (signed)(inPacket.length()%16)))){
+                addition = addBinary(addition, inPacket.substr(i-1, inPacket.length()-1));
+                i = inPacket.length();
+            }
+        }
+        while ((signed)(addition.length() > 16)){
+            signed int minus16 = addition.length() - 16;
+            signed int minus1 = addition.length() - 1;
+            addition = addBinary(addition.substr(0, minus16), addition.substr(minus16, minus1));
+        }
+
+        return addition;
+    }
 }
 //*************************************************************************************************************************
 void setBitsToFile(string bitString){
@@ -298,11 +303,9 @@ void setBitsToFile(string bitString){
 }
 
 void parseReceivingPacket(string input) {
-    //  cout << "\nReceived packet: " << input << endl;
-
-    int len = input.length();
+    int len = packetMessage.length();
     char lineChars[len + 1];
-    strcpy(lineChars, input.c_str());
+    strcpy(lineChars, packetMessage.c_str());
     int itemCount = 0;
 
     string item = "";
@@ -312,58 +315,27 @@ void parseReceivingPacket(string input) {
     string checksumVal = "";
     int ackReceived = 0;
 
-    for (int i = 0; i < len; ++i) {
-        //cout << lineChars [i] << endl;
-        if(itemCount == 0) {
-            if(lineChars[i] != '|') { // packet number
-                item += lineChars[i];
-            } else {
-                itemCount = 1;
-                i++;
-                packetNum = stoi(item);
-                item = "";
-            }
+    std::string delimiter = "=||=";
+    size_t pos = 0;
+    std::string token;
+    while ((pos = packetMessage.find(delimiter)) != std::string::npos) {
+        token = packetMessage.substr(0, pos);
+        if(itemCount == 0) { // packet number
+            itemCount = 1;
+            packetNum = stoi(token);
+        } else if(itemCount == 1) { // seq number
+            itemCount = 2;
+            seqNum = stoi(token);
+        } else if(itemCount == 2) { // byte content
+            itemCount = 3;
+            bitContent = token;
+        } else if(itemCount == 3) { // byte content
+            itemCount = 4;
+            checksumVal = token;
+        } else if(itemCount == 5) { // byte content
+            ackReceived = stoi(token);
         }
-
-        if(itemCount == 1) {
-            if(lineChars[i] != '|') { // seq number
-                item += lineChars[i];
-            } else {
-                itemCount = 2;
-                i++;
-                seqNum = stoi(item);
-                item = "";
-            }
-        }
-
-        if(itemCount == 2) { // bit content
-            if(lineChars[i] != '|') {
-                bitContent += lineChars[i];
-            } else {
-                itemCount = 3;
-                i++;
-            }
-        }
-
-        if(itemCount == 3) { // checksum value
-            if(lineChars[i] != '|') {
-                checksumVal += lineChars[i];
-            } else {
-                itemCount = 4;
-                i++;
-            }
-        }
-
-        if(itemCount == 4) {
-            if(lineChars[i] != '|') { // ack received
-                item += lineChars[i];
-            } else {
-                itemCount = 2;
-                i++;
-                ackReceived = stoi(item);
-                item = "";
-            }
-        }
+        packetMessage.erase(0, pos + delimiter.length());
     }
     //cout << "Packet number: " << packetNum << endl;
     packetNumber = packetNum;
@@ -403,21 +375,29 @@ void SNW(tcp::socket & socket){
             break;
         }
         parseReceivingPacket(recvPkt);
-//		cout << "Cksum: " << checksum(bitData) << endl;
-//		cout << "Addition: " << addBinary(checksum(bitData), bitDataComp) << endl;
 
-        cout << "Packet " << packetNumber << " received"  << endl;
-        if(passesChecksum(checksum(bitData), bitDataComp)){
-            cout << "Checksum OK" << endl;
-            finalBits += bitData;
-            string ack = "ACK " + to_string(packetNumber);
-            sendData(socket, ack);
-            cout << ack << " sent" << endl;
-            cout << "Current window = [" << packetNumber << "]" << endl;
-        }else{
-            cout << "Checksum failed" << endl;
-            cout << "Current window = [" << packetNumber << "]" << endl;
+        string receivedCk = checksum(bitData);
+        std::string s = addBinary(bitDataComp, receivedCk);
+        if (s.find('0') != std::string::npos) {
+            if(printLog) {
+                cout << "Packet " << packetNumber << " did not pass checksum." << endl;
+            }
+            return; // checksum failed, doesn't add up to all 1s
         }
+        //else checksum succeeds
+
+        // If checksum is bad or lose ack
+        for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+            if(packetNum == packetsToLoseAck[i]) {
+                packetsToLoseAck.erase(packetsToLoseAck.begin());
+                return;
+            }
+        }
+
+        // If checksum is good, send back ack
+        string ack = "ACK " + to_string(packetNumber);
+        sendData(socket, ack);
+        return;
     }
 }
 
@@ -435,10 +415,12 @@ void receiverSimulation(){
     string recv = getData(socket);
     //break into "begin transaction..." and port number and set port
     if(recv == "Begin transaction...\n"){
-
         sendData(socket, "Begin transaction...");
     }
-//	cout << "Begin alg..." << endl;
+
+    string config = getData(socket);
+    parseConfigFromString(config);
+    sendData(socket, "configReceived");
 
     switch(selectedAlgorithm){
         case 1:{
