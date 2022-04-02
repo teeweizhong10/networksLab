@@ -710,8 +710,8 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
         }
     }
 
-//    string done = "alldone";
-//    sendData(socket, done);
+    string done = "alldone";
+    sendData(socket, done);
 //    string recvPkt = getData(socket);
 //    if(recvPkt == "alldone=|||="){
 //        cout <<"alldone received" << endl;
