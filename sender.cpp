@@ -770,29 +770,8 @@ int main() {
         setPacketErrors(errorPercentage, numOfPackets);
     }
     showCurrentConfig(senderInstance);
-    if (selectedErrorType != 0) {
-        cout << "ERRORS: " << endl;
-        cout << "Packets to drop: ";
-        for (int i = 0; i < packetsToDrop.size(); ++i) {
-            cout << packetsToDrop[i] << "\t"; //Test print packets to drop
-        }
-        cout << endl;
-
-        cout << "Packets to corrupt: ";
-        for (int i = 0; i < packetsToFailChecksum.size(); ++i) {
-            cout << packetsToFailChecksum[i] << "\t"; //Test print packets to drop
-        }
-        cout << endl;
-
-        cout << "Packets to lose ack: ";
-        for (int i = 0; i < packetsToLoseAck.size(); ++i) {
-            cout << packetsToLoseAck[i] << "\t"; //Test print packets to drop
-        }
-        cout << endl;
-    }
 
     start = Clock::now(); // for total elapsed time
-
     cout << "\n************ Protocol work ************" << endl;
     beginTransaction(bytes);
 
