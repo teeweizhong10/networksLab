@@ -373,6 +373,7 @@ void SNW(tcp::socket& socket){
         cout << "Received packet: " << recvPkt << endl;
 
         if(recvPkt == "alldone=|||="){
+            cout <<"alldone received" << endl;
             stats();
             break;
         }
