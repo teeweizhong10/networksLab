@@ -78,7 +78,7 @@ vector<int> packetsToFailChecksum; //empty if none
 string filePath;
 int port;
 string finalBits;
-int packetNumber;
+int packetNumber = 0;
 string bitData;
 int currentSeqNum;
 int currentPacketNum;
