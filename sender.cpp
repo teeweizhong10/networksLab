@@ -129,6 +129,8 @@ time_point<Clock> endTimeInSeconds;
 string ipAddr;
 int port;
 
+bool printLog = true;
+
 vector<packet> packets;
 time_point<Clock> start;
 milliseconds latency;
@@ -650,20 +652,20 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
                     sendData(socket, newPacket.getCorruptedPacketMessage()) // send corrupted message
                     packetSent = true;
                     string ack = getData(socket); // Receiver gets good packet
-                    if(ack == "ACK " + to_string(packetNumber)) {
+                    if(ack == "ACK " + to_string(newPacket.getPacketNum())) {
                         receivedAck = true;
                     } // Receiver gets corrupted packet (won't happen)
                 }
             }
 
             if (!packetSent) {
-                simulateSendPacket(newPacket.getPacketMessage()); // send packet
+                sendData(socket, newPacket.getPacketMessage()) // send packet
                 if (printLog) {
                     cout << "Packet " << packetCounter << " was sent" << endl;
                 }
                 packetSent = true;
                 string ack = getData(socket); // Receiver gets good packet
-                if(ack == "ACK " + to_string(packetNumber)) {
+                if(ack == "ACK " + to_string(newPacket.getPacketNum())) {
                     receivedAck = true;
                 }
             }
