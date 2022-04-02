@@ -21,6 +21,9 @@
 #include <boost/asio.hpp>
 #include <chrono>
 #include <thread>
+#include <queue>
+#include <deque>
+#include <list>
 
 
 using namespace std;
@@ -638,7 +641,7 @@ int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
         q.push(newPacket);
         seqNumCounter++;
         chunkCounter++;
-        packetCounter++;//TODO: might need to remove this...
+        packetCounter++;
     }
 
     return packetCounter;
@@ -662,7 +665,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
         for(int i = 0; i < senderMaxWindowSize; i++){
             if(getData(socket) == ("ACK " + Q.front().getPacketNum())){
                 Q.pop();
-                packetCounter++;//TODO: or this...
+                packetCounter++;//TODO: might need to remove this???
                 packetCounter = fillQ(Q, bytes, packetCounter);
             }else{
                 sendQ(Q, socket);
