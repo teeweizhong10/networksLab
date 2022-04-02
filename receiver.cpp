@@ -418,8 +418,8 @@ void receiverSimulation(){
     boost::asio::ip::tcp::socket socket(io_service);
 //    socket.open(boost::asio::ip::tcp::v4());
     acceptor.accept(socket);
-    boost::asio::socket_base::receive_buffer_size option(sizeOfPacket + 40);    //can recv up to 1G
-    socket.set_option(option);
+//    boost::asio::socket_base::receive_buffer_size option(sizeOfPacket + 40);    //can recv up to 1G
+//    socket.set_option(option);
 
     //first packet sent is config
     string config = getData(socket);
