@@ -579,7 +579,7 @@ void sendData(tcp::socket& socket, const string& msg){
     const string& temp = msg + "=|||=";
     //cout << "Sending data: " << temp << endl;
     boost::asio::write(socket, buffer(temp));
-    //cout << "Sending buffer size: " <<  size << endl;
+    cout << "Sending buffer size: " <<  size << endl;
 }
 
 void stats(){

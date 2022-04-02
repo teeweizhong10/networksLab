@@ -406,6 +406,7 @@ void SNW(tcp::socket& socket){
         string ack = "ACK " + to_string(packetNumber);
         sendData(socket, ack);
         cout << "Ack " << to_string(packetNumber) << " sent"  << endl;
+        cout << "BIT DATA::: " << bitData << endl;
         setBitsToFile(bitData);
         cout << "Current window [1]" << endl;
 
