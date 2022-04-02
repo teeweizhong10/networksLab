@@ -425,7 +425,7 @@ void receiverSimulation(){
 
     string config = getData(socket);
     parseConfigFromString(config);
-    sendData(socket, "configReceived");
+    sendData(socket, "configReceived\n");
 
     switch(selectedAlgorithm){
         case 1:{

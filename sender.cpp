@@ -721,8 +721,14 @@ void beginTransaction(vector<char>& bytes){
 
 
     sendData(socket, "Begin transaction...");
-
     string response = getData(socket);
+
+    sendData(socket, contentToSend);
+    string response = getData(socket);
+    if(recv == "configReceived\n"){
+        cout << "Config sent successfully." << endl;
+    }
+
     if(response == "Begin transaction...\n"){
         switch(selectedAlgorithm){
             case 1:{
