@@ -354,7 +354,7 @@ string getData(tcp::socket & socket) {
 //    boost::asio::streambuf buf;
 //    boost::asio::read_until( socket, buf, "=|||=" );
 //    string data = boost::asio::buffer_cast<const char*>(buf.data());
-    string data = socket.read_some(boost::asio::buffer(socket, size));
+    string data = socket.read_some(boost::asio::buffer(socket, option));
     return data;
 }
 void sendData(tcp::socket & socket, const string& message) {
