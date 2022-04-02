@@ -383,6 +383,8 @@ void SNW(tcp::socket & socket){
             if(printLog) {
                 cout << "Packet " << packetNumber << " did not pass checksum." << endl;
             }
+            string ack = "NACK");
+            sendData(socket, ack);
             return; // checksum failed, doesn't add up to all 1s
         }
         //else checksum succeeds
@@ -391,6 +393,8 @@ void SNW(tcp::socket & socket){
         for (int i = 0; i < packetsToLoseAck.size(); ++i) {
             if(packetNumber == packetsToLoseAck[i]) {
                 packetsToLoseAck.erase(packetsToLoseAck.begin());
+                string ack = "NACK");
+                sendData(socket, ack);
                 return;
             }
         }

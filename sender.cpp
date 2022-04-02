@@ -467,7 +467,14 @@ string addBinary (string a, string b){
 
 
 //TODO: ask Lauren about checksum errors
-string checksum(string inPacket){
+string checksum(string inPacket) {
+    string bytesToBits = "";
+    for (std::size_t i = 0; i < inPacket.size(); ++i)
+    {
+        bytesToBits += bitset<8>(inPacket.c_str()[i]).to_string();
+    }
+    inPacket = bytesToBits;
+
     //Takes 16 bits of the data and adds
     string addition = "";
     for(signed int i = 1; i <= inPacket.length();i++){
@@ -573,64 +580,106 @@ void whatsInThisVector(vector<int> vec){
 
 void GBN(){}
 void SR(){}
-void SNW(tcp::socket& socket){
-    for(int i = 0; i <= packets.size(); i++){
-//		cout << "Comp: " << packets[i].getChecksumValue() << endl;
-        if(i == packets.size()){
-            sendData(socket, "alldone");
-            cout << "Session successfully terminated" << endl;
-            stats();
-            endTotalTimer();
-        }else{
+void SNW(tcp::socket& socket, vector<char>& bytes){
+    cout << endl;
+    string byteContent;
+    string allBytesBefore(bytes.begin(), bytes.end());
+    string allBytesAfter = "";
 
-            int index;
-            vector<int>::iterator itr;
-            //fails cksum
-
-//			whatsInThisVector(packetsToFailChecksum);
-            if(count(packetsToFailChecksum.begin(), packetsToFailChecksum.end(), packets[i].getSeqNum())>0){
-                packets[i].setChecksumValue(compliment(checksum(packets[i].getBitContent())));
-                //take out of fail cksum vector
-//				cout << "new Comp: " << packets[i].getChecksumValue();
-                itr  = find(packetsToFailChecksum.begin(), packetsToFailChecksum.end(), packets[i].getSeqNum());
-                if(itr != packetsToFailChecksum.cend()){
-                    index = std::distance(packetsToFailChecksum.begin(), itr);
-                    cout << "Removing: " << to_string(packetsToFailChecksum[index]) << "at index " << to_string(index) << endl;
-                }
-
-
-                packetsToFailChecksum.erase(packetsToFailChecksum.begin() + index - 1);
-            }
-
-
-            //to drop
-            if(count(packetsToDrop.begin(), packetsToDrop.end(), packets[i].getPacketNum())>0){
-//			whatsInThisVector(packetsToDrop);
-                //drop packet
-            }
-
-
-
-            sendData(socket, packets[i].getPacketMessage());
-            //timeout start
-            cout << "Packet " << to_string(packets[i].getPacketNum()) << " sent..." << endl;
-            string ack = getData(socket);
-            string temp = "ACK " + to_string(packets[i].getPacketNum()) +  "\n";
-
-            if(ack != temp){
-                cout << "Packet " << packets[i].getPacketNum() << " Re-transmitted." << endl;
-                i = i-1;
-            }else{
-                cout << "ACK " << packets[i].getPacketNum() << " received." << endl;
-                cout << "Current Window = [" << packets[i].getPacketNum() << "]"  << endl;
-            }
+    string receivedBytes = "";
+    int packetCounter = 0;
+    int seqNumCounter = 0;
+    bool packetSent = false;
+    bool receivedAck = false;
+    packet newPacket;
+    while(packetCounter != numOfPackets) {
+        if (bytes.size() >= sizeOfPacket) {
+            string s(bytes.begin(), bytes.begin()+sizeOfPacket);
+            byteContent = s;
+        } else {
+            string s(bytes.begin(), bytes.end());
+            byteContent = s;
         }
 
-    }
+        cout << "Sending packet " << packetCounter << endl;
+        newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
+        packetSent = false;
+        time_point<Clock> timeoutStart = Clock::now();
+        milliseconds currentTimeCount = duration_cast<milliseconds>(milliseconds (0)- milliseconds(0));
+        while (notTimedOut(currentTimeCount)) {
+            currentTimeCount += waitTime;
+            //drop packet
+            if(!packetsToDrop.empty()) {
+                if(packetsToDrop[0] == packetCounter) {
+                    packetsToDrop.erase(packetsToDrop.begin());
+                    sleep_for(waitTime + milliseconds(1)); // Let it time out
+                    if (printLog) {
+                        cout << "Packet " << packetCounter << " timed out, trying again." << endl;
+                    }
+                }
+            }
 
+            //corrupt packet
+            if(!packetsToFailChecksum.empty()) {
+                if (packetsToFailChecksum[0] == packetCounter){
+                    packetsToFailChecksum.erase(packetsToFailChecksum.begin());
+                    if (printLog) {
+                        cout << "Packet " << packetCounter << " was corrupted" << endl;
+                        cout << "Corrupted Packet " << packetCounter << " was sent" << endl;
+                    }
+                    sendData(socket, newPacket.getCorruptedPacketMessage()) // send corrupted message
+                    packetSent = true;
+                    string ack = getData(socket); // Receiver gets good packet
+                    if(ack == "ACK " + to_string(packetNumber)) {
+                        receivedAck = true;
+                    } // Receiver gets corrupted packet (won't happen)
+                }
+            }
+
+            if (!packetSent) {
+                simulateSendPacket(newPacket.getPacketMessage()); // send packet
+                if (printLog) {
+                    cout << "Packet " << packetCounter << " was sent" << endl;
+                }
+                packetSent = true;
+                string ack = getData(socket); // Receiver gets good packet
+                if(ack == "ACK " + to_string(packetNumber)) {
+                    receivedAck = true;
+                }
+            }
+
+            if(receivedAck) {
+                if (printLog) {
+                    cout << "ACK for packet " << packetCounter << " was received." << endl;
+                    receivedBytes += newPacket.getBitContent();
+                }
+
+                //Move on to next packet to send
+                packetCounter++;
+                seqNumCounter++;
+                allBytesAfter += byteContent;
+                if (bytes.size() >= sizeOfPacket) {
+                    bytes.erase(bytes.begin(), bytes.begin()+sizeOfPacket);
+                }
+                if (seqNumCounter == seqNumberUpperBound) {
+                    seqNumCounter = 0;
+                }
+            } else {
+                if (printLog) {
+                    cout << "Failed to receive ACK for packet " << packetCounter << " and timed out. Trying again." << endl;
+                }
+            }
+
+            time_point<Clock> timeoutend = Clock::now();
+            currentTimeCount = duration_cast<milliseconds>(timeoutend - start);
+            if(receivedAck) {
+                currentTimeCount = waitTime;
+            }
+        }
+    }
 }
 
-void beginTransaction(){
+void beginTransaction(vector<char>& bytes){
     cout << "IP: " << ipAddr << endl;
     cout << "PORT: " << port << endl;
     boost::asio::io_service io_service;
@@ -649,7 +698,7 @@ void beginTransaction(){
                 break;
             }
             case 2:{
-                SNW(socket);
+                SNW(socket, bytes);
                 break;
             }
             case 3:{
@@ -664,69 +713,59 @@ int main() {
     Sender senderInstance;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
+    senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, receiverMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, packetsToLoseAck, packetsToFailChecksum, filePath);
+    showCurrentConfig(senderInstance);
+
+    // read bytes from file
+    std::ifstream input(filePath, std::ios::binary);
+
+    cout << "\n\nReading the file " << filePath << "..." << endl;
+    std::vector<char> bytes(
+            (std::istreambuf_iterator<char>(input)),
+            (std::istreambuf_iterator<char>()));
+
+    input.close();
+
+    cout << "File size in bytes: " << bytes.size() << endl;
+
+    setNumberOfPackets(bytes.size(), sizeOfPacket);
+
     if (selectedErrorType == 2) { // set errors for random percentage
         setPacketErrors(errorPercentage, numOfPackets);
     }
 
-    setBitsFromFile(filePath);
-    cout << "Length of file in bits: " << allBits.length();
+    if (selectedErrorType != 0) {
+        cout << "ERRORS: " << endl;
+        cout << "Packets to drop: ";
+        for (int i = 0; i < packetsToDrop.size(); ++i) {
+            cout << packetsToDrop[i] << "\t"; //Test print packets to drop
+        }
+        cout << endl;
 
-    senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, receiverMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, packetsToLoseAck, packetsToFailChecksum, filePath);
-    showCurrentConfig(senderInstance);
+        cout << "Packets to corrupt: ";
+        for (int i = 0; i < packetsToFailChecksum.size(); ++i) {
+            cout << packetsToFailChecksum[i] << "\t"; //Test print packets to drop
+        }
+        cout << endl;
+
+        cout << "Packets to lose ack: ";
+        for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+            cout << packetsToLoseAck[i] << "\t"; //Test print packets to drop
+        }
+        cout << endl;
+    }
+
+    start = Clock::now(); // for total elapsed time
+
+    cout << "\n************ Protocol work ************" << endl;
+    beginTransaction(bytes);
+
+
+    //refactorSenderStopAndWait(filePath);
     cout << endl;
 
-    //allBits += "0101011110101010101011101010110101110101010101011100"; // Test adding bits
-
-    // Begin coding here
-    // Get the amount of packets based on the string length
-    if(allBits.length()%sizeOfPacket > 0) {
-        numOfPackets = allBits.length()/sizeOfPacket + 1;
-    } else {
-        numOfPackets = allBits.length()/sizeOfPacket;
-    }
-
-
-    cout << "\nNumber of packets: " << numOfPackets << endl;
-
-
-
-    // Putting bit strings into packets based on user input size of packets
-    remove(allBits.begin(), allBits.end(), ' ');
-    vector<char> bitArray(allBits.begin(), allBits.end());
-    cout << "\nMaxSize of Array: " << bitArray.max_size() << endl;
-    cout << "\nSize of Array: " << bitArray.size() << endl;
-    string currentSet = "";
-    int j = 0;
-    bool runOnce = true;
-    int packetCounter = 0;
-    int seqNumCounter = 0;
-    for (int i = 0; i < numOfPackets; ++i) {
-        while (j < allBits.length()) {
-            currentSet += bitArray[j];
-            j++;
-            if (j%sizeOfPacket == 0) {
-                //cout << "Current set: " << currentSet << endl;
-                seqNumCounter=(packetCounter)%(seqNumberUpperBound+1);
-                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,getChecksumVal(currentSet),0);
-                packets.push_back(newPacket);
-                currentSet = "";
-                packetCounter++;
-            }
-        }
-        if (runOnce) {
-            if (j%numOfPackets > 0){
-                //cout << "Current set: " << currentSet << endl;
-                if(seqNumCounter%seqNumberUpperBound != 0) {
-                    seqNumCounter++;
-                } else {
-                    seqNumCounter = 0;
-                }
-                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,getChecksumVal(currentSet),0);
-                packets.push_back(newPacket);
-            }
-        }
-        runOnce = false;
-    }
-    beginTransaction();
-    return 0;
+    time_point<Clock> end = Clock::now();
+    milliseconds totalElapsedTime = duration_cast<milliseconds>(end - start);
+    cout << "Total elapsed time: " << totalElapsedTime.count() << "ms" << std::endl;
+    cout << "Done sending all " << numOfPackets << " packets" << endl;
 }
