@@ -726,7 +726,7 @@ void beginTransaction(vector<char>& bytes){
 
     sendData(socket, contentToSend);
     response = getData(socket);
-    if(recv == "configReceived\n"){
+    if(response == "configReceived\n"){
         cout << "Config sent successfully." << endl;
     }
 
