@@ -349,7 +349,7 @@ void parseReceivingPacket(string input) {
 
 string getData(tcp::socket & socket) {
     boost::asio::streambuf buf;
-    boost::asio::read_until( socket, buf, "=||=" );
+    //boost::asio::read_until( socket, buf, "=||=" );
     string data = boost::asio::buffer_cast<const char*>(buf.data());
     return data;
 }
