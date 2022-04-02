@@ -622,7 +622,6 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
     bool receivedAck = false;
     packet newPacket;
 
-
     while(packetCounter != numOfPackets) {
         if (bytes.size() >= sizeOfPacket) {
             string s(bytes.begin(), bytes.begin()+sizeOfPacket);
@@ -661,7 +660,7 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
                     sendData(socket, newPacket.getCorruptedPacketMessage());// send corrupted message
                     packetSent = true;
                     string ack = getData(socket); // Receiver gets good packet
-                    if(ack == "ACK " + to_string(newPacket.getPacketNum())) {
+                    if(ack == "ACK " + to_string(newPacket.getPacketNum()) + "\n") {
                         receivedAck = true;
                     } // Receiver gets corrupted packet (won't happen)
                 }
