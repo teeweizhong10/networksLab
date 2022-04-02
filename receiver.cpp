@@ -294,13 +294,7 @@ string checksum(string inPacket){
 void setBitsToFile(string bitString){
     ofstream output;
     output.open("OUTPUTFILE");
-
-    for (int i = 0; i < bitString.length(); i++){
-        string bitTemp = bitString.substr(i, 8);
-        bitset<8> temp(bitTemp);
-        output << char(temp.to_ulong());
-        i= i+7;
-    }
+    output << bitString;
     output.close();
 }
 
@@ -412,6 +406,7 @@ void SNW(tcp::socket& socket){
         string ack = "ACK " + to_string(packetNumber);
         sendData(socket, ack);
         cout << "Ack " << to_string(packetNumber) << " sent"  << endl;
+        setBitsToFile(bitData);
         cout << "Current window [1]" << endl;
 
     }
