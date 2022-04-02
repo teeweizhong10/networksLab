@@ -38,6 +38,7 @@ void packet::setPacketMessage() {
     message += checksumValue;
     message += "=||=";
     message += std::to_string(ackReceived);
+    message += "=||=";
     packetMessage = message;
 }
 
@@ -60,6 +61,7 @@ string packet::getCorruptedPacketMessage() {
     message += checksumValue;
     message += "=||=";
     message += std::to_string(ackReceived);
+    message += "=||=";
     string corruptPacketMessage = message;
     return corruptPacketMessage;
 }

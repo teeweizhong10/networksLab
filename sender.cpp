@@ -566,7 +566,7 @@ string endTotalTimer(){
 //*************************************************************************************************************************
 string getData(tcp::socket& socket){
     boost::asio::streambuf buf;
-    boost::asio::read_until(socket, buf, "\n");
+    boost::asio::read_until( socket, buf, "=||=" );
     string data =  boost::asio::buffer_cast<const char*>(buf.data());
     return data;
 }
@@ -655,7 +655,7 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
                     sendData(socket, newPacket.getCorruptedPacketMessage());// send corrupted message
                     packetSent = true;
                     string ack = getData(socket); // Receiver gets good packet
-                    if(ack == "ACK " + to_string(newPacket.getPacketNum()) + "\n") {
+                    if(ack == "ACK " + to_string(newPacket.getPacketNum()) + "=||=") {
                         receivedAck = true;
                     } // Receiver gets corrupted packet (won't happen)
                 }
@@ -671,7 +671,7 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
                 packetSent = true;
 
                 string ack = getData(socket); // Receiver gets good packet
-                if(ack == "ACK " + to_string(newPacket.getPacketNum()) + "\n") {
+                if(ack == "ACK " + to_string(newPacket.getPacketNum()) + "=||=") {
                     receivedAck = true;
                 }
             }
@@ -732,7 +732,7 @@ void beginTransaction(vector<char>& bytes){
     sendData(socket, "Begin transaction...");
     response = getData(socket);
 
-    if(response == "Begin transaction...\n"){
+    if(response == "Begin transaction...=||="){
         switch(selectedAlgorithm){
             case 1:{
                 GBN();
