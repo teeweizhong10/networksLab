@@ -12,6 +12,11 @@
 #include <stdlib.h>
 #include <bitset>
 #include <algorithm>
+#include <chrono>
+#include <thread>
+#include <math.h>
+#include <unistd.h>
+#include <sstream>
 #include "packet.h"
 #include <boost/asio.hpp>
 #include <chrono>
@@ -125,6 +130,9 @@ string ipAddr;
 int port;
 
 vector<packet> packets;
+time_point<Clock> start;
+milliseconds latency;
+milliseconds waitTime = milliseconds(0);
 
 int getNumOfPackets(string bits) {
     numOfPackets = 0;
