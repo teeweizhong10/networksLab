@@ -600,6 +600,13 @@ void setNumberOfPackets(int fileSizeBytes, int sizeOfPackets) {
     cout << "Num of packets: " << numOfPackets << endl;
 }
 
+bool notTimedOut(milliseconds currentTime) {
+    if(currentTime.count() >= waitTime.count()) {
+        return false;
+    }
+    return true;
+}
+
 void GBN(){}
 void SR(){}
 void SNW(tcp::socket& socket, vector<char>& bytes){
