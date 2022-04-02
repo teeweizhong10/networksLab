@@ -347,7 +347,7 @@ void parseReceivingPacket(string input) {
 }
 //*************************************************************************************************************************
 
-auto read_(tcp::socket& socket) {
+string read_(tcp::socket& socket) {
     std::vector<uint8_t> data;
     boost::asio::read_until(
             socket,
@@ -358,8 +358,8 @@ auto read_(tcp::socket& socket) {
 //    for (int ch : data) {
 //        std::cout << " " << std::hex << std::setw(2) << std::setfill('0') << ch;
 //    }
-
-    return data;
+    string s(data.begin(), data.end())
+    return s;
 }
 
 string getData(tcp::socket & socket) {
@@ -370,9 +370,7 @@ string getData(tcp::socket & socket) {
 //    string data;
 //    getline(str, data);
 
-    auto stuff = read_(socket);
-
-    return stuff;
+    return read(socket);
 }
 void sendData(tcp::socket & socket, const string& message) {
     const string& msg = message + "=|||=";
