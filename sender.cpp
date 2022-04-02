@@ -578,6 +578,18 @@ void whatsInThisVector(vector<int> vec){
     }
 }
 
+void setNumberOfPackets(int fileSizeBytes, int sizeOfPackets) {
+//    ifstream in_file(file, ios::binary);
+//    in_file.seekg(0, ios::end);
+//    int file_size = in_file.tellg()*8;
+    if(fileSizeBytes%sizeOfPacket > 0) {
+        numOfPackets = fileSizeBytes/sizeOfPacket + 1;
+    } else {
+        numOfPackets = fileSizeBytes/sizeOfPacket;
+    }
+    cout << "Num of packets: " << numOfPackets << endl;
+}
+
 void GBN(){}
 void SR(){}
 void SNW(tcp::socket& socket, vector<char>& bytes){
