@@ -796,4 +796,6 @@ int main() {
     milliseconds totalElapsedTime = duration_cast<milliseconds>(end - start);
     cout << "Total elapsed time: " << totalElapsedTime.count() << "ms" << std::endl;
     cout << "Done sending all " << numOfPackets << " packets" << endl;
+
+    cout << "All received bytes length: " << bytes.size() << endl;
 }
