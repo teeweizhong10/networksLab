@@ -666,14 +666,13 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
             }
 
             if (!packetSent) {
-                cout << "packing sending" << endl;
                 sendData(socket, newPacket.getPacketMessage()); // send packet
                 if (printLog) {
                     cout << "Packet " << packetCounter << " was sent" << endl;
                 }
                 packetSent = true;
                 string ack = getData(socket); // Receiver gets good packet
-                if(ack == "ACK " + to_string(newPacket.getPacketNum())) {
+                if(ack == "ACK " + to_string(newPacket.getPacketNum()) + "\n") {
                     receivedAck = true;
                 }
             }
