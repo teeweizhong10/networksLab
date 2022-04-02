@@ -574,9 +574,9 @@ string getData(tcp::socket& socket){
 void sendData(tcp::socket& socket, const string& msg){
 //    boost::asio::socket_base::send_buffer_size option(sizeOfPacket + 40);
 //    socket.set_option(option);
-    const string& temp = msg;
+    const string& temp = msg + "=|||=";
     cout << "Sending data: " << temp << endl;
-    boost::asio::write(socket, buffer(temp + "=|||="));
+    boost::asio::write(socket, buffer(temp));
 }
 
 void stats(){
