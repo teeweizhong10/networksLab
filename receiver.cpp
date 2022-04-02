@@ -432,6 +432,7 @@ void receiverSimulation(){
 
     //getting Begin Transaction
     string recv = getData(socket);
+    cout << recv;
 
     //break into "begin transaction..." and port number and set port
     if(recv == "Begin transaction...=|||="){
