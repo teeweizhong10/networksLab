@@ -349,7 +349,7 @@ void parseReceivingPacket(string input) {
 
 string getData(tcp::socket & socket) {
     boost::asio::streambuf buf;
-    //boost::asio::read_until( socket, buf, "=||=" );
+    boost::asio::read_until( socket, buf, "=|||=" );
     string data = boost::asio::buffer_cast<const char*>(buf.data());
     return data;
 }
@@ -372,7 +372,7 @@ void SNW(tcp::socket& socket){
         string recvPkt = getData(socket);
         cout << "Received packet: " << recvPkt << endl;
 
-        if(recvPkt == "alldone=||="){
+        if(recvPkt == "alldone=|||="){
             stats();
             break;
         }
@@ -431,7 +431,7 @@ void receiverSimulation(){
     string recv = getData(socket);
 
     //break into "begin transaction..." and port number and set port
-    if(recv == "Begin transaction...=||="){
+    if(recv == "Begin transaction...=|||="){
         sendData(socket, "Begin transaction...");
     }
 
