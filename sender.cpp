@@ -776,6 +776,7 @@ int main() {
     input.close();
 
     cout << "File size in bytes: " << bytes.size() << endl;
+    int file_size = bytes.size();
 
     setNumberOfPackets(bytes.size(), sizeOfPacket);
 
@@ -797,5 +798,5 @@ int main() {
     cout << "Total elapsed time: " << totalElapsedTime.count() << "ms" << std::endl;
     cout << "Done sending all " << numOfPackets << " packets" << endl;
 
-    cout << "All received bytes length: " << bytes.size() << endl;
+    cout << "All received bytes length: " << file_size() << endl;
 }
