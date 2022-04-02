@@ -371,18 +371,17 @@ void SR(){}
 
 void SNW(tcp::socket& socket){
 
-    while(recvPkt != "alldone=|||="){
+    while(true){
         string recvPkt = getData(socket);
         cout << "Received packet: " << recvPkt << endl;
 
-//        if(recvPkt == "alldone=|||="){
-//            cout <<"alldone received." << endl;
-//            string ack = "alldone";
-//            sendData(socket, ack);
-//            socket.close();
-//            stats();
-//            break;
-//        }
+        if(recvPkt == "alldone=|||="){
+            cout <<"alldone received" << endl;
+            string done = "alldone";
+            sendData(socket, done);
+            stats();
+            break;
+        }
         parseReceivingPacket(recvPkt);
         receivedBytes += bitData;
         string receivedCk = checksum(bitData);
@@ -412,9 +411,6 @@ void SNW(tcp::socket& socket){
         cout << "Current window [1]" << endl;
 
     }
-
-    cout << "all done " << endl;
-    socket.close();
 }
 
 
