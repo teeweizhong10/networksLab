@@ -729,6 +729,7 @@ void beginTransaction(vector<char>& bytes){
     }
 
     if(response == "Begin transaction...\n"){
+        cout << "Beginning transaction" << endl;
         switch(selectedAlgorithm){
             case 1:{
                 GBN();
