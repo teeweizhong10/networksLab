@@ -377,7 +377,8 @@ void SNW(tcp::socket& socket){
     while(true){
         string recvPkt = getData(socket);
         cout << "Received packet: " << recvPkt << endl;
-
+        cout << "Packet number: " << packetNumber << endl;
+        cout << "Number of expected received number: " << numberOfReceivedPackets << endl;
         if(packetNumber == numberOfReceivedPackets){
             cout <<"Done receiving all packets" << endl;
             socket.close();
