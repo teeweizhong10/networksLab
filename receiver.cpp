@@ -353,23 +353,11 @@ string read_(tcp::socket& socket) {
             socket,
             boost::asio::dynamic_buffer(data),
             "=|||=");
-
-//    std::cout << "received:\n";
-//    for (int ch : data) {
-//        std::cout << " " << std::hex << std::setw(2) << std::setfill('0') << ch;
-//    }
     string s(data.begin(), data.end());
     return s;
 }
 
 string getData(tcp::socket & socket) {
-//    boost::asio::streambuf buf;
-//    boost::asio::read_until(socket, buf, "=|||=");
-//   string data = boost::asio::buffer_cast<const char*>(buf.data());
-//    istream str(&buf);
-//    string data;
-//    getline(str, data);
-
     return read_(socket);
 }
 void sendData(tcp::socket & socket, const string& message) {
