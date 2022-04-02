@@ -376,6 +376,7 @@ void SNW(tcp::socket& socket){
         }
         parseReceivingPacket(recvPkt);
         receivedBytes += bitData;
+        cout << bitData;
         string receivedCk = checksum(bitData);
         std::string s = addBinary(bitDataComp, receivedCk);
         if (s.find('0') != std::string::npos) {
