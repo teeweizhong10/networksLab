@@ -349,11 +349,8 @@ void parseReceivingPacket(string input) {
 
 string getData(tcp::socket & socket) {
     boost::asio::streambuf buf;
-    cout << "reading until 1" << endl;
     boost::asio::read_until( socket, buf, "=|||=" );
-    cout << "reading until 2" << endl;
     string data = boost::asio::buffer_cast<const char*>(buf.data());
-    cout << "data: " << data << endl;
     return data;
 }
 void sendData(tcp::socket & socket, const string& message) {
