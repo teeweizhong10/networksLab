@@ -347,15 +347,12 @@ void parseReceivingPacket(string input) {
 }
 //*************************************************************************************************************************
 
-void ReadHandler(boost::system::error_code ex){
-    std::cout << " print the buffer data..." << std::endl;
-    std::cout << buff.data() << std::endl;
-}
 
 string getData(tcp::socket & socket) {
     boost::asio::streambuf buf;
+    boost::system::error_code err_code;
     //boost::asio::read_until( socket, buf, "=|||=" );
-    socket.async_read_some(boost::asio::buffer(buf), ReadHandler);
+    boost::asio::read(socket, buf, err_code);
     string data = boost::asio::buffer_cast<const char*>(buf.data());
     return data;
 }
