@@ -347,17 +347,17 @@ void parseReceivingPacket(string input) {
 }
 //*************************************************************************************************************************
 
-string getData(tcp::socket & socket) {
-    boost::system::error_code ec;
-    boost::asio::streambuf sb;
-    auto transferred = read(socket, sb, transfer_exactly(10u<<20), ec);
+void ReadHandler(boost::system::error_code ex){
+    std::cout << " print the buffer data..." << std::endl;
+    std::cout << buff.data() << std::endl;
+}
 
-    std::cerr << "read " << transferred << " till " << ec.message() << "\n";
-    return transferred.to_string();
-//    boost::asio::streambuf buf;
-//    boost::asio::read_until( socket, buf, "=|||=" );
-//    string data = boost::asio::buffer_cast<const char*>(buf.data());
-//    return data;
+string getData(tcp::socket & socket) {
+    boost::asio::streambuf buf;
+    //boost::asio::read_until( socket, buf, "=|||=" );
+    socket.async_read_some(boost::asio::buffer(buf), ReadHandler);
+    string data = boost::asio::buffer_cast<const char*>(buf.data());
+    return data;
 }
 void sendData(tcp::socket & socket, const string& message) {
     const string& msg = message + "=|||=";
