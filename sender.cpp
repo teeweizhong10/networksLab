@@ -729,7 +729,7 @@ void beginTransaction(vector<char>& bytes){
 
 
     //first packet sent is config
-    contentToSend += numOfPackets;
+    contentToSend += std::to_string(numOfPackets);
     sendData(socket, contentToSend);
     response = getData(socket);
 
