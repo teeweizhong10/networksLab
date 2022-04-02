@@ -363,7 +363,36 @@ void stats(){
     cout << "Last packet seq# received: ______\nNumber of original packets received: ____\nNumber of retransmitted packets received:_____ " << endl;
 }
 
-void GBN(){}
+void GBN(tcp::socket& socket){
+    while(true){
+        string recvPkt = getData(socket);
+        parseReceivingPacket(recvPkt);
+        receivedBytes += bitData;
+        string recvCk = checksum(bitData);
+        string s = addBinary(bitDataComp, recvCk);
+        if(s.find('0' != std::string::npos)){
+            cout << "Checksum failed" << endl;
+            cout << "Current window: [1]" << endl; //TODO: update window
+            string ack = "NACK";
+            sendData(socket, ack);
+        }
+
+        for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+            if(packetNumber == packetsToLoseAck[i]) {
+                packetsToLoseAck.erase(packetsToLoseAck.begin());
+                cout << "Losing ACK for packet " << packetNumber << "\nCurrent window [1]" << endl;//TODO: update window
+                string ack = "NACK";
+                sendData(socket, ack);
+            }
+        }
+
+
+        string ack = "ACK " + to_string(packetNumber);
+        sendData(socket, ack);
+        cout << "Ack " << to_string(packetNumber) << " sent"  << endl;
+        cout << "Current window [1]" << endl;//TODO: update window
+    }
+}
 
 void SR(){}
 
