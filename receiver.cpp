@@ -354,7 +354,7 @@ string getData(tcp::socket & socket) {
     return data;
 }
 void sendData(tcp::socket & socket, const string& message) {
-    const string msg = message + "\n";
+    const string msg = message + "=|||=";
     boost::asio::write( socket, boost::asio::buffer(msg) );
 }
 
