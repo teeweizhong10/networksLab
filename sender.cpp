@@ -643,7 +643,7 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
                     packetsToDrop.erase(packetsToDrop.begin());
                     sleep_for(waitTime + milliseconds(1)); // Let it time out
                     if (printLog) {
-                        cout << "Packet " << packetCounter << " *****Timed Out *****" << endl;
+                        cout << "Packet " << packetCounter << " ***** Timed Out *****" << endl;
                         retransmitted = true;
                     }
                 }

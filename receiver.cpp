@@ -376,7 +376,7 @@ void SNW(tcp::socket& socket){
         cout << "Received packet: " << recvPkt << endl;
 
         if(recvPkt == "alldone=|||="){
-            cout <<"alldone received" << endl;
+            cout <<"alldone received." << endl;
             string ack = "alldone";
             sendData(socket, ack);
             socket.close();
