@@ -372,7 +372,7 @@ string getData(tcp::socket & socket) {
 
     auto stuff = read_(socket);
 
-    return to_string(stuff);
+    return stuff;
 }
 void sendData(tcp::socket & socket, const string& message) {
     const string& msg = message + "=|||=";
