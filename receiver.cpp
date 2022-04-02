@@ -448,6 +448,10 @@ void receiverSimulation(){
 //*************************************************************************************************************************
 int main() {
     receiverWelcomeMessage();
+    //receive config by sockets
+    getNetworkConfigFrom("config.txt");
+    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck, port);    showCurrentConfig(receiverInstance);
+    //parseConfigFromString("config.txt");
 
     receiverSimulation();
     setBitsToFile(finalBits);
