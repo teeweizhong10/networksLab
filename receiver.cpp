@@ -171,6 +171,8 @@ void parseConfigFromString(string input) {
                     currentNum = "";
                 }
             }
+        } else if (itemCount == 7) { //number of received packets
+            numberOfReceivedPackets = stoi(line);
         }
         itemCount++;
     }

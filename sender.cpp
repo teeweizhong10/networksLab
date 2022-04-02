@@ -320,7 +320,7 @@ void showCurrentConfig(Sender currentSender) {
                 cout << packetsToFailChecksum[i] << "\t";
             }
             cout << endl;
-            contentToSend += "=|||=";
+            contentToSend += "\n";
             break;
     }
     cout << "Getting data from: " << currentSender.getFilePath() << endl;
@@ -729,6 +729,7 @@ void beginTransaction(vector<char>& bytes){
 
 
     //first packet sent is config
+    contentToSend += numOfPackets;
     sendData(socket, contentToSend);
     response = getData(socket);
 
