@@ -612,6 +612,8 @@ int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
     int chunkCounter=0;
     //for how many packets can fit in queue
     //while queue is not empty
+    //TODO: get running.
+    // TODO: Check for valid window size
     cout << "SenderMaxWindowSize: " << senderMaxWindowSize << endl;
     while(q.size() < senderMaxWindowSize){
         string byteContent;
