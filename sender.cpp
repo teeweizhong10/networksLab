@@ -666,6 +666,7 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
             }
 
             if (!packetSent) {
+                cout << "packing sending" << endl;
                 sendData(socket, newPacket.getPacketMessage()); // send packet
                 if (printLog) {
                     cout << "Packet " << packetCounter << " was sent" << endl;
