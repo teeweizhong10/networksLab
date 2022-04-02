@@ -719,10 +719,10 @@ void beginTransaction(vector<char>& bytes){
     startTotalTimer();
 
 
-    sendData(socket, "Begin transaction...");
+    sendData(socket, contentToSend);
     response = getData(socket);
 
-    sendData(socket, contentToSend);
+    sendData(socket, "Begin transaction...");
     response = getData(socket);
     if(response == "configReceived\n"){
         cout << "Config sent successfully." << endl;
