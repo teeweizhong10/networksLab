@@ -348,14 +348,16 @@ void parseReceivingPacket(string input) {
 //*************************************************************************************************************************
 
 string getData(tcp::socket & socket) {
-    boost::asio::socket_base::send_buffer_size option(sizeOfPacket + 40);
-    socket.set_option(option);
-    int size = option.value();
+    boost::system::error_code ec;
+    streambuf sb;
+    auto transferred = read(socket, sb, transfer_exactly(10u<<20), ec);
+
+    std::cerr << "read " << transferred << " till " << ec.message() << "\n";
+    return transferred.to_string();
 //    boost::asio::streambuf buf;
 //    boost::asio::read_until( socket, buf, "=|||=" );
 //    string data = boost::asio::buffer_cast<const char*>(buf.data());
-    string data = socket.read_some(boost::asio::buffer(socket, option));
-    return data;
+//    return data;
 }
 void sendData(tcp::socket & socket, const string& message) {
     const string& msg = message + "=|||=";
