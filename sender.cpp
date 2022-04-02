@@ -656,7 +656,7 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
                         cout << "Packet " << packetCounter << " was corrupted" << endl;
                         cout << "Corrupted Packet " << packetCounter << " was sent" << endl;
                     }
-                    sendData(socket, newPacket.getCorruptedPacketMessage()) // send corrupted message
+                    sendData(socket, newPacket.getCorruptedPacketMessage());// send corrupted message
                     packetSent = true;
                     string ack = getData(socket); // Receiver gets good packet
                     if(ack == "ACK " + to_string(newPacket.getPacketNum())) {
