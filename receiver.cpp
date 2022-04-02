@@ -85,6 +85,7 @@ int currentPacketNum;
 string bitDataComp;
 
 string receivedBytes = "";
+int numberOfReceivedPackets = 0;
 
 bool printLog = true;
 void receiverWelcomeMessage() {
@@ -375,10 +376,9 @@ void SNW(tcp::socket& socket){
         string recvPkt = getData(socket);
         cout << "Received packet: " << recvPkt << endl;
 
-        if(recvPkt == "alldone=|||="){
-            cout <<"alldone received" << endl;
-            string done = "alldone";
-            sendData(socket, done);
+        if(packetNumber == numberOfReceivedPackets){
+            cout <<"Done receiving all packets" << endl;
+            socket.close();
             stats();
             break;
         }
@@ -409,7 +409,7 @@ void SNW(tcp::socket& socket){
         sendData(socket, ack);
         cout << "Ack " << to_string(packetNumber) << " sent"  << endl;
         cout << "Current window [1]" << endl;
-
+        numberOfReceivedPackets++;
     }
 }
 
