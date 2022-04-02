@@ -433,6 +433,7 @@ void receiverSimulation(){
     //break into "begin transaction..." and port number and set port
     if(recv == "Begin transaction...=|||="){
         sendData(socket, "Begin transaction...");
+        cout << "Begin transaction..." << endl;
     }
 
     switch(selectedAlgorithm){

@@ -576,7 +576,7 @@ void sendData(tcp::socket& socket, const string& msg){
 //    socket.set_option(option);
     const string& temp = msg;
     cout << "Sending data: " << temp << endl;
-    boost::asio::write(socket, buffer(temp + "\n"));
+    boost::asio::write(socket, buffer(temp + "=|||="));
 }
 
 void stats(){
@@ -733,6 +733,7 @@ void beginTransaction(vector<char>& bytes){
     response = getData(socket);
 
     if(response == "Begin transaction...=|||="){
+        cout << "Begin transaction..." << endl;
         switch(selectedAlgorithm){
             case 1:{
                 GBN();
