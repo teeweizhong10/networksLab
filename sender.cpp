@@ -712,6 +712,7 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
 }
 
 void beginTransaction(vector<char>& bytes){
+    string response;
     cout << "IP: " << ipAddr << endl;
     cout << "PORT: " << port << endl;
     boost::asio::io_service io_service;
@@ -721,10 +722,10 @@ void beginTransaction(vector<char>& bytes){
 
 
     sendData(socket, "Begin transaction...");
-    string response = getData(socket);
+    response = getData(socket);
 
     sendData(socket, contentToSend);
-    string response = getData(socket);
+    response = getData(socket);
     if(recv == "configReceived\n"){
         cout << "Config sent successfully." << endl;
     }
