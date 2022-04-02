@@ -447,6 +447,7 @@ void receiverSimulation(){
 
 //*************************************************************************************************************************
 int main() {
+    Receiver receiverInstance;
     receiverWelcomeMessage();
     //receive config by sockets
     getNetworkConfigFrom("config.txt");
