@@ -621,6 +621,8 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
     bool packetSent = false;
     bool receivedAck = false;
     packet newPacket;
+
+    /*
     while(packetCounter != numOfPackets) {
         if (bytes.size() >= sizeOfPacket) {
             string s(bytes.begin(), bytes.begin()+sizeOfPacket);
@@ -706,6 +708,7 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
             }
         }
     }
+     */
 }
 
 void beginTransaction(vector<char>& bytes){
