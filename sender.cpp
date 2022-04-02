@@ -707,6 +707,9 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
             }
         }
     }
+
+    string done = "alldone";
+    sendData(socket, done);
     socket.close();
 }
 
