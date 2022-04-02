@@ -358,7 +358,7 @@ string read_(tcp::socket& socket) {
 //    for (int ch : data) {
 //        std::cout << " " << std::hex << std::setw(2) << std::setfill('0') << ch;
 //    }
-    string s(data.begin(), data.end())
+    string s(data.begin(), data.end());
     return s;
 }
 
