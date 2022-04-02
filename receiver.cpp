@@ -472,7 +472,7 @@ void receiverSimulation(){
 
     switch(selectedAlgorithm){
         case 0:{
-            GBN();
+            GBN(socket);
             break;
         }
         case 1:{
