@@ -752,7 +752,6 @@ int main() {
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
     senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, receiverMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, packetsToLoseAck, packetsToFailChecksum, filePath);
-    showCurrentConfig(senderInstance);
 
     // read bytes from file
     std::ifstream input(filePath, std::ios::binary);
@@ -771,7 +770,7 @@ int main() {
     if (selectedErrorType == 2) { // set errors for random percentage
         setPacketErrors(errorPercentage, numOfPackets);
     }
-
+    showCurrentConfig(senderInstance);
     if (selectedErrorType != 0) {
         cout << "ERRORS: " << endl;
         cout << "Packets to drop: ";
