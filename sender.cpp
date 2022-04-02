@@ -798,5 +798,5 @@ int main() {
     cout << "Total elapsed time: " << totalElapsedTime.count() << "ms" << std::endl;
     cout << "Done sending all " << numOfPackets << " packets" << endl;
 
-    cout << "All received bytes length: " << file_size() << endl;
+    cout << "All received bytes length: " << file_size << endl;
 }
