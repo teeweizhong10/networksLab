@@ -84,6 +84,8 @@ int currentSeqNum;
 int currentPacketNum;
 string bitDataComp;
 
+string receivedBytes = "";
+
 bool printLog = true;
 void receiverWelcomeMessage() {
     cout << "Creating instance for: receiver." << endl;
@@ -373,6 +375,7 @@ void SNW(tcp::socket& socket){
             break;
         }
         parseReceivingPacket(recvPkt);
+        receivedBytes += bitData;
         string receivedCk = checksum(bitData);
         std::string s = addBinary(bitDataComp, receivedCk);
         if (s.find('0') != std::string::npos) {
@@ -387,7 +390,7 @@ void SNW(tcp::socket& socket){
         for (int i = 0; i < packetsToLoseAck.size(); ++i) {
             if(packetNumber == packetsToLoseAck[i]) {
                 packetsToLoseAck.erase(packetsToLoseAck.begin());
-                cout << "Current window [1]" << endl;
+                cout << "Losing ACK for packet " << packetNumber << "\nCurrent window [1]" << endl;
                 string ack = "NACK";
                 sendData(socket, ack);
             }
@@ -456,6 +459,8 @@ int main() {
 
     receiverSimulation();
     setBitsToFile(finalBits);
+
+    cout << "All received bytes length: " << receivedBytes.length() << endl;
 
     return 0;
 }
