@@ -38,11 +38,8 @@ public:
 
     void setPacketMessage();
     string getPacketMessage() {return packetMessage;};
-};
 
-/* Plan for packet structure that will be sent
- * Packet message: "packetNum|seqNum|bitContent|checksumVal|ackReceived"
- * "2|23|0101010101000|010100|0"
- * */
+    string getCorruptedPacketMessage();
+};
 
 #endif //NETWORKSLAB_PACKET_H
