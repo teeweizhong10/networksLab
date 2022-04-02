@@ -281,6 +281,7 @@ void showCurrentConfig(Sender currentSender) {
     switch (currentSender.getErrorType()) {
         case 0:
             cout << "None" << endl;
+            contentToSend += "\n";
             break;
         case 1:
             cout << "Specific Packets" << endl;
@@ -730,7 +731,6 @@ void beginTransaction(vector<char>& bytes){
 
     //first packet sent is config
     contentToSend += std::to_string(numOfPackets);
-    contentToSend += "\n";
     sendData(socket, contentToSend);
     response = getData(socket);
 
