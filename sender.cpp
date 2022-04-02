@@ -715,7 +715,6 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
     if(recvPkt == "alldone=|||="){
         cout <<"alldone received" << endl;
         socket.close();
-        break;
     }
 }
 
