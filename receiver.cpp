@@ -349,7 +349,7 @@ void parseReceivingPacket(string input) {
 
 string getData(tcp::socket & socket) {
     boost::system::error_code ec;
-    streambuf sb;
+    boost::asio::streambuf sb;
     auto transferred = read(socket, sb, transfer_exactly(10u<<20), ec);
 
     std::cerr << "read " << transferred << " till " << ec.message() << "\n";
