@@ -618,11 +618,11 @@ int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
         //TODO: change this to get all chunks of file
 
         if (bytes.size() >= sizeOfPacket) {
-            string s(bytes.begin()*chunkCounter, (bytes.begin()*chunkCounter)+sizeOfPacket);
+            string s(bytes.begin()+(sizeOfPacket*chunkCounter), bytes.begin()+(sizeOfPacket*chunkCounter+1));
             byteContent = s;
         } else {
 
-            string s(bytes.begin()*chunkCounter, bytes.end());
+            string s(bytes.begin()+(sizeOfPacket*chunkCounter), bytes.end());
             byteContent = s;
         }
         cout<< "byte content "<< chunkCounter << ": "<< byteContent << endl;
