@@ -85,7 +85,7 @@ int currentPacketNum;
 string bitDataComp;
 
 string receivedBytes = "";
-int numberOfReceivedPackets = 0;
+int numberOfReceivedPackets;
 
 bool printLog = true;
 void receiverWelcomeMessage() {
@@ -173,6 +173,7 @@ void parseConfigFromString(string input) {
             }
         } else if (itemCount == 7) { //number of received packets
             numberOfReceivedPackets = stoi(line);
+            cout << "test " << numberOfReceivedPackets << endl;
         }
         itemCount++;
     }
@@ -412,7 +413,6 @@ void SNW(tcp::socket& socket){
         sendData(socket, ack);
         cout << "Ack " << to_string(packetNumber) << " sent"  << endl;
         cout << "Current window [1]" << endl;
-        numberOfReceivedPackets++;
     }
 }
 
