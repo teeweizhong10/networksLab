@@ -78,14 +78,13 @@ vector<int> packetsToFailChecksum; //empty if none
 string filePath;
 int port;
 string finalBits;
-int packetNumber = 0;
+int packetNumber;
 string bitData;
 int currentSeqNum;
 int currentPacketNum;
 string bitDataComp;
 
 string receivedBytes = "";
-int numberOfReceivedPackets;
 
 bool printLog = true;
 void receiverWelcomeMessage() {
@@ -171,9 +170,6 @@ void parseConfigFromString(string input) {
                     currentNum = "";
                 }
             }
-        } else if (itemCount == 7) { //number of received packets
-            numberOfReceivedPackets = stoi(line);
-            cout << "test " << numberOfReceivedPackets << endl;
         }
         itemCount++;
     }
@@ -378,10 +374,11 @@ void SNW(tcp::socket& socket){
     while(true){
         string recvPkt = getData(socket);
         cout << "Received packet: " << recvPkt << endl;
-        cout << "Packet number: " << packetNumber << endl;
-        cout << "Number of expected received number: " << numberOfReceivedPackets << endl;
-        if(packetNumber == numberOfReceivedPackets){
-            cout <<"Done receiving all packets" << endl;
+
+        if(recvPkt == "alldone=|||="){
+            cout <<"alldone received" << endl;
+            string ack = "alldone";
+            sendData(socket, ack);
             socket.close();
             stats();
             break;
@@ -413,6 +410,7 @@ void SNW(tcp::socket& socket){
         sendData(socket, ack);
         cout << "Ack " << to_string(packetNumber) << " sent"  << endl;
         cout << "Current window [1]" << endl;
+
     }
 }
 
