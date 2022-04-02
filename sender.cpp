@@ -603,8 +603,78 @@ bool notTimedOut(milliseconds currentTime) {
 }
 
 
-void GBN(){}
+int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
+    packet newPacket;
+    int seqNumCounter = 0;
+    int chunkCounter=0;
+    //for how many packets can fit in queue
+    //while queue is not empty
+    cout << "SenderMaxWindowSize: " << senderMaxWindowSize << endl;
+    while(q.size() < senderMaxWindowSize){
+        string byteContent;
+        //TODO: change this to get all chunks of file
+
+        if (bytes.size() >= sizeOfPacket) {
+            string s(bytes.begin()*chunkCounter, (bytes.begin()*chunkCounter)+sizeOfPacket);
+            byteContent = s;
+        } else {
+
+            string s(bytes.begin()*chunkCounter, bytes.end());
+            byteContent = s;
+        }
+        cout<< "byte content "<< chunkCounter << ": "<< byteContent << endl;
+        cout<< "\n" <<endl;
+//        if (bytes.size() >= sizeOfPacket) {
+//            string s(bytes.begin(), bytes.begin()+sizeOfPacket);
+//            byteContent = s;
+//        } else {
+//
+//            string s(bytes.begin(), bytes.end());
+//            byteContent = s;
+//        }
+
+        //create the packet and add to queue
+        newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
+        q.push(newPacket);
+        seqNumCounter++;
+        chunkCounter++;
+        packetCounter++;//TODO: might need to remove this...
+    }
+
+    return packetCounter;
+}
+
+void sendQ(queue<packet> q, tcp::socket& socket){
+    //send everything in window
+    for(int i = 0; i < q.size(); i++){
+        //cout << "Q.front(): " << q.front() << endl;
+        sendData(socket, q.front().getPacketMessage());
+    }
+}
+void GBN(tcp::socket& socket, vector<char>& bytes){
+    int packetCounter = 0;
+    queue<packet> Q;
+
+    while(packetCounter != numOfPackets){
+        packetCounter = fillQ(Q, bytes, packetCounter);
+        sendQ(Q, socket);
+
+        for(int i = 0; i < senderMaxWindowSize; i++){
+            if(getData(socket) == ("ACK " + Q.front().getPacketNum())){
+                Q.pop();
+                packetCounter++;//TODO: or this...
+                packetCounter = fillQ(Q, bytes, packetCounter);
+            }else{
+                sendQ(Q, socket);
+            }
+        }
+    }
+}
+
+
 void SR(){}
+
+
 void SNW(tcp::socket& socket, vector<char>& bytes){
     cout << endl;
     string byteContent;
@@ -744,7 +814,7 @@ void beginTransaction(vector<char>& bytes){
         cout << "Begin transaction..." << endl;
         switch(selectedAlgorithm){
             case 1:{
-                GBN();
+                GBN(socket, bytes);
                 break;
             }
             case 2:{
@@ -760,73 +830,7 @@ void beginTransaction(vector<char>& bytes){
 }
 
 
-int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
-    packet newPacket;
-    int seqNumCounter = 0;
-    int chunkCounter=0;
-    //for how many packets can fit in queue
-    //while queue is not empty
-    cout << "SenderMaxWindowSize: " << senderMaxWindowSize << endl;
-    while(q.size() < senderMaxWindowSize){
-        string byteContent;
-        //TODO: change this to get all chunks of file
 
-        if (bytes.size() >= sizeOfPacket) {
-            string s(bytes.begin()*chunkCounter, (bytes.begin()*chunkCounter)+sizeOfPacket);
-            byteContent = s;
-        } else {
-
-            string s(bytes.begin()*chunkCounter, bytes.end());
-            byteContent = s;
-        }
-        cout<< "byte content "<< chunkCounter << ": "<< byteContent << endl;
-        cout<< "\n" <<endl;
-//        if (bytes.size() >= sizeOfPacket) {
-//            string s(bytes.begin(), bytes.begin()+sizeOfPacket);
-//            byteContent = s;
-//        } else {
-//
-//            string s(bytes.begin(), bytes.end());
-//            byteContent = s;
-//        }
-
-        //create the packet and add to queue
-        newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
-        q.push(newPacket);
-        seqNumCounter++;
-        chunkCounter++;
-        packetCounter++;//TODO: might need to remove this...
-    }
-
-    return packetCounter;
-}
-
-void sendQ(queue<packet> q, tcp::socket& socket){
-    //send everything in window
-    for(int i = 0; i < q.size(); i++){
-        //cout << "Q.front(): " << q.front() << endl;
-        sendData(socket, q.front().getPacketMessage());
-    }
-}
-void GBN(tcp::socket& socket, vector<char>& bytes){
-    int packetCounter = 0;
-    queue<packet> Q;
-
-    while(packetCounter != numOfPackets){
-        packetCounter = fillQ(Q, bytes, packetCounter);
-        sendQ(Q, socket);
-
-        for(int i = 0; i < senderMaxWindowSize; i++){
-            if(getData(socket) == ("ACK " + Q.front().getPacketNum())){
-                Q.pop();
-                packetCounter++;//TODO: or this...
-                packetCounter = fillQ(Q, bytes, packetCounter);
-            }else{
-                sendQ(Q, socket);
-            }
-        }
-    }
-}
 
 //*************************************************************************************************************************
 int main() {
