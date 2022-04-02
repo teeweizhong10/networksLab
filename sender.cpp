@@ -130,11 +130,11 @@ string ipAddr;
 int port;
 
 bool printLog = true;
-
+//string ack = "";
 vector<packet> packets;
 time_point<Clock> start;
 milliseconds latency;
-milliseconds waitTime = milliseconds(0);
+milliseconds waitTime = milliseconds(10);
 
 int getNumOfPackets(string bits) {
     numOfPackets = 0;
@@ -476,7 +476,6 @@ string addBinary (string a, string b){
 }
 
 
-//TODO: ask Lauren about checksum errors
 string checksum(string inPacket) {
     string bytesToBits = "";
     for (std::size_t i = 0; i < inPacket.size(); ++i)
@@ -506,7 +505,6 @@ string checksum(string inPacket) {
     return addition;
 }
 
-//TODO: ask Lauren if we need to keep this
 string compliment(string cksum){
     string compli = "";
 
@@ -574,24 +572,17 @@ string getData(tcp::socket& socket){
 }
 
 void sendData(tcp::socket& socket, const string& msg){
-    boost::asio::write(socket, buffer(msg + "\n"));
+    boost::asio::socket_base::send_buffer_size option(sizeOfPacket + 40);
+    socket.set_option(option);
+    const string& temp = msg.c_str();
+    boost::asio::write(socket, buffer(temp + "\n"));
 }
 
 void stats(){
     cout << "Number of original packets sent: _____\nNumber of retransmitted packets:______\nTotal elapsed time:_____\ntotal throughput (Mbps):_______\nEffective throughput:______" << endl;
 }
 
-void whatsInThisVector(vector<int> vec){
-    cout << "\n\n\n";
-    for (int i = 0; i < vec.size(); i++){
-        cout << to_string(vec[i]) <<endl;
-    }
-}
-
 void setNumberOfPackets(int fileSizeBytes, int sizeOfPackets) {
-//    ifstream in_file(file, ios::binary);
-//    in_file.seekg(0, ios::end);
-//    int file_size = in_file.tellg()*8;
     if(fileSizeBytes%sizeOfPacket > 0) {
         numOfPackets = fileSizeBytes/sizeOfPacket + 1;
     } else {
@@ -607,6 +598,7 @@ bool notTimedOut(milliseconds currentTime) {
     return true;
 }
 
+
 void GBN(){}
 void SR(){}
 void SNW(tcp::socket& socket, vector<char>& bytes){
@@ -618,11 +610,13 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
     string receivedBytes = "";
     int packetCounter = 0;
     int seqNumCounter = 0;
+    bool retransmitted = false;
     bool packetSent = false;
     bool receivedAck = false;
     packet newPacket;
 
     while(packetCounter != numOfPackets) {
+
         if (bytes.size() >= sizeOfPacket) {
             string s(bytes.begin(), bytes.begin()+sizeOfPacket);
             byteContent = s;
@@ -631,12 +625,15 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
             byteContent = s;
         }
 
-        cout << "Sending packet " << packetCounter << endl;
         newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
+
         packetSent = false;
         time_point<Clock> timeoutStart = Clock::now();
         milliseconds currentTimeCount = duration_cast<milliseconds>(milliseconds (0)- milliseconds(0));
+
+
         while (notTimedOut(currentTimeCount)) {
+
             currentTimeCount += waitTime;
             //drop packet
             if(!packetsToDrop.empty()) {
@@ -644,7 +641,8 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
                     packetsToDrop.erase(packetsToDrop.begin());
                     sleep_for(waitTime + milliseconds(1)); // Let it time out
                     if (printLog) {
-                        cout << "Packet " << packetCounter << " timed out, trying again." << endl;
+                        cout << "Packet " << packetCounter << " *****Timed Out *****" << endl;
+                        retransmitted = true;
                     }
                 }
             }
@@ -653,10 +651,6 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
             if(!packetsToFailChecksum.empty()) {
                 if (packetsToFailChecksum[0] == packetCounter){
                     packetsToFailChecksum.erase(packetsToFailChecksum.begin());
-                    if (printLog) {
-                        cout << "Packet " << packetCounter << " was corrupted" << endl;
-                        cout << "Corrupted Packet " << packetCounter << " was sent" << endl;
-                    }
                     sendData(socket, newPacket.getCorruptedPacketMessage());// send corrupted message
                     packetSent = true;
                     string ack = getData(socket); // Receiver gets good packet
@@ -668,10 +662,13 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
 
             if (!packetSent) {
                 sendData(socket, newPacket.getPacketMessage()); // send packet
-                if (printLog) {
-                    cout << "Packet " << packetCounter << " was sent" << endl;
+                if (printLog && !retransmitted) {
+                    cout << "Packet " << packetCounter << " sent" << endl;
+                }else if(printLog && retransmitted){
+                    cout << "Packet " << packetCounter << " Re-transmitted.";
                 }
                 packetSent = true;
+
                 string ack = getData(socket); // Receiver gets good packet
                 if(ack == "ACK " + to_string(newPacket.getPacketNum()) + "\n") {
                     receivedAck = true;
@@ -680,7 +677,8 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
 
             if(receivedAck) {
                 if (printLog) {
-                    cout << "ACK for packet " << packetCounter << " was received." << endl;
+                    cout << "ACK " << packetCounter << " received." << endl;
+                    cout << "Current window = [1]" << endl;
                     receivedBytes += newPacket.getBitContent();
                 }
 
@@ -696,8 +694,10 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
                 }
             } else {
                 if (printLog) {
-                    cout << "Failed to receive ACK for packet " << packetCounter << " and timed out. Trying again." << endl;
+                    cout << "Packet " << packetCounter << " *****Timed Out *****" << endl;
+                    retransmitted = true;
                 }
+
             }
 
             time_point<Clock> timeoutend = Clock::now();
@@ -707,6 +707,7 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
             }
         }
     }
+    socket.close();
 }
 
 void beginTransaction(vector<char>& bytes){
@@ -719,17 +720,15 @@ void beginTransaction(vector<char>& bytes){
     startTotalTimer();
 
 
+    //first packet sent is config
     sendData(socket, contentToSend);
     response = getData(socket);
 
+    //Begin Transaction is sent after config
     sendData(socket, "Begin transaction...");
     response = getData(socket);
-    if(response == "configReceived\n"){
-        cout << "Config sent successfully." << endl;
-    }
 
     if(response == "Begin transaction...\n"){
-        cout << "Beginning transaction" << endl;
         switch(selectedAlgorithm){
             case 1:{
                 GBN();

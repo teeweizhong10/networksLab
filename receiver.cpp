@@ -107,7 +107,9 @@ void getNetworkConfigFrom(string fileName) {
                 } else { // Selective repeat: Set window size to size in config file
                     receiverMaxWindowSize =  stoi(lineChars);
                 }
-            } else if (itemCount == 9) { // Selected error type
+            }else if(itemCount == 3){
+                sizeOfPacket = stoi(lineChars);
+            }else if (itemCount == 9) { // Selected error type
                 selectedErrorType = stoi(lineChars);
             } else if (itemCount == 10) { // Error percentage if percentage to be randomly dropped is chosen
                 if(line == "") {
@@ -121,7 +123,6 @@ void getNetworkConfigFrom(string fileName) {
                     if(lineChars[i] != ',') {
                         currentNum += lineChars[i];
                     }else {
-                        //cout << "Current number end: " << currentNum << endl;
                         int packet = stoi(currentNum);
                         packetsToLoseAck.push_back(packet);
                         currentNum = "";
@@ -129,7 +130,6 @@ void getNetworkConfigFrom(string fileName) {
                 }
             }else if(itemCount == 16){
                 port = stoi(line);
-                cout << "POrt in method: " << to_string(port) << endl;
             }
             itemCount++;
         }
@@ -141,6 +141,7 @@ void parseConfigFromString(string input) {
     istringstream f(input);
     string line;
     int itemCount = 0;
+
     while (getline(f, line)) {
         int len = line.length();
         cout << line << endl;
@@ -162,7 +163,6 @@ void parseConfigFromString(string input) {
                 if(line[i] != ',') {
                     currentNum += line[i];
                 } else {
-                    //cout << "Current number end: " << currentNum << endl;
                     int packet = stoi(currentNum);
                     packetsToLoseAck.push_back(packet);
                     currentNum = "";
@@ -188,7 +188,8 @@ void showCurrentConfig(Receiver currentReceiver) {
             break;
     }
     cout << "Receiver Window Size: " << currentReceiver.getReceiverMaxWindowSize() << endl;
-    cout << "Packet Size: " << currentReceiver.getSizeOfPacket() << endl;
+    cout << "Packet Size: " << sizeOfPacket << endl;
+    //currentReceiver.getSizeOfPacket() << endl;
     cout << "Seq Num Lower Bound: " << currentReceiver.getSeqNumberLowerBound() << endl;
     cout << "Seq Num Upper Bound: " << currentReceiver.getSeqNumberUpperBound() << endl;
     cout << "Selected error type: " << currentReceiver.getErrorType() << endl;
@@ -292,7 +293,6 @@ void setBitsToFile(string bitString){
     ofstream output;
     output.open("OUTPUTFILE");
 
-//cout << "\nBITSTRING: " << bitString;
     for (int i = 0; i < bitString.length(); i++){
         string bitTemp = bitString.substr(i, 8);
         bitset<8> temp(bitTemp);
@@ -308,7 +308,6 @@ void parseReceivingPacket(string input) {
     char lineChars[len + 1];
     strcpy(lineChars, packetMessage.c_str());
     int itemCount = 0;
-
     string item = "";
     int packetNum = 0;
     int seqNum = 0;
@@ -323,6 +322,7 @@ void parseReceivingPacket(string input) {
         token = packetMessage.substr(0, pos);
         if(itemCount == 0) { // packet number
             itemCount = 1;
+
             packetNum = stoi(token);
         } else if(itemCount == 1) { // seq number
             itemCount = 2;
@@ -338,14 +338,9 @@ void parseReceivingPacket(string input) {
         }
         packetMessage.erase(0, pos + delimiter.length());
     }
-    //cout << "Packet number: " << packetNum << endl;
     packetNumber = packetNum;
-    //cout << "Sequence number: " << seqNum << endl;
-    //cout << "Bit Content: " << bitContent << endl;
     bitData = bitContent;
-    //cout << "Checksum value: " << checksumVal << endl;
     bitDataComp = checksumVal;
-    //cout << "Ack received value: " << ackReceived << endl;
 }
 //*************************************************************************************************************************
 
@@ -368,41 +363,42 @@ void GBN(){}
 
 void SR(){}
 
-void SNW(tcp::socket & socket){
+void SNW(tcp::socket& socket){
+
     while(true){
         string recvPkt = getData(socket);
+
         if(recvPkt == "alldone\n"){
             stats();
             break;
         }
         parseReceivingPacket(recvPkt);
-
         string receivedCk = checksum(bitData);
         std::string s = addBinary(bitDataComp, receivedCk);
         if (s.find('0') != std::string::npos) {
-            if(printLog) {
-                cout << "Packet " << packetNumber << " did not pass checksum." << endl;
-            }
+            cout << "Checksum failed" << endl;
+            cout << "Current window [1]" << endl;
             string ack = "NACK";
             sendData(socket, ack);
-            return; // checksum failed, doesn't add up to all 1s
+
         }
         //else checksum succeeds
-
         // If checksum is bad or lose ack
         for (int i = 0; i < packetsToLoseAck.size(); ++i) {
             if(packetNumber == packetsToLoseAck[i]) {
                 packetsToLoseAck.erase(packetsToLoseAck.begin());
+                cout << "Current window [1]" << endl;
                 string ack = "NACK";
                 sendData(socket, ack);
-                return;
             }
         }
 
         // If checksum is good, send back ack
         string ack = "ACK " + to_string(packetNumber);
         sendData(socket, ack);
-        return;
+        cout << "Ack " << to_string(packetNumber) << " sent"  << endl;
+        cout << "Current window [1]" << endl;
+
     }
 }
 
@@ -415,29 +411,35 @@ void receiverSimulation(){
 
     boost::asio::ip::tcp::acceptor acceptor(io_service, tcp::endpoint(boost::asio::ip::tcp::v4(), port));
     boost::asio::ip::tcp::socket socket(io_service);
+//    socket.open(boost::asio::ip::tcp::v4());
     acceptor.accept(socket);
+    boost::asio::socket_base::receive_buffer_size option(sizeOfPacket + 40);	//can recv up to 1G
+    socket.set_option(option);
 
+    //first packet sent is config
+    string config = getData(socket);
+    parseConfigFromString(config);
+    sendData(socket, "configReceived");
+
+
+    //getting Begin Transaction
     string recv = getData(socket);
-    cout << recv << endl;
+
     //break into "begin transaction..." and port number and set port
     if(recv == "Begin transaction...\n"){
         sendData(socket, "Begin transaction...");
     }
 
-    string config = getData(socket);
-    parseConfigFromString(config);
-    sendData(socket, "configReceived");
-
     switch(selectedAlgorithm){
-        case 1:{
+        case 0:{
             GBN();
             break;
         }
-        case 2:{
+        case 1:{
             SNW(socket);
             break;
         }
-        case 3:{
+        case 2:{
             SR();
             break;
         }
@@ -452,14 +454,11 @@ int main() {
     //receive config by sockets
     getNetworkConfigFrom("config.txt");
     receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck, port);    showCurrentConfig(receiverInstance);
-
+    //parseConfigFromString("config.txt");
 
     receiverSimulation();
     setBitsToFile(finalBits);
 
-    /*hashwrapper *rap = new md5wrapper();
-    std::string hash = rap->getHashFromFile("OUTPUTFILE");
-    cout << "md5sum of OUTPUTFILE: " << hash << endl;*/
     return 0;
 }
 
