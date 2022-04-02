@@ -352,7 +352,7 @@ string read_(tcp::socket& socket) {
     boost::asio::read_until(
             socket,
             boost::asio::dynamic_buffer(data),
-            "{end}");
+            "=|||=");
 
 //    std::cout << "received:\n";
 //    for (int ch : data) {
