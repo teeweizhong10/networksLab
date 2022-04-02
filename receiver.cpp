@@ -342,7 +342,7 @@ void parseReceivingPacket(string input) {
     }
     packetNumber = packetNum;
     bitData = bitContent;
-    cout << bitData;
+    cout << "Byte data: " << bitData << endl;
     bitDataComp = checksumVal;
 }
 //*************************************************************************************************************************
@@ -370,6 +370,7 @@ void SNW(tcp::socket& socket){
 
     while(true){
         string recvPkt = getData(socket);
+        cout << "Received packet: " << recvPkt << endl;
 
         if(recvPkt == "alldone\n"){
             stats();
