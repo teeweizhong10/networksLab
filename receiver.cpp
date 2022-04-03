@@ -365,6 +365,7 @@ void stats(){
 }
 
 void GBN(tcp::socket& socket){
+    count<<"wowie"<<endl;
     while(true){
         string recvPkt = getData(socket);
         parseReceivingPacket(recvPkt);
