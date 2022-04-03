@@ -583,7 +583,6 @@ void sendData(tcp::socket& socket, const string& msg){
     const string& temp = msg + "=|||=";
     cout << "Sending data: " << temp << endl;
     boost::asio::write(socket, buffer(temp));
-    cout << "Sending buffer size: " <<  size << endl;
 }
 
 void stats(){
@@ -642,8 +641,6 @@ int fillQ(vector<char>& bytes, int packetCounter){
         newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
         //cout<<"packet sequence number: "<<newPacket.getSeqNum()<<" added to q"<<endl;
         q.push(newPacket);
-        cout << "Q size in filler: " << q.size() << endl;
-        cout << q.size() <<endl;
         seqNumCounter++;
         chunkCounter++;
         packetCounter++;
@@ -656,28 +653,20 @@ void sendQ(tcp::socket& socket){
     //send everything in window
     cout << "Q size: " << q.size() << endl;
     for(int i = 0; i < q.size(); i++){
-        string temp =  q.front().getPacketMessage();
-        cout << "PRINTINGINSENDQ: " << temp << endl;
+        //string temp =  q.front().getPacketMessage();
+        //cout << "PRINTINGINSENDQ: " << temp << endl;
         sendData(socket, q.front().getPacketMessage());
     }
 }
 void GBN(tcp::socket& socket, vector<char>& bytes){
-    cout<< "in GBN" << endl;
-    cout<< "number of packets: "<< numOfPackets<<endl;
     int packetCounter = 0;
-    cout<< "packet counter: "<< packetCounter<<endl;
 
 
     while(packetCounter != numOfPackets){
-        cout << "in while loop"<< endl;
         packetCounter = fillQ( bytes, packetCounter);
-        cout<< "filled q" << endl;
-        cout << "Q size testing..." << q.size() << endl;
         sendQ( socket);
-        cout<< "sent q" << endl;
 
         for(int i = 0; i < senderMaxWindowSize; i++){
-            cout<<"in for"<<endl;
             if(getData(socket) == ("ACK " + q.front().getPacketNum())){
                 cout<< "got ACK, popping..." << endl;
                 q.pop();
