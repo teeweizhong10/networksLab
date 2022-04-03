@@ -658,10 +658,13 @@ void sendQ(queue<packet> q, tcp::socket& socket){
 }
 void GBN(tcp::socket& socket, vector<char>& bytes){
     cout<< "in GBN" << endl;
+    cout<< "number of packets: "<< numOfPackets<<endl;
     int packetCounter = 0;
+    cout<< "packet counter: "<< packetCounter<<endl;
     queue<packet> Q;
 
     while(packetCounter != numOfPackets){
+        cout << "in while loop"<< endl;
         packetCounter = fillQ(Q, bytes, packetCounter);
         cout<< "filled q" << endl;
         sendQ(Q, socket);
@@ -680,6 +683,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             }
         }
     }
+    cout<<"not in while loop"<<endl;
 }
 
 
