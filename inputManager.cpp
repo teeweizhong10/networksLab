@@ -97,8 +97,11 @@ void inputManager::getInput() {
     allInput.push_back(std::to_string(input)); // Set size of packets to user input
     allInput.push_back("\n");
 
+    //calculate valid seqNum Upper bound
+    int validUpperBound = (senderMaxWindowSize/2)+1;
+
     // seqNum Upper Bound
-    cout << endl << "Choose the upper bound of the sequence numbers: " << endl;
+    cout << endl << "Choose the upper bound of the sequence numbers (needs to be greater than: "<< validUpperBound<<" ): " << endl;
     cout << "Input: ";
     cin >> input;
     cout << "You chose: " << input << endl;

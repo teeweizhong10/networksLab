@@ -372,7 +372,7 @@ void GBN(tcp::socket& socket){
         string s = addBinary(bitDataComp, recvCk);
         if(s.find('0' != std::string::npos)){
             cout << "Checksum failed" << endl;
-            cout << "Current window: [1]" << endl; //TODO: update window
+            cout << "Current window: [1]" << endl;
             string ack = "NACK";
             sendData(socket, ack);
         }
@@ -380,7 +380,7 @@ void GBN(tcp::socket& socket){
         for (int i = 0; i < packetsToLoseAck.size(); ++i) {
             if(packetNumber == packetsToLoseAck[i]) {
                 packetsToLoseAck.erase(packetsToLoseAck.begin());
-                cout << "Losing ACK for packet " << packetNumber << "\nCurrent window [1]" << endl;//TODO: update window
+                cout << "Losing ACK for packet " << packetNumber << "\nCurrent window [1]" << endl;
                 string ack = "NACK";
                 sendData(socket, ack);
             }
@@ -390,7 +390,7 @@ void GBN(tcp::socket& socket){
         string ack = "ACK " + to_string(packetNumber);
         sendData(socket, ack);
         cout << "Ack " << to_string(packetNumber) << " sent"  << endl;
-        cout << "Current window [1]" << endl;//TODO: update window
+        cout << "Current window [1]" << endl;
     }
 }
 
