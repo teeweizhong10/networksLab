@@ -591,7 +591,6 @@ void stats(){
 
 void setNumberOfPackets(int fileSizeBytes, int sizeOfPackets) {
     cout<<"in method"<<endl;
-    cout
     if(fileSizeBytes%sizeOfPacket > 0) {
         cout<<"in method if"<<endl;
         numOfPackets = fileSizeBytes/sizeOfPacket + 1;
