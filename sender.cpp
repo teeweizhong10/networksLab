@@ -612,7 +612,7 @@ int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
     packet newPacket;
     int seqNumCounter = 0;
     int chunkCounter=0;
-    vector<string> tempBytes;
+    vector<char> tempBytes;
 
     for (int i=0; i<bytes.size(); i++){
         tempBytes.push_back(bytes[i]);
