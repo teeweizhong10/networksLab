@@ -590,7 +590,9 @@ void stats(){
 }
 
 void setNumberOfPackets(int fileSizeBytes, int sizeOfPackets) {
+    cout<<"in method"<<endl;
     if(fileSizeBytes%sizeOfPacket > 0) {
+        cout<<"in method if"<<endl;
         numOfPackets = fileSizeBytes/sizeOfPacket + 1;
     } else {
         numOfPackets = fileSizeBytes/sizeOfPacket;
@@ -851,6 +853,7 @@ void beginTransaction(vector<char>& bytes){
 
 //*************************************************************************************************************************
 int main() {
+
     Sender senderInstance;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
