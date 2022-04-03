@@ -367,6 +367,7 @@ void GBN(tcp::socket& socket){
     while(true){
         string recvPkt = getData(socket);
         parseReceivingPacket(recvPkt);
+        cout<<"received packet "<< packetNumber<<endl;
         receivedBytes += bitData;
         string recvCk = checksum(bitData);
         string s = addBinary(bitDataComp, recvCk);
