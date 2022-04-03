@@ -609,7 +609,7 @@ bool notTimedOut(milliseconds currentTime) {
 }
 
 
-int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
+int fillQ(vector<char>& bytes, int packetCounter){
     packet newPacket;
     int seqNumCounter = 0;
     int chunkCounter=0;
@@ -652,7 +652,7 @@ int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
     return packetCounter;
 }
 
-void sendQ(queue<packet> q, tcp::socket& socket){
+void sendQ(tcp::socket& socket){
     //send everything in window
     cout << "Q size: " << q.size() << endl;
     for(int i = 0; i < q.size(); i++){
@@ -669,10 +669,10 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
 
     while(packetCounter != numOfPackets){
         cout << "in while loop"<< endl;
-        packetCounter = fillQ(q, bytes, packetCounter);
+        packetCounter = fillQ( bytes, packetCounter);
         cout<< "filled q" << endl;
         cout << "Q size testing..." << q.size() << endl;
-        sendQ(q, socket);
+        sendQ( socket);
         cout<< "sent q" << endl;
 
         for(int i = 0; i < senderMaxWindowSize; i++){
@@ -681,10 +681,10 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
                 cout<< "got ACK, popping..." << endl;
                 q.pop();
 
-                packetCounter = fillQ(q, bytes, packetCounter);
+                packetCounter = fillQ( bytes, packetCounter);
                 cout<< "filled q again" << endl;
             }else{
-                sendQ(q, socket);
+                sendQ( socket);
                 cout<< "retrying send" << endl;
             }
         }
