@@ -652,8 +652,8 @@ void sendQ(tcp::socket& socket){
     //send everything in window
     cout << "Q size: " << q.size() << endl;
     for(int i = 0; i < q.size(); i++){
-        //string temp =  q.front().getPacketMessage();
-        //cout << "PRINTINGINSENDQ: " << temp << endl;
+        string temp =  q.front().getPacketMessage();
+        cout << "PRINTINGINSENDQ: " << temp << endl;
         sendData(socket, q.front().getPacketMessage());
     }
 }
