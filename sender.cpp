@@ -640,7 +640,8 @@ int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
         //create the packet and add to queue
         newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
         //cout<<"packet sequence number: "<<newPacket.getSeqNum()<<" added to q"<<endl;
-        q.enqueue(newPacket);
+        q.push(newPacket);
+        cout << "Q size in filler: " << q.size() << endl;
         cout << q.size() <<endl;
         seqNumCounter++;
         chunkCounter++;
