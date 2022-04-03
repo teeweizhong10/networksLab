@@ -368,6 +368,7 @@ void GBN(tcp::socket& socket){
     cout<<"wowie"<<endl;
     while(true){
         string recvPkt = getData(socket);
+        cout<<"received packet: "<<endl;
         parseReceivingPacket(recvPkt);
         cout<<"received packet "<< packetNumber<<endl;
         receivedBytes += bitData;
