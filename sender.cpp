@@ -131,7 +131,7 @@ time_point<Clock> startTimer;
 time_point<Clock> endTimeInSeconds;
 string ipAddr;
 int port;
-queue<packet> q;
+queue<string> q;
 
 bool printLog = true;
 //string ack = "";
@@ -639,7 +639,7 @@ int fillQ(vector<char>& bytes, int packetCounter){
         //create the packet and add to queue
         newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
         cout<<"packet msg: "<< newPacket.getPacketMessage()<< endl;
-        q.push(newPacket);
+        q.push(newPacket.getPacketMessage());
         seqNumCounter++;
         chunkCounter++;
         packetCounter++;
