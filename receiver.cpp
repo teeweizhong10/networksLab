@@ -180,13 +180,13 @@ void showCurrentConfig(Receiver currentReceiver) {
     cout << endl << "Current sender configuration: " << endl;
     cout << "Selected algorithm: ";
     switch (currentReceiver.getSelectedAlgorithm()) {
-        case 1:
+        case 0:
             cout << "GBN" << endl;
             break;
-        case 2:
+        case 1:
             cout << "Stop and Wait" << endl;
             break;
-        case 3:
+        case 2:
             cout << "Selective Repeat" << endl;
             break;
     }
@@ -474,15 +474,15 @@ void receiverSimulation(){
 
     switch(selectedAlgorithm){
         cout<<"selected algo "<<selectedAlgorithm<<endl;
-        case 1:{
+        case 0:{
             GBN(socket);
             break;
         }
-        case 2:{
+        case 1:{
             SNW(socket);
             break;
         }
-        case 3:{
+        case 2:{
             SR();
             break;
         }

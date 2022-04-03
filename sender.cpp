@@ -832,7 +832,6 @@ void beginTransaction(vector<char>& bytes){
         cout << "Begin transaction..." << endl;
         switch(selectedAlgorithm){
             case 1:{
-                cout<< "case 1" << endl;
                 GBN(socket, bytes);
                 break;
             }
