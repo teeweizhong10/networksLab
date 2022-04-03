@@ -671,6 +671,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
         cout << "in while loop"<< endl;
         packetCounter = fillQ(q, bytes, packetCounter);
         cout<< "filled q" << endl;
+        cout << "Q size testing..." << q.size() << endl;
         sendQ(q, socket);
         cout<< "sent q" << endl;
 
