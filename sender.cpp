@@ -656,6 +656,7 @@ void sendQ(tcp::socket& socket){
     //send everything in window
     cout << "Q size: " << q.size() << endl;
     for(int i = 0; i < q.size(); i++){
+        cout << "TESTING HERE1" << endl;
         cout << "Q.front().getpacketmessage: " << q.front().getPacketMessage() << endl;
         sendData(socket, q.front().getPacketMessage());
     }
@@ -684,7 +685,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
                 packetCounter = fillQ( bytes, packetCounter);
                 cout<< "filled q again" << endl;
             }else{
-                sendQ( socket);
+                sendQ(socket);
                 cout<< "retrying send" << endl;
             }
         }
