@@ -367,6 +367,7 @@ void stats(){
 void GBN(tcp::socket& socket){
     cout<<"wowie"<<endl;
     while(true){
+        cout<<"in while truee"<<endl;
         string recvPkt = getData(socket);
         cout<<"received packet: "<<endl;
         parseReceivingPacket(recvPkt);
