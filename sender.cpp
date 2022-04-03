@@ -131,6 +131,7 @@ time_point<Clock> startTimer;
 time_point<Clock> endTimeInSeconds;
 string ipAddr;
 int port;
+queue<packet> q;
 
 bool printLog = true;
 //string ack = "";
@@ -664,25 +665,25 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
     cout<< "number of packets: "<< numOfPackets<<endl;
     int packetCounter = 0;
     cout<< "packet counter: "<< packetCounter<<endl;
-    queue<packet> Q;
+
 
     while(packetCounter != numOfPackets){
         cout << "in while loop"<< endl;
-        packetCounter = fillQ(Q, bytes, packetCounter);
+        packetCounter = fillQ(q, bytes, packetCounter);
         cout<< "filled q" << endl;
-        sendQ(Q, socket);
+        sendQ(q, socket);
         cout<< "sent q" << endl;
 
         for(int i = 0; i < senderMaxWindowSize; i++){
             cout<<"in for"<<endl;
-            if(getData(socket) == ("ACK " + Q.front().getPacketNum())){
+            if(getData(socket) == ("ACK " + q.front().getPacketNum())){
                 cout<< "got ACK, popping..." << endl;
-                Q.pop();
+                q.pop();
 
-                packetCounter = fillQ(Q, bytes, packetCounter);
+                packetCounter = fillQ(q, bytes, packetCounter);
                 cout<< "filled q again" << endl;
             }else{
-                sendQ(Q, socket);
+                sendQ(q, socket);
                 cout<< "retrying send" << endl;
             }
         }
