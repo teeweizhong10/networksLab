@@ -657,20 +657,26 @@ void sendQ(queue<packet> q, tcp::socket& socket){
     }
 }
 void GBN(tcp::socket& socket, vector<char>& bytes){
+    cout<< "in GBN" << endl;
     int packetCounter = 0;
     queue<packet> Q;
 
     while(packetCounter != numOfPackets){
         packetCounter = fillQ(Q, bytes, packetCounter);
+        cout<< "filled q" << endl;
         sendQ(Q, socket);
+        cout<< "sent q" << endl;
 
         for(int i = 0; i < senderMaxWindowSize; i++){
             if(getData(socket) == ("ACK " + Q.front().getPacketNum())){
+                cout<< "got ACK, popping..." << endl;
                 Q.pop();
                 packetCounter++;//TODO: might need to remove this???
                 packetCounter = fillQ(Q, bytes, packetCounter);
+                cout<< "filled q again" << endl;
             }else{
                 sendQ(Q, socket);
+                cout<< "retrying send" << endl;
             }
         }
     }
@@ -814,11 +820,13 @@ void beginTransaction(vector<char>& bytes){
     //Begin Transaction is sent after config
     sendData(socket, "Begin transaction...");
     response = getData(socket);
+    cout<< "got response from receiver" << endl;
 
     if(response == "Begin transaction...=|||="){
         cout << "Begin transaction..." << endl;
         switch(selectedAlgorithm){
             case 1:{
+                cout<< "case 1" << endl;
                 GBN(socket, bytes);
                 break;
             }
