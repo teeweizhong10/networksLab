@@ -472,6 +472,7 @@ void receiverSimulation(){
     }
 
     switch(selectedAlgorithm){
+        cout<<"selected algo "<<selectedAlgorithm<<endl;
         case 0:{
             GBN(socket);
             break;
