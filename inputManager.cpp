@@ -98,7 +98,7 @@ void inputManager::getInput() {
     allInput.push_back("\n");
 
     //calculate valid seqNum Upper bound
-    int validUpperBound = (senderMaxWindowSize/2)+1;
+    int validUpperBound = (senderMaxWindowSize*2)-1;
 
     // seqNum Upper Bound
     cout << endl << "Choose the upper bound of the sequence numbers (needs to be greater than: "<< validUpperBound<<" ): " << endl;
