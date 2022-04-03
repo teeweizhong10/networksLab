@@ -870,7 +870,7 @@ int main() {
     int file_size = bytes.size();
 
     setNumberOfPackets(bytes.size(), sizeOfPacket);
-
+    cout<<"set number of packets"<<endl;
     if (selectedErrorType == 2) { // set errors for random percentage
         setPacketErrors(errorPercentage, numOfPackets);
     }
