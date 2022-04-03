@@ -651,7 +651,8 @@ int fillQ(vector<char>& bytes, int packetCounter){
 void sendQ(tcp::socket& socket){
     //send everything in window
     for(int i = 0; i < q.size(); i++){
-        sendData(socket, q.front().getPacketMessage());
+        cout << "\n\nSending qFront: " << q.front() << endl;
+        sendData(socket, q.front());
     }
 }
 void GBN(tcp::socket& socket, vector<char>& bytes){
