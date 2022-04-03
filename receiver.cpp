@@ -149,6 +149,7 @@ void parseConfigFromString(string input) {
         cout << line << endl;
         if (itemCount == 0) { // selected algorithm
             selectedAlgorithm = stoi(line);
+            cout<<"slcd agtm"<<selectedAlgorithm<<endl;
         } else if (itemCount == 1) {
             receiverMaxWindowSize = stoi(line);
         } else if (itemCount == 2) {
@@ -179,13 +180,13 @@ void showCurrentConfig(Receiver currentReceiver) {
     cout << endl << "Current sender configuration: " << endl;
     cout << "Selected algorithm: ";
     switch (currentReceiver.getSelectedAlgorithm()) {
-        case 0:
+        case 1:
             cout << "GBN" << endl;
             break;
-        case 1:
+        case 2:
             cout << "Stop and Wait" << endl;
             break;
-        case 2:
+        case 3:
             cout << "Selective Repeat" << endl;
             break;
     }
@@ -473,15 +474,15 @@ void receiverSimulation(){
 
     switch(selectedAlgorithm){
         cout<<"selected algo "<<selectedAlgorithm<<endl;
-        case 0:{
+        case 1:{
             GBN(socket);
             break;
         }
-        case 1:{
+        case 2:{
             SNW(socket);
             break;
         }
-        case 2:{
+        case 3:{
             SR();
             break;
         }
