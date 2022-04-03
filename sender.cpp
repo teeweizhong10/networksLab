@@ -664,7 +664,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
         sendQ( socket);
 
         for(int i = 0; i < senderMaxWindowSize; i++){
-            if(getData(socket) == ("ACK " + q.front().getPacketNum())){
+            if(getData(socket) == ("ACK " + q.front())){
                 cout<< "got ACK, popping..." << endl;
                 q.pop();
 
