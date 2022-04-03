@@ -675,6 +675,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             if(getData(socket) == ("ACK " + Q.front().getPacketNum())){
                 cout<< "got ACK, popping..." << endl;
                 Q.pop();
+
                 packetCounter = fillQ(Q, bytes, packetCounter);
                 cout<< "filled q again" << endl;
             }else{
