@@ -853,12 +853,12 @@ void beginTransaction(vector<char>& bytes){
 
 //*************************************************************************************************************************
 int main() {
-
+    cout<<"here4"<<endl;
     Sender senderInstance;
     senderWelcomeMessage();
     getNetworkConfigFrom("config.txt");
     senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, receiverMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, packetsToLoseAck, packetsToFailChecksum, filePath);
-
+    cout<<"here3"<<endl;
     // read bytes from file
     std::ifstream input(filePath, std::ios::binary);
 
@@ -866,12 +866,12 @@ int main() {
     std::vector<char> bytes(
             (std::istreambuf_iterator<char>(input)),
             (std::istreambuf_iterator<char>()));
-
+    cout<<"here2"<<endl;
     input.close();
 
     cout << "File size in bytes: " << bytes.size() << endl;
     int file_size = bytes.size();
-
+    cout<<"here1"<<endl;
     setNumberOfPackets(bytes.size(), sizeOfPacket);
     cout<<"set number of packets"<<endl;
     if (selectedErrorType == 2) { // set errors for random percentage
