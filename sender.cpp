@@ -591,6 +591,7 @@ void stats(){
 
 void setNumberOfPackets(int fileSizeBytes, int sizeOfPackets) {
     cout<<"in method"<<endl;
+    cout
     if(fileSizeBytes%sizeOfPacket > 0) {
         cout<<"in method if"<<endl;
         numOfPackets = fileSizeBytes/sizeOfPacket + 1;
@@ -612,6 +613,7 @@ int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
     packet newPacket;
     int seqNumCounter = 0;
     int chunkCounter=0;
+    vector<string> tempBytes = bytes;
     //for how many packets can fit in queue
     //while queue is not empty
     //TODO: get running.
@@ -621,24 +623,30 @@ int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
         string byteContent;
         //TODO: change this to get all chunks of file
 
-        if (bytes.size() >= sizeOfPacket) {
-            string s(bytes.begin()+(sizeOfPacket*chunkCounter), bytes.begin()+(sizeOfPacket*chunkCounter+1));
-            byteContent = s;
-        } else {
-
-            string s(bytes.begin()+(sizeOfPacket*chunkCounter), bytes.end());
-            byteContent = s;
-        }
-        cout<< "byte content "<< chunkCounter << ": "<< byteContent << endl;
-        cout<< "\n" <<endl;
 //        if (bytes.size() >= sizeOfPacket) {
-//            string s(bytes.begin(), bytes.begin()+sizeOfPacket);
+//            string s(bytes.begin()+(sizeOfPacket*chunkCounter), bytes.begin()+(sizeOfPacket*chunkCounter+1));
 //            byteContent = s;
 //        } else {
 //
-//            string s(bytes.begin(), bytes.end());
+//            string s(bytes.begin()+(sizeOfPacket*chunkCounter), bytes.end());
 //            byteContent = s;
 //        }
+//        cout<< "byte content "<< chunkCounter << ": "<< byteContent << endl;
+//        cout<< "\n" <<endl;
+
+
+        if (tempBytes.size() >= sizeOfPacket) {
+            string s(tempBytes.begin(), tempBytes.begin()+sizeOfPacket);
+            byteContent = s;
+            cout<<"byteContent: " <<byteContent<<endl;
+            tempBytes.erase(tempBytes.begin(), tempBytes.begin()+sizeOfPacket);
+        } else {
+
+            string s(tempBytes.begin(), tempBytes.end());
+            byteContent = s;
+            cout<<"byteContent: " <<byteContent<<endl;
+            tempBytes.erase(tempBytes.begin(), tempBytes.end());
+        }
 
         //create the packet and add to queue
         newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
