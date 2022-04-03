@@ -343,12 +343,14 @@ void parseReceivingPacket(string input) {
 //*************************************************************************************************************************
 
 string read_(tcp::socket& socket) {
+    cout << "Reading...." << endl;
     std::vector<uint8_t> data;
     boost::asio::read_until(
             socket,
             boost::asio::dynamic_buffer(data),
             "=|||=");
     string s(data.begin(), data.end());
+    cout << "DATA: " << s << endl;
     return s;
 }
 
