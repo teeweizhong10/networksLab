@@ -612,7 +612,12 @@ int fillQ(queue<packet> q, vector<char>& bytes, int packetCounter){
     packet newPacket;
     int seqNumCounter = 0;
     int chunkCounter=0;
-    vector<string> tempBytes = bytes;
+    vector<string> tempBytes;
+
+    for (int i=0; i<bytes.size(); i++){
+        tempBytes.push_back(bytes[i]);
+    }
+
     //for how many packets can fit in queue
     //while queue is not empty
     //TODO: get running.
