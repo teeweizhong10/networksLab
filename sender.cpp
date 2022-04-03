@@ -638,7 +638,7 @@ int fillQ(vector<char>& bytes, int packetCounter){
 
         //create the packet and add to queue
         newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
-        //cout<<"packet sequence number: "<<newPacket.getSeqNum()<<" added to q"<<endl;
+        cout<<"packet msg: "<< newPacket.getPacketMessage()<< endl;
         q.push(newPacket);
         seqNumCounter++;
         chunkCounter++;
@@ -650,10 +650,7 @@ int fillQ(vector<char>& bytes, int packetCounter){
 
 void sendQ(tcp::socket& socket){
     //send everything in window
-    cout << "Q size: " << q.size() << endl;
     for(int i = 0; i < q.size(); i++){
-        string temp =  q.front().getPacketMessage();
-        cout << "PRINTINGINSENDQ: " << temp << endl;
         sendData(socket, q.front().getPacketMessage());
     }
 }
