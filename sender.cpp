@@ -638,7 +638,6 @@ int fillQ(vector<char>& bytes, int packetCounter){
 
         //create the packet and add to queue
         newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
-        cout<<"packet msg: "<< newPacket.getPacketMessage()<< endl;
         q.push(newPacket.getPacketMessage());
         seqNumCounter++;
         chunkCounter++;
@@ -661,7 +660,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
 
     while(packetCounter != numOfPackets){
         packetCounter = fillQ( bytes, packetCounter);
-        sendQ( socket);
+        sendQ(socket);
 
         for(int i = 0; i < senderMaxWindowSize; i++){
             if(getData(socket) == ("ACK " + q.front())){
