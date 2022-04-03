@@ -341,8 +341,7 @@ void parseReceivingPacket(string input) {
     bitDataComp = checksumVal;
 }
 //*************************************************************************************************************************
-
-string read_(tcp::socket& socket) {
+string getData(tcp::socket & socket) {
     cout << "Reading...." << endl;
     std::vector<uint8_t> data;
     boost::asio::read_until(
@@ -354,9 +353,7 @@ string read_(tcp::socket& socket) {
     return s;
 }
 
-string getData(tcp::socket & socket) {
-    return read_(socket);
-}
+
 void sendData(tcp::socket & socket, const string& message) {
     const string& msg = message + "=|||=";
     boost::asio::write( socket, boost::asio::buffer(msg) );

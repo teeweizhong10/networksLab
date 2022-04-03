@@ -580,7 +580,7 @@ void sendData(tcp::socket& socket, const string& msg){
     socket.set_option(option);
     int size = option.value();
     const string& temp = msg + "=|||=";
-    //cout << "Sending data: " << temp << endl;
+    cout << "Sending data: " << temp << endl;
     boost::asio::write(socket, buffer(temp));
     cout << "Sending buffer size: " <<  size << endl;
 }
