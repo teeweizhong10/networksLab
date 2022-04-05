@@ -356,7 +356,7 @@ Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int rec
 void setRandomPacketsToDrop(int percentage, int numOfPackets) {
     packetsToDrop.clear();
     int packetsDropCount = numOfPackets * percentage/100;
-    int v1 = rand() % 100;
+    int v1 = rand() % numOfPackets;
     bool add;
     while (packetsDropCount > 0) {
         if(packetsToDrop.size() ==  numOfPackets * percentage/100) {
@@ -374,7 +374,7 @@ void setRandomPacketsToDrop(int percentage, int numOfPackets) {
         } else {
             add = true;
         }
-        v1 = rand() % 100;
+        v1 = rand() % numOfPackets;
     }
     sort(packetsToDrop.begin(), packetsToDrop.end());
     numOfRetransmitedPackets+=packetsToDrop.size();
@@ -383,7 +383,7 @@ void setRandomPacketsToDrop(int percentage, int numOfPackets) {
 void setRandomPacketsToLoseAck(int percentage, int numOfPackets) { // to send to receiver
     packetsToLoseAck.clear();
     int packetsLoseAckCount = numOfPackets * percentage/100;
-    int v1 = rand() % 100;
+    int v1 = rand() % numOfPackets;
     bool add;
     while (packetsLoseAckCount > 0) {
         if(packetsToLoseAck.size() ==  numOfPackets * percentage/100) {
@@ -408,7 +408,7 @@ void setRandomPacketsToLoseAck(int percentage, int numOfPackets) { // to send to
         } else {
             add = true;
         }
-        v1 = rand() % 100;
+        v1 = rand() % numOfPackets;
     }
     sort(packetsToLoseAck.begin(), packetsToLoseAck.end());
     numOfRetransmitedPackets+=packetsToLoseAck.size();
@@ -417,7 +417,7 @@ void setRandomPacketsToLoseAck(int percentage, int numOfPackets) { // to send to
 void setRandomPacketsToFailChecksum(int percentage, int numOfPackets) { //corrupt
     packetsToFailChecksum.clear();
     int packetsToFailChecksumCount = numOfPackets * percentage/100;
-    int v1 = rand() % 100;
+    int v1 = rand() % numOfPackets;
     bool add;
     while (packetsToFailChecksumCount > 0) {
         if(packetsToFailChecksum.size() ==  numOfPackets * percentage/100) {
@@ -451,7 +451,7 @@ void setRandomPacketsToFailChecksum(int percentage, int numOfPackets) { //corrup
         } else {
             add = true;
         }
-        v1 = rand() % 100;
+        v1 = rand() % numOfPackets;
     }
     sort(packetsToFailChecksum.begin(), packetsToFailChecksum.end());
     numOfRetransmitedPackets+=packetsToFailChecksum.size();
