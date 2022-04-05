@@ -703,8 +703,12 @@ void printCurrentWindow(){
 
 void sendQueue(tcp::socket& socket){
     queue<packet> tempQ = q;
+    cout << "TempQ " << sizeof(q) << endl;
 
-    for(int i = 0; i < tempQ.size(); i++){
+    cout << "Sending queue..." << endl;
+
+    int i  = 0;
+    while( i < tempQ.size()){
         bool badPacket = false;
         //drop packet
         if(!packetsToDrop.empty()) {
@@ -731,10 +735,14 @@ void sendQueue(tcp::socket& socket){
         }
         if(!badPacket){
             sendData(socket, tempQ.front().getPacketMessage());
+            if(printLog){
+                cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " sent" << endl;
+            }
             tempQ.pop();
         }
     }
 }
+
 
 
 //*************************************************************************************************************************
@@ -810,12 +818,16 @@ void fillQ(){
 //*************************************************************************************************************************
 void SR(tcp::socket& socket, vector<char> bytes){
 
+    cout << "About to fill temp" << endl;
     fillTemp(bytes);
+    cout << "temp filled" << endl;
     int packetCounter = 0;
 
 
+    cout << "send ing sockets" << endl;
     sendQueue(socket);
 
+    cout << "packets sent..." << endl;
     while(packetCounter != numOfPackets){
         bool badPacket = false;
         string recvPkt = getData(socket);

@@ -419,7 +419,52 @@ void GBN(tcp::socket& socket){
 
 
 void SR(tcp::socket& socket){
+    bool allDone = false;
+    while(!allDone){
+        cout << "while" << endl;
+        bool cksumFail = false;
+        cout << "Getting data..." << endl;
+        string recvPkt = getData(socket);
 
+        cout << "Data: " << recvPkt << endl;
+        if(recvPkt == "alldone=|||="){
+            allDone = true;
+            sendData(socket, "alldone");
+        }else{
+            parseReceivingPacket(recvPkt);
+
+            cout << "parsed..." << endl;
+
+            if(printLog){cout << "Packet " << to_string(packetNumber) << " received" << endl;}
+            string receivedCk = checksum(bitData);
+            std::string s = addBinary(bitDataComp, receivedCk);
+            if (s.find('0') != std::string::npos) {
+                if(printLog){ cout << "Checksum failed" << endl;
+                    cout << "Current window [1]" << endl;
+                }string ack = "NACK";
+                cksumFail = true;
+                sendData(socket, ack);
+
+            }
+            //else checksum succeeds
+            // If checksum is bad or lose ack
+            for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+                if(packetNumber == packetsToLoseAck[i]) {
+                    packetsToLoseAck.erase(packetsToLoseAck.begin());
+                    string ack = "NACK";
+                    cksumFail = true;
+                    sendData(socket, ack);
+                }
+            }
+
+            if(!cksumFail){
+                if(printLog){
+                    cout << "Ack " << packetNumber << " sent" << endl;
+                }
+                sendData(socket, "Ack " + packetNumber);
+            }
+        }
+    }
 }
 
 void SNW(tcp::socket& socket){
