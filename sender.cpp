@@ -1068,7 +1068,8 @@ int main() {
     //update numOfRetansmittedPackets
     numOfRetransmittedPackets+=packetsToDrop.size();
     numOfRetransmittedPackets+=packetsToLoseAck.size();
-    numOfRetransmittedPackets++packetsToFailChecksum();
+    numOfRetransmittedPackets+=packetsToFailChecksum();
+
     start = Clock::now(); // for total elapsed time
     cout << "\n************ Protocol work ************" << endl;
     beginTransaction(bytes);
