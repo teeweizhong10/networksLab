@@ -1045,19 +1045,33 @@ void trySR(vector<char>& bytes) {
             if (bytes.size() >= sizeOfPacket) {
                 string s(bytes.begin(), bytes.begin()+sizeOfPacket);
                 byteContent = s;
-                newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
-                packetsInWindow[i] = newPacket;
+                //newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
+                packetsInWindow[i].setPacketNum(packetCounter);
+                packetsInWindow[i].setSeqNum(seqNumCounter);
+                packetsInWindow[i].setBitContent(byteContent);
+                packetsInWindow[i].setChecksumValue(getChecksumVal(byteContent));
+                packetsInWindow[i].setAckReceived(0);
 
             } else {
                 string s(bytes.begin(), bytes.end());
                 byteContent = s;
-                newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
-                packetsInWindow[i] = newPacket;
+                packetsInWindow[i].setPacketNum(packetCounter);
+                packetsInWindow[i].setSeqNum(seqNumCounter);
+                packetsInWindow[i].setBitContent(byteContent);
+                packetsInWindow[i].setChecksumValue(getChecksumVal(byteContent));
+                packetsInWindow[i].setAckReceived(0);
             }
 
             if (bytes.size() >= sizeOfPacket) {
                 bytes.erase(bytes.begin(), bytes.begin()+sizeOfPacket);
             }
+
+            packetCounter++;
+            seqNumCounter++;
+            if (seqNumCounter == seqNumberUpperBound) {
+                seqNumCounter = 0;
+            }
+            allBytesAfter += byteContent;
         }
 
         cout << "Packets in window: " << endl;
