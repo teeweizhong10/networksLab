@@ -73,6 +73,7 @@ void inputManager::getInput() {
             allInput.push_back(std::to_string(1)); // Set receiver window size to 1
             allInput.push_back("\n");
             break;
+
         case 1:
             allInput.push_back(std::to_string(1)); // Set sender window size to 1
             allInput.push_back("\n");

@@ -41,7 +41,7 @@ using std::this_thread::sleep_for;
 class Sender {
 private:
     int selectedAlgorithm; // 0 for GBN, 1 for stop and Wait, 2 for SR
-    int senderMaxWindowSize;
+    int senderMWindowSize;
     int receiverMaxWindowSize;
     int sizeOfPacket;
     int seqNumberUpperBound;
