@@ -1091,10 +1091,10 @@ int main() {
     cout << "Throughput: " << MbpsWithErrors << " Mbps" << endl;
 
     int MbpsWithoutErrors = file_size - (numOfRetransmitedPackets*sizeOfPacket);
-    MbpsWithErrors /= 100000;
-    MbpsWithErrors /= (totalElapsedTime.count()/1000);
-    MbpsWithErrors *= 8;
-    MbpsWithErrors /= 2;
+    MbpsWithoutErrors /= 100000;
+    MbpsWithoutErrors /= (totalElapsedTime.count()/1000);
+    MbpsWithoutErrors *= 8;
+    MbpsWithoutErrors /= 2;
     cout << "Effective Throughput: " << MbpsWithoutErrors <<" Mbps" << endl;
 
     cout << "All received bytes length: " << file_size << endl;
