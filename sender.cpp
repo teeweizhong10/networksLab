@@ -1009,6 +1009,78 @@ void trySenderStopAndWait(vector<char>& bytes) {
     }
 }
 
+
+
+void trySR(vector<char>& bytes) {
+    char byte = 0;
+    string bits="";
+
+    int packetCounter = 0;
+    int seqNumCounter = 0;
+    bool packetSent = false;
+    bool receivedAck = false;
+
+    string receivedBytes = "";
+    packet newPacket;
+    string byteContent = "";
+
+    time_point<Clock> timeoutStart = Clock::now();
+    milliseconds currentTimeCount = duration_cast<milliseconds>(milliseconds (0)- milliseconds(0));
+
+    cout << endl;
+    string allBytesBefore(bytes.begin(), bytes.end());
+    string allBytesAfter = "";
+
+    packet packetsInWindow[senderMaxWindowSize];
+
+    for (int i = 0; i < senderMaxWindowSize; ++i) {
+
+    }
+
+    while(packetCounter != numOfPackets) {
+        bool receivedAck = false;
+        for (int i = 0; i < senderMaxWindowSize; ++i) {
+            //creating packets by window size
+            if (bytes.size() >= sizeOfPacket) {
+                string s(bytes.begin(), bytes.begin()+sizeOfPacket);
+                byteContent = s;
+                newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
+                packetsInWindow[i] = newPacket;
+
+            } else {
+                string s(bytes.begin(), bytes.end());
+                byteContent = s;
+                newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
+                packetsInWindow[i] = newPacket;
+            }
+
+            if (bytes.size() >= sizeOfPacket) {
+                bytes.erase(bytes.begin(), bytes.begin()+sizeOfPacket);
+            }
+        }
+
+        cout << "Packets in window: " << endl;
+        for (int i = 0; i < receiverMaxWindowSize; ++i) {
+            cout << packetsInWindow[i].getPacketNum() << endl;
+        }
+        cout << "********" << endl;
+
+
+        while (notTimedOut(currentTimeCount)) { // Check for timeout
+            //send packet
+
+            packetCounter++;
+            seqNumCounter++;
+            if (seqNumCounter == seqNumberUpperBound) {
+                seqNumCounter = 0;
+            }
+            allBytesAfter += byteContent;
+
+            time_point<Clock> timeoutend = Clock::now();
+            currentTimeCount = duration_cast<milliseconds>(timeoutend - start);
+        }
+    }
+}
 int main() {
     Sender senderInstance;
     senderWelcomeMessage();
@@ -1062,7 +1134,8 @@ int main() {
     //sends config to receiver and gets time out value
     senderGetTimeout();
 
-    trySenderStopAndWait(bytes);
+    //trySenderStopAndWait(bytes);
+    trySR(bytes);
 
 
     //refactorSenderStopAndWait(filePath);
@@ -1072,94 +1145,6 @@ int main() {
     milliseconds totalElapsedTime = duration_cast<milliseconds>(end - start);
     cout << "Total elapsed time: " << totalElapsedTime.count() << "ms" << std::endl;
     cout << "Done sending all " << numOfPackets << " packets" << endl;
-
-    /*
-
-    setBitsFromFile(filePath);
-    cout << "Length of file in bits: " << allBits.length();
-
-    senderInstance = setSenderInstance(selectedAlgorithm, senderMaxWindowSize, receiverMaxWindowSize, sizeOfPacket, seqNumberUpperBound, seqNumberLowerBound, staticOrDynamic, staticSeconds, dynamicRoundTripTimeMultiplier, selectedErrorType, errorPercentage, packetsToDrop, packetsToLoseAck, packetsToFailChecksum, filePath);
-    showCurrentConfig(senderInstance);
-    cout << endl;
-
-    //allBits += "0101011110101010101011101010110101110101010101011100"; // Test adding bits
-
-    // Begin coding here
-    // Get the amount of packets based on the string length
-    if(allBits.length()%sizeOfPacket > 0) {
-        numOfPackets = allBits.length()/sizeOfPacket + 1;
-    } else {
-        numOfPackets = allBits.length()/sizeOfPacket;
-    }
-
-    cout << "\nNumber of packets: " << numOfPackets << endl;
-    //cout << "All bits: " << allBits << endl; Test print all bits
-//    string testChecksum = checksum("000110");
-//    cout << "\nCkSUM: " << testChecksum;
-//    cout << "\nCompl: " << compliment(testChecksum) << "\n";
-
-    // Putting bit strings into packets based on user input size of packets
-    remove(allBits.begin(), allBits.end(), ' ');
-    vector<char> bitArray(allBits.begin(), allBits.end());
-    string currentSet = "";
-    int j = 0;
-    bool runOnce = true;
-    int packetCounter = 0;
-    int seqNumCounter = 0;
-    for (int i = 0; i < numOfPackets; ++i) {
-        while (j < allBits.length()) {
-            currentSet += bitArray[j];
-            j++;
-            if (j%sizeOfPacket == 0) {
-                //cout << "Current set: " << currentSet << endl;
-                seqNumCounter=(packetCounter)%(seqNumberUpperBound+1);
-                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,getChecksumVal(currentSet),0);
-                packets.push_back(newPacket);
-                currentSet = "";
-                packetCounter++;
-            }
-        }
-        if (runOnce) {
-            if (j%numOfPackets > 0){
-                //cout << "Current set: " << currentSet << endl;
-                if(seqNumCounter%seqNumberUpperBound != 0) {
-                    seqNumCounter++;
-                } else {
-                    seqNumCounter = 0;
-                }
-                packet newPacket = packet(packetCounter,seqNumCounter,currentSet,getChecksumVal(currentSet),0);
-                packets.push_back(newPacket);
-            }
-        }
-        runOnce = false;
-    }
-
-    if (selectedErrorType == 2) { // set errors for random percentage
-        setPacketErrors(errorPercentage, numOfPackets);
-    }
-
-    // Test print all packet objects getMessage()
-//    for (int i = 0; i < packets.size(); ++i) {
-//        cout << packets[i].getPacketMessage() << endl; Test print all packets
-//    }
-
-    //TODO: send packets here
-    // Send packets here
-    // Corrupt packets use compliment()
-
-    senderGetTimeout();
-    start = Clock::now(); // for total elapsed time
-    // add protocol calls
-
-    cout << "\n************ Protocol work ************" << endl;
-
-    //senderStopAndWait(packets);
-    cout << endl;
-
-    time_point<Clock> end = Clock::now();
-    milliseconds totalElapsedTime = duration_cast<milliseconds>(end - start);
-    cout << "Total elapsed time: " << totalElapsedTime.count() << "ms" << std::endl;
-    */
     return 0;
 }
 
