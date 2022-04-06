@@ -356,7 +356,7 @@ Sender setSenderInstance(int selectedAlgorithm, int senderMaxWindowSize, int rec
 void setRandomPacketsToDrop(int percentage, int numOfPackets) {
     packetsToDrop.clear();
     int packetsDropCount = numOfPackets * percentage/100;
-    int v1 = rand() % 100;
+    int v1 = rand() % numOfPackets;
     bool add;
     while (packetsDropCount > 0) {
         if(packetsToDrop.size() ==  numOfPackets * percentage/100) {
@@ -374,7 +374,7 @@ void setRandomPacketsToDrop(int percentage, int numOfPackets) {
         } else {
             add = true;
         }
-        v1 = rand() % 100;
+        v1 = rand() % numOfPackets;
     }
     sort(packetsToDrop.begin(), packetsToDrop.end());
     numOfRetransmitedPackets+=packetsToDrop.size();
@@ -383,7 +383,7 @@ void setRandomPacketsToDrop(int percentage, int numOfPackets) {
 void setRandomPacketsToLoseAck(int percentage, int numOfPackets) { // to send to receiver
     packetsToLoseAck.clear();
     int packetsLoseAckCount = numOfPackets * percentage/100;
-    int v1 = rand() % 100;
+    int v1 = rand() % numOfPackets;
     bool add;
     while (packetsLoseAckCount > 0) {
         if(packetsToLoseAck.size() ==  numOfPackets * percentage/100) {
@@ -408,7 +408,7 @@ void setRandomPacketsToLoseAck(int percentage, int numOfPackets) { // to send to
         } else {
             add = true;
         }
-        v1 = rand() % 100;
+        v1 = rand() % numOfPackets;
     }
     sort(packetsToLoseAck.begin(), packetsToLoseAck.end());
     numOfRetransmitedPackets+=packetsToLoseAck.size();
@@ -417,7 +417,7 @@ void setRandomPacketsToLoseAck(int percentage, int numOfPackets) { // to send to
 void setRandomPacketsToFailChecksum(int percentage, int numOfPackets) { //corrupt
     packetsToFailChecksum.clear();
     int packetsToFailChecksumCount = numOfPackets * percentage/100;
-    int v1 = rand() % 100;
+    int v1 = rand() % numOfPackets;
     bool add;
     while (packetsToFailChecksumCount > 0) {
         if(packetsToFailChecksum.size() ==  numOfPackets * percentage/100) {
@@ -451,7 +451,7 @@ void setRandomPacketsToFailChecksum(int percentage, int numOfPackets) { //corrup
         } else {
             add = true;
         }
-        v1 = rand() % 100;
+        v1 = rand() % numOfPackets;
     }
     sort(packetsToFailChecksum.begin(), packetsToFailChecksum.end());
     numOfRetransmitedPackets+=packetsToFailChecksum.size();
@@ -703,8 +703,12 @@ void printCurrentWindow(){
 
 void sendQueue(tcp::socket& socket){
     queue<packet> tempQ = q;
+    cout << "TempQ " << sizeof(q) << endl;
 
-    for(int i = 0; i < tempQ.size(); i++){
+    cout << "Sending queue..." << endl;
+
+    int i  = 0;
+    while( i < tempQ.size()){
         bool badPacket = false;
         //drop packet
         if(!packetsToDrop.empty()) {
@@ -731,10 +735,14 @@ void sendQueue(tcp::socket& socket){
         }
         if(!badPacket){
             sendData(socket, tempQ.front().getPacketMessage());
+            if(printLog){
+                cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " sent" << endl;
+            }
             tempQ.pop();
         }
     }
 }
+
 
 
 //*************************************************************************************************************************
@@ -810,12 +818,16 @@ void fillQ(){
 //*************************************************************************************************************************
 void SR(tcp::socket& socket, vector<char> bytes){
 
+    cout << "About to fill temp" << endl;
     fillTemp(bytes);
+    cout << "temp filled" << endl;
     int packetCounter = 0;
 
 
+    cout << "send ing sockets" << endl;
     sendQueue(socket);
 
+    cout << "packets sent..." << endl;
     while(packetCounter != numOfPackets){
         bool badPacket = false;
         string recvPkt = getData(socket);
@@ -1047,7 +1059,6 @@ int main() {
 
     cout << "File size in bytes: " << bytes.size() << endl;
     int file_size = bytes.size();
-    cout<<"here1"<<endl;
     setNumberOfPackets(bytes.size(), sizeOfPacket);
     cout<<"set number of packets"<<endl;
     if (selectedErrorType == 2) { // set errors for random percentage
@@ -1071,10 +1082,18 @@ int main() {
     //mbps = 8(filesize/(totalElapsedTime.count()/1000))
     //int MbpsWithErrors = 8*((file_size)/(totalElapsedTime.count()/1000));
     //TODO: Is size of packet in bits or bytes?
-    int MbpsWithErrors = 8*((file_size+(numOfRetransmitedPackets*sizeOfPacket))/(totalElapsedTime.count()/1000));
+    int MbpsWithErrors = file_size + (numOfRetransmitedPackets*sizeOfPacket);
+    MbpsWithErrors /= 100000;
+    MbpsWithErrors /= (totalElapsedTime.count()/1000);
+    MbpsWithErrors *= 8;
+    MbpsWithErrors /= 2;
     cout << "Throughput: " << MbpsWithErrors << " Mbps" << endl;
 
-    int MbpsWithoutErrors = 8*((file_size-(numOfRetransmitedPackets*sizeOfPacket))/(totalElapsedTime.count()/1000));
+    int MbpsWithoutErrors = file_size - (numOfRetransmitedPackets*sizeOfPacket);
+    MbpsWithoutErrors /= 100000;
+    MbpsWithoutErrors /= (totalElapsedTime.count()/1000);
+    MbpsWithoutErrors *= 8;
+    MbpsWithoutErrors /= 2;
     cout << "Effective Throughput: " << MbpsWithoutErrors <<" Mbps" << endl;
 
     cout << "All received bytes length: " << file_size << endl;
