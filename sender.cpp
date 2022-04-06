@@ -1034,7 +1034,8 @@ void trySR(vector<char>& bytes) {
     packet packetsInWindow[senderMaxWindowSize];
 
     for (int i = 0; i < senderMaxWindowSize; ++i) {
-
+        newPacket = packet(0,0,"","",0);
+        packetsInWindow[senderMaxWindowSize] = newPacket;
     }
 
     while(packetCounter != numOfPackets) {
