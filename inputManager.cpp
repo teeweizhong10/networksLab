@@ -106,7 +106,7 @@ void inputManager::getInput() {
 //    // seqNum Upper Bound
 //    //calculate lowest MaxSeqNumber
 
-    int calculatedMaxSeqNumber=(senderMaxWindowSize/2)+1;
+    int calculatedMaxSeqNumber=(senderMaxWindowSize*2)-1;
     cout << endl << "Set max seqNum or use default: \n1. set \n2. default" << endl;
     cout << "Input: ";
     cin >> input;
