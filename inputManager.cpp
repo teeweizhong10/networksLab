@@ -118,7 +118,7 @@ void inputManager::getInput() {
                 cout << endl << "set the max seqNumber (max seqNumber > " << calculatedMaxSeqNumber << "):" << endl;
                 cout << "Input: ";
                 cin >> input;
-                if(input !>= calculatedMaxSeqNumber){
+                if(!(input >= calculatedMaxSeqNumber)){
                     cout << "try again..." << endl;
                     seqFlag=true;
                 }else{
