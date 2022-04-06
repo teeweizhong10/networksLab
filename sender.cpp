@@ -115,7 +115,7 @@ int staticSeconds;
 int dynamicRoundTripTimeMultiplier;
 int selectedErrorType;
 int errorPercentage; //0 if none
-int numOfRetransmitedPackets=0;
+int numOfRetransmittedPackets=0;
 vector<int> packetsToDrop; //empty if none
 vector<int> packetsToLoseAck; //empty if none
 vector<int> packetsToFailChecksum; //empty if none
@@ -377,7 +377,7 @@ void setRandomPacketsToDrop(int percentage, int numOfPackets) {
         v1 = rand() % numOfPackets;
     }
     sort(packetsToDrop.begin(), packetsToDrop.end());
-    numOfRetransmitedPackets+=packetsToDrop.size();
+
 }
 
 void setRandomPacketsToLoseAck(int percentage, int numOfPackets) { // to send to receiver
@@ -411,7 +411,7 @@ void setRandomPacketsToLoseAck(int percentage, int numOfPackets) { // to send to
         v1 = rand() % numOfPackets;
     }
     sort(packetsToLoseAck.begin(), packetsToLoseAck.end());
-    numOfRetransmitedPackets+=packetsToLoseAck.size();
+
 }
 
 void setRandomPacketsToFailChecksum(int percentage, int numOfPackets) { //corrupt
@@ -454,7 +454,7 @@ void setRandomPacketsToFailChecksum(int percentage, int numOfPackets) { //corrup
         v1 = rand() % numOfPackets;
     }
     sort(packetsToFailChecksum.begin(), packetsToFailChecksum.end());
-    numOfRetransmitedPackets+=packetsToFailChecksum.size();
+
 }
 
 void setPacketErrors(int percentage, int numOfPackets) {
@@ -1065,7 +1065,10 @@ int main() {
         setPacketErrors(errorPercentage, numOfPackets);
     }
     showCurrentConfig(senderInstance);
-
+    //update numOfRetansmittedPackets
+    numOfRetransmittedPackets+=packetsToDrop.size();
+    numOfRetransmittedPackets+=packetsToLoseAck.size();
+    numOfRetransmittedPackets++packetsToFailChecksum();
     start = Clock::now(); // for total elapsed time
     cout << "\n************ Protocol work ************" << endl;
     beginTransaction(bytes);
@@ -1077,19 +1080,19 @@ int main() {
     time_point<Clock> end = Clock::now();
     milliseconds totalElapsedTime = duration_cast<milliseconds>(end - start);
     cout << "number of original packets sent: "<<numOfPackets<<endl;
-    cout << "number of retransmitted packets: "<<numOfRetransmitedPackets<<endl;
+    cout << "number of retransmitted packets: "<<numOfRetransmittedPackets<<endl;
     cout << "Total elapsed time: " << totalElapsedTime.count() << "ms" << std::endl;
     //mbps = 8(filesize/(totalElapsedTime.count()/1000))
     //int MbpsWithErrors = 8*((file_size)/(totalElapsedTime.count()/1000));
     //TODO: Is size of packet in bits or bytes?
-    int MbpsWithErrors = file_size + (numOfRetransmitedPackets*sizeOfPacket);
+    int MbpsWithErrors = file_size + (numOfRetransmittedPackets*sizeOfPacket);
     MbpsWithErrors /= 100000;
     MbpsWithErrors /= (totalElapsedTime.count()/1000);
     MbpsWithErrors *= 8;
     MbpsWithErrors /= 2;
     cout << "Throughput: " << MbpsWithErrors << " Mbps" << endl;
 
-    int MbpsWithoutErrors = file_size - (numOfRetransmitedPackets*sizeOfPacket);
+    int MbpsWithoutErrors = file_size - (numOfRetransmittedPackets*sizeOfPacket);
     MbpsWithoutErrors /= 100000;
     MbpsWithoutErrors /= (totalElapsedTime.count()/1000);
     MbpsWithoutErrors *= 8;
