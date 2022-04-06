@@ -37,6 +37,9 @@ void inputManager::getInput() {
     string ipAddr;
     int port;
     bool seqFlag=true;
+    bool gbnSelection=false;
+    bool swSelection=false;
+
 
 
     int input;
@@ -48,9 +51,11 @@ void inputManager::getInput() {
     switch (input-1) {
         case 0:
             cout << "Go Back N" << endl;
+            gbnSelection=true;
             break;
         case 1:
             cout << "Stop and Wait" << endl;
+            swSelection=true;
             break;
         case 2:
             cout << "Selective Repeat" << endl;
@@ -115,18 +120,35 @@ void inputManager::getInput() {
         case 0:
             cout << "set" << endl;
             while(seqFlag) {
-                cout << endl << "set the max seqNumber (max seqNumber > " << calculatedMaxSeqNumber << "):" << endl;
-                cout << "Input: ";
-                cin >> input;
-                if(!(input >= calculatedMaxSeqNumber)){
-                    cout << "try again..." << endl;
-                    seqFlag=true;
+                if(gbnSelection | swSelection){
+                    cout << endl << "set the max seqNumber (max seqNumber > 2):" << endl;
+                    cout << "Input: ";
+                    cin >> input;
+                    if(!(input > 2)){
+                        cout << "try again..." << endl;
+                        seqFlag=true;
+                    }else{
+                        cout << "You chose: " << input << endl;
+                        allInput.push_back(std::to_string(input)); // Set upper bound to user input
+                        allInput.push_back("\n");
+                        seqFlag=false;
+                    }
+
                 }else{
-                    cout << "You chose: " << input << endl;
-                    allInput.push_back(std::to_string(input)); // Set upper bound to user input
-                    allInput.push_back("\n");
-                    seqFlag=false;
+                    cout << endl << "set the max seqNumber (max seqNumber > " << calculatedMaxSeqNumber << "):" << endl;
+                    cout << "Input: ";
+                    cin >> input;
+                    if(!(input >= calculatedMaxSeqNumber)){
+                        cout << "try again..." << endl;
+                        seqFlag=true;
+                    }else{
+                        cout << "You chose: " << input << endl;
+                        allInput.push_back(std::to_string(input)); // Set upper bound to user input
+                        allInput.push_back("\n");
+                        seqFlag=false;
+                    }
                 }
+
 
             }
 
