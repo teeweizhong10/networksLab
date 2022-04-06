@@ -1059,7 +1059,6 @@ int main() {
 
     cout << "File size in bytes: " << bytes.size() << endl;
     int file_size = bytes.size();
-    cout<<"here1"<<endl;
     setNumberOfPackets(bytes.size(), sizeOfPacket);
     cout<<"set number of packets"<<endl;
     if (selectedErrorType == 2) { // set errors for random percentage
