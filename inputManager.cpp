@@ -141,7 +141,7 @@ void inputManager::getInput() {
 
 
 //    // seqNum Lower Bound
-    allInput.push_back(std::to_string(0)); // Set lower bound to user input
+    allInput.push_back(std::to_string(0)); // Set lower bound to 0
     allInput.push_back("\n");
 
     // Static or dynamic
