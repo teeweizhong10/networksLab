@@ -14,9 +14,11 @@ void inputManager::welcomeMessage() {
     cout << "Answer the following prompts to set up the configuration for the sender and receivers sessions. " << endl;
 }
 
+
+
 void inputManager::getInput() {
     int selectedAlgorithm; // 0 for GBN, 1 for stop and Wait, 2 for SR
-    int senderMaxWindowSize;
+    int senderMaxWindowSize=0;
     int receiverMaxWindowSize;
     int sizeOfPacket;
     int seqNumberUpperBound;
@@ -34,6 +36,8 @@ void inputManager::getInput() {
     welcomeMessage();
     string ipAddr;
     int port;
+    bool seqFlag=true;
+
 
     int input;
     // Select protocol
@@ -62,6 +66,8 @@ void inputManager::getInput() {
             cout << "Input: ";
             cin >> input;
             cout << "You chose: " << input << endl;
+            senderMaxWindowSize=input;
+
             allInput.push_back(std::to_string(input)); // Set sender window size to user input
             allInput.push_back("\n");
             allInput.push_back(std::to_string(1)); // Set receiver window size to 1
@@ -78,41 +84,62 @@ void inputManager::getInput() {
             cout << "Input: ";
             cin >> input;
             cout << "You chose: " << input << endl;
-            allInput.push_back(std::to_string(input)); // Set sender window size to user input
+            senderMaxWindowSize=input;
+            allInput.push_back(std::to_string(senderMaxWindowSize)); // Set sender window size to user input
             allInput.push_back("\n");
-            cout << endl << "Choose the receiver window size: " << endl;
-            cout << "Input: ";
-            cin >> input;
-            cout << "You chose: " << input << endl;
-            allInput.push_back(std::to_string(input)); // Set receiver window size to user input
+            //keep receiver window same size as sender window
+            allInput.push_back(std::to_string(senderMaxWindowSize)); // Set receiver window size to user input
             allInput.push_back("\n");
             break;
     }
 
     // Size of packet
-    cout << endl << "Choose the size of packets in bits: " << endl;
+    cout << endl << "Choose the size of packets in bytes: " << endl;
     cout << "Input: ";
     cin >> input;
     cout << "You chose: " << input << endl;
     allInput.push_back(std::to_string(input)); // Set size of packets to user input
     allInput.push_back("\n");
 
-    //calculate valid seqNum Upper bound
-    int validUpperBound = (senderMaxWindowSize*2)-1;
 
-    // seqNum Upper Bound
-    cout << endl << "Choose the upper bound of the sequence numbers (needs to be greater than: "<< validUpperBound<<" ): " << endl;
+//    // seqNum Upper Bound
+//    //calculate lowest MaxSeqNumber
+
+    int calculatedMaxSeqNumber=(senderMaxWindowSize/2)+1;
+    cout << endl << "Set max seqNum or use default: \n1. set \n2. default" << endl;
     cout << "Input: ";
     cin >> input;
-    cout << "You chose: " << input << endl;
-    allInput.push_back(std::to_string(input)); // Set upper bound to user input
-    allInput.push_back("\n");
+    cout << "You chose: ";
+    switch (input-1) {
+        case 0:
+            cout << "set" << endl;
+            while(seqFlag) {
+                cout << endl << "set the max seqNumber (max seqNumber > " << calculatedMaxSeqNumber << "):" << endl;
+                cout << "Input: ";
+                cin >> input;
+                if(input !>= calculatedMaxSeqNumber){
+                    cout << "try again..." << endl;
+                    seqFlag=true;
+                }else{
+                    cout << "You chose: " << input << endl;
+                    allInput.push_back(std::to_string(input)); // Set upper bound to user input
+                    allInput.push_back("\n");
+                    seqFlag=false;
+                }
 
-    // seqNum Lower Bound
-//    cout << endl << "Choose the lower bound of the sequence numbers: " << endl;
-//    cout << "Input: ";
-//    cin >> input;
-//    cout << "You chose: " << input << endl;
+            }
+
+            break;
+        case 1:
+            cout << "default" << endl;
+            cout << "setting max seqNum to default..."<<endl;
+            allInput.push_back(std::to_string(calculatedMaxSeqNumber)); // Set upper bound to calculatedMaxSeqNumber
+            allInput.push_back("\n");
+            break;
+    }
+
+
+//    // seqNum Lower Bound
     allInput.push_back(std::to_string(0)); // Set lower bound to user input
     allInput.push_back("\n");
 
