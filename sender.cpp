@@ -115,7 +115,7 @@ int staticSeconds;
 int dynamicRoundTripTimeMultiplier;
 int selectedErrorType;
 int errorPercentage; //0 if none
-int numOfRetransmittedPackets=0;
+float numOfRetransmittedPackets=0;
 vector<int> packetsToDrop; //empty if none
 vector<int> packetsToLoseAck; //empty if none
 vector<int> packetsToFailChecksum; //empty if none
