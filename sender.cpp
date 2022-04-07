@@ -646,6 +646,7 @@ int fillQ(int packetCounter){
         q.push(newPacket);
         seqNumCounter++;
         packetCounter++;
+        cout << "Packet " << newPacket.getPacketNum() << " sent" << endl;
 
         //TODO: shouldn't seq num counter have an if statement here to restart it?
 //        if (seqNumCounter == seqNumberUpperBound) {
