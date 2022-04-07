@@ -828,66 +828,107 @@ void fillQ(){
 //*************************************************************************************************************************
 void SR(tcp::socket& socket, vector<char> bytes){
 
-    cout << "About to fill temp" << endl;
+    int seqNumCounter = 0;
     fillTemp(bytes);
-    cout << "temp filled" << endl;
+    string byteContent = "";
+    packet newPacket;
     int packetCounter = 0;
+    int pktCtr = 0;
+
+    bool retrans = false;
+    bool badPacket = false;
+    while(pktCtr < numOfPackets){
+        badPacket = false;
+        retrans = false;
 
 
-    cout << "send ing sockets" << endl;
-    sendQueue(socket);
+        if(seqNumCounter == seqNumberUpperBound){
+            seqNumCounter = 0;
+        }
 
-    cout << "packets sent..." << endl;
-    while(packetCounter != numOfPackets){
-        bool badPacket = false;
-        string recvPkt = getData(socket);
+        if (tempBytes.size() >= sizeOfPacket) {
+            string s(tempBytes.begin(), tempBytes.begin()+sizeOfPacket);
+            byteContent = s;
+            tempBytes.erase(tempBytes.begin(), tempBytes.begin()+sizeOfPacket);//remove stored bytes
 
-        if(recvPkt == "Ack " + to_string(q.front().getPacketNum()) + "=|||="){
-            if(printLog){
-                cout << "Ack " << to_string(q.front().getPacketNum()) << " received" << endl;
+
+        } else {
+            string s(tempBytes.begin(), tempBytes.end());
+            byteContent = s;
+            tempBytes.erase(tempBytes.begin(), tempBytes.end());//remove stored bytes
+        }
+        //create the packet and add to queue
+        newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
+
+        seqNumCounter++;
+        packetCounter++;
+
+
+
+        //if drop
+        if(!packetsToDrop.empty()) {
+            if(packetsToDrop[0] == newPacket.getPacketNum()) {
+                packetsToDrop.erase(packetsToDrop.begin());
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " sent" << endl;
+
+                sleep_for(waitTime + milliseconds(1)); // Let it time out
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " ***** Timed Out *****" << endl;
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " Re-transmitted" << endl;
+
+                sendData(socket, newPacket.getPacketMessage());
+
+                if(getData(socket) == "ACK " + to_string(newPacket.getPacketNum()) + "=|||="){
+                    cout << "ACK " << to_string(newPacket.getPacketNum()) << " received" << endl;
+
+                    printCurrentWindowSR(seqNumCounter);
+                    pktCtr+=1;
+
+                }
             }
-            packetCounter++;
-            q.pop();
-            fillQ();
-        }else{
+            badPacket = true;
+        }
 
-            // TODO: Not sure why it's not working with the errors for now. I suspect it has something to do with the loop or fillQ()
-            //drop packet
-            if(!packetsToDrop.empty()) {
-                if(packetsToDrop[0] == q.front().getPacketNum()) {
-                    packetsToDrop.erase(packetsToDrop.begin());
-                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
-
+        //corrupt packet
+        if(!packetsToFailChecksum.empty()) {
+            if (packetsToFailChecksum[0] == q.front().getPacketNum()){
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " sent" << endl;
+                packetsToFailChecksum.erase(packetsToFailChecksum.begin());
+                sendData(socket, newPacket.getCorruptedPacketMessage());// send corrupted essage
+                if(getData(socket) == "NACK=|||="){
                     sleep_for(waitTime + milliseconds(1)); // Let it time out
-                    if (printLog) {
-                        cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
-                    }
-                }
-            }
 
-            //corrupt packet
-            if(!packetsToFailChecksum.empty()) {
-                if (packetsToFailChecksum[0] == q.front().getPacketNum()){
-                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
-                    }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
-                    sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted essage
-                    badPacket = true;
+
+                }
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " ***** Timed Out *****" << endl;
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " Re-transmitted" << endl;
+
+                sendData(socket, newPacket.getPacketMessage());
+                if(getData(socket) == "ACK " + to_string(newPacket.getPacketNum()) + "=|||="){
+                    cout << "ACK " << to_string(newPacket.getPacketNum()) << " received" << endl;
+                    printCurrentWindowSR(seqNumCounter);
+                    pktCtr+=1;
                 }
             }
-            if(!badPacket){
-                if(printLog){
-                    cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
-                }
-                sendData(socket, q.front().getPacketMessage());
-            }
+            badPacket = true;
         }
 
-        sendData(socket, "alldone");
-        string done = getData(socket);
-        if(done == "alldone=|||="){
-            socket.close();
 
+        if(!badPacket){
+
+            sendData(socket, newPacket.getPacketMessage());
+            string temp = getData(socket);
+            if(temp == "ACK " + to_string(newPacket.getPacketNum()) + "=|||="){
+                cout << "ACK " << to_string(newPacket.getPacketNum()) << " received" << endl;
+                printCurrentWindowSR(seqNumCounter);
+                pktCtr+=1;
+            }
         }
+    }
+
+    sendData(socket, "alldone");
+    if(getData(socket) == "alldone=|||="){
+        socket.close();
+
     }
 }
 //*************************************************************************************************************************
