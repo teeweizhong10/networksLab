@@ -889,7 +889,7 @@ void SR(tcp::socket& socket, vector<char> bytes){
 
         //if drop
         if(!packetsToDrop.empty()) {
-            if(packetsToDrop[0] == q.front().getPacketNum()) {
+            if(packetsToDrop[0] == newPacket.getPacketNum()) {
                 packetsToDrop.erase(packetsToDrop.begin());
                 cout << "Packet " << to_string(newPacket.getPacketNum()) << " sent" << endl;
 
@@ -912,7 +912,7 @@ void SR(tcp::socket& socket, vector<char> bytes){
 
         //corrupt packet
         if(!packetsToFailChecksum.empty()) {
-            if (packetsToFailChecksum[0] == q.front().getPacketNum()){
+            if (packetsToFailChecksum[0] == newPacket.getPacketNum()){
                 cout << "Packet " << to_string(newPacket.getPacketNum()) << " sent" << endl;
                 packetsToFailChecksum.erase(packetsToFailChecksum.begin());
                 sendData(socket, newPacket.getCorruptedPacketMessage());// send corrupted essage
