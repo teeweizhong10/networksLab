@@ -696,7 +696,7 @@ int sendQ(tcp::socket& socket, int lastPktNum){
 
 
 void printCurrentWindow(){
-    cout << "Current window: [";
+    cout << "Current window = [";
     queue<packet> SW = q;
     int i = 0;
     while(i < SW.size()){

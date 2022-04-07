@@ -404,7 +404,7 @@ void SR(tcp::socket& socket){
             std::string s = addBinary(bitDataComp, receivedCk);
             if (s.find('0') != std::string::npos) {
                 if(printLog){ cout << "Checksum failed" << endl;
-                    cout << "Current window [1]" << endl;
+                    cout << "Current window = [1]" << endl;
                 }string ack = "NACK";
                 cksumFail = true;
                 sendData(socket, ack);
@@ -449,7 +449,7 @@ void SNW(tcp::socket& socket){
         std::string s = addBinary(bitDataComp, receivedCk);
         if (s.find('0') != std::string::npos) {
             if(printLog){ cout << "Checksum failed" << endl;
-                cout << "Current window [1]" << endl;
+                cout << "Current window = [1]" << endl;
             }string ack = "NACK";
             cksumFail = true;
             sendData(socket, ack);
@@ -476,7 +476,7 @@ void SNW(tcp::socket& socket){
         }
         if(printLog && !cksumFail){
             cout << "Ack " << to_string(packetNumber) << " sent"  << endl;
-            cout << "Current window [1]" << endl;
+            cout << "Current window = [1]" << endl;
             receivedBytes += bitData;
         }
     }
