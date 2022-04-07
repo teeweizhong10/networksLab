@@ -82,6 +82,7 @@ int currentPacketNum;
 string bitDataComp;
 //bool printLog = true;
 string receivedBytes = "";
+int tempSeq;
 
 bool printLog = true;
 void receiverWelcomeMessage() {
