@@ -670,6 +670,7 @@ int sendQ(tcp::socket& socket, int lastPktNum){
             sleep_for(waitTime + milliseconds(1)); // Let it time out
             if (printLog) {
                 cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
+                cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
             }
         }
     }
@@ -724,6 +725,7 @@ void sendQueue(tcp::socket& socket){
                 sleep_for(waitTime + milliseconds(1)); // Let it time out
                 if (printLog) {
                     cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " ***** Timed Out *****" << endl;
+                    cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
                 }
             }
         }
