@@ -842,33 +842,31 @@ void SR(tcp::socket& socket, vector<char> bytes){
         }else{
 
             //drop packet
-            if(!packetsToDrop.empty()) {
-                if(packetsToDrop[0] == q.front().getPacketNum()) {
-                    packetsToDrop.erase(packetsToDrop.begin());
-                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
-
-                    sleep_for(waitTime + milliseconds(1)); // Let it time out
-                    if (printLog) {
-                        cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
-                    }
-                }
-            }
-
-            //corrupt packet
-            if(!packetsToFailChecksum.empty()) {
-                if (packetsToFailChecksum[0] == q.front().getPacketNum()){
-                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
-                    }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
-                    sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted essage
-                    badPacket = true;
-                }
-
-            }
+//            if(!packetsToDrop.empty()) {
+//                if(packetsToDrop[0] == q.front().getPacketNum()) {
+//                    packetsToDrop.erase(packetsToDrop.begin());
+//                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
+//
+//                    sleep_for(waitTime + milliseconds(1)); // Let it time out
+//                    if (printLog) {
+//                        cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
+//                    }
+//                }
+//            }
+//
+//            //corrupt packet
+//            if(!packetsToFailChecksum.empty()) {
+//                if (packetsToFailChecksum[0] == q.front().getPacketNum()){
+//                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
+//                    }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
+//                    sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted essage
+//                    badPacket = true;
+//                }
+//            }
             if(!badPacket){
                 if(printLog){
                     cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
                 }
-
                 sendData(socket, q.front().getPacketMessage());
             }
         }
