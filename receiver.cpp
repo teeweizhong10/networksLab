@@ -465,7 +465,7 @@ void SR(tcp::socket& socket){
                 if (!unorderedPackets.empty()) {
                     for (int i = 0; i < unorderedPackets.size(); ++i) {
                         if (newPacket.getSeqNum() == unorderedPackets[i].getSeqNum() - 1) {
-                            unorderedPackets.insert(unorderedPackets.begin() +length_error i, newPacket);
+                            unorderedPackets.insert(unorderedPackets.begin() + i, newPacket);
                         }
                     }
                 } else {
