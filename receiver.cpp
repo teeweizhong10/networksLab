@@ -177,52 +177,12 @@ void parseConfigFromString(string input) {
         }
         itemCount++;
     }
-}
 
-void showCurrentConfig(Receiver currentReceiver) {
-    cout << endl << "Current sender configuration: " << endl;
-    cout << "Selected algorithm: ";
-    switch (currentReceiver.getSelectedAlgorithm()) {
-        case 0:
-            cout << "GBN" << endl;
-            break;
-        case 1:
-            cout << "Stop and Wait" << endl;
-            break;
-        case 2:
-            cout << "Selective Repeat" << endl;
-            break;
+    cout << "Packets to lose ack: ";
+    for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+        cout << packetsToLoseAck[i] << "\t";
     }
-    cout << "Receiver Window Size: " << currentReceiver.getReceiverMaxWindowSize() << endl;
-    cout << "Packet Size: " << sizeOfPacket << endl;
-    //currentReceiver.getSizeOfPacket() << endl;
-    cout << "Seq Num Lower Bound: " << currentReceiver.getSeqNumberLowerBound() << endl;
-    cout << "Seq Num Upper Bound: " << currentReceiver.getSeqNumberUpperBound() << endl;
-    cout << "Selected error type: " << currentReceiver.getErrorType() << endl;
-    cout << "Selected port number: " << currentReceiver.getPortNumber() << endl;
-
-    switch (currentReceiver.getErrorType()) {
-        case 0:
-            cout << "None" << endl;
-            break;
-        case 1:
-            cout << "Specific Packets" << endl;
-            cout << "Packets to lose ack: ";
-            for (int i = 0; i < packetsToLoseAck.size(); ++i) {
-                cout << packetsToLoseAck[i] << "\t";
-            }
-            cout << endl;
-            break;
-        case 2:
-            cout << "Percentage of randomly selected packets" << endl;
-            cout << "Packets to lose ack: ";
-            for (int i = 0; i < packetsToLoseAck.size(); ++i) {
-                cout << packetsToLoseAck[i] << "\t";
-            }
-
-            cout << endl;
-            break;
-    }
+    cout << endl;
 }
 
 Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, int seqNumLowerBound, int seqNumUpperBound, int sizeOfPacket, int selectedErrorType, int errorPercentage, vector<int> packetsToLoseAck, int port){
@@ -577,8 +537,7 @@ int main() {
     receiverWelcomeMessage();
     //receive config by sockets
     getNetworkConfigFrom("config.txt");
-    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck, port);    showCurrentConfig(receiverInstance);
-    //parseConfigFromString("config.txt");
+    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck, port);
 
     receiverSimulation();
     setBitsToFile(finalBits);
