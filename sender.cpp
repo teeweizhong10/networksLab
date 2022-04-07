@@ -852,7 +852,7 @@ void SR(tcp::socket& socket, vector<char> bytes){
         }else{
 
             // TODO: Not sure why it's not working with the errors for now. I suspect it has something to do with the loop or fillQ()
-            drop packet
+            //drop packet
             if(!packetsToDrop.empty()) {
                 if(packetsToDrop[0] == q.front().getPacketNum()) {
                     packetsToDrop.erase(packetsToDrop.begin());
