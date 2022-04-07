@@ -468,7 +468,7 @@ void SR(tcp::socket& socket){
                     if(unorderedPackets[i].getSeqNum() == seqNumCounter) {
                         receivedBytes += unorderedPackets[i].getBitContent();
                         cout << "Received bytes length: " << receivedBytes.length() << endl;
-                        unorderedPackets.erase(unorderedPackets.begin() + i);
+                        unorderedPackets.erase(i);
                     }
                 }
             }
@@ -480,17 +480,6 @@ void SR(tcp::socket& socket){
         }
 
 
-    }
-    for (int i = 0; i < unorderedPackets.size(); ++i) {
-        if(unorderedPackets[i].getSeqNum() == seqNumCounter) {
-            receivedBytes += unorderedPackets[i].getBitContent();
-            cout << "Received bytes length: " << receivedBytes.length() << endl;
-            unorderedPackets.erase(unorderedPackets.begin() + i);
-        }
-    }
-
-    for (int i = 0; i < 100; ++i) {
-        cout << i << endl;
     }
     cout << "Unordered packets: " << unorderedPackets.size() << endl;
 }
