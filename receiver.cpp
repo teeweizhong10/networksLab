@@ -463,9 +463,9 @@ void SR(tcp::socket& socket){
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
                 unorderedPackets.push_back(newPacket);
             } else {
-                sort( unorderedPackets.begin( ), unorderedPackets.end( ), const auto& lhs, const auto& rhs )
+                sort( unorderedPackets.begin( ), unorderedPackets.end( ), [ ]( const auto& lhs, const auto& rhs )
                 {
-                    return lhs.getSeqNum() < rhs.getSeqNum();
+                    return lhs.key < rhs.key;
                 });
 
                 for (int i = 0; i < unorderedPackets.size(); ++i) {
