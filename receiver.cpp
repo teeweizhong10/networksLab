@@ -464,7 +464,7 @@ void SR(tcp::socket& socket){
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
                 unorderedPackets.push_back(newPacket);
 
-                if (receivedBytes > 0) {
+                if (receivedBytes.length() > 0) {
                     for (int i = 0; i < unorderedPackets.size(); ++i) {
                         for (int j = 0; j < seqNumCounter; ++j) {
                             if(unorderedPackets[i].getSeqNum() == j) {
