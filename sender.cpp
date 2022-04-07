@@ -684,8 +684,8 @@ int sendQ(tcp::socket& socket, int lastPktNum){
         //corrupt packet
         if(!packetsToFailChecksum.empty()) {
             if (packetsToFailChecksum[0] == q.front().getPacketNum()){
-                //if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
-                }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
+                //if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
+                packetsToFailChecksum.erase(packetsToFailChecksum.begin());
                 sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted essage
                 badPacket = true;
             }
@@ -697,7 +697,7 @@ int sendQ(tcp::socket& socket, int lastPktNum){
             testingBitsTransferred+=q.front().getBitContent().size();
             return q.front().getPacketNum();
         }
-//    }
+    //}
 //    return q.front().getPacketNum();
 }
 
