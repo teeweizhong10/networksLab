@@ -381,6 +381,25 @@ void GBN(tcp::socket& socket){
     }
 }
 
+void printCurrentWindow(){
+    cout << "Current window: [ ";
+
+    int k = tempSeq;
+    int i = 0;
+    int j = 0;
+
+    while (i < senderMaxWindowSize){
+        if((k+j)>=seqNumberUpperBound){
+            k = 0;
+            j= 0;
+        }
+        cout << k + j << " ";
+        i++;
+        j++;
+    }
+    cout << "]" << endl;
+}
+
 
 void SR(tcp::socket& socket){
     bool alldone = false;
