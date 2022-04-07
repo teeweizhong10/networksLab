@@ -873,10 +873,8 @@ void sendPacket(tcp::socket& socket, packet item){
     bool badPacket = false;
     if(!packetsToDrop.empty()) {
         if(packetsToDrop[0] == item.getPacketNum()) {
+            acksRecv.push_back("NACK " + packetsToDrop[0]);
             packetsToDrop.erase(packetsToDrop.begin());
-
-            sendData(socket, "DROP");
-            acksRecv.push_back(getData(socket));
             badPacket = true;
         }
     }
