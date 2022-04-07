@@ -646,6 +646,11 @@ int fillQ(int packetCounter){
         q.push(newPacket);
         seqNumCounter++;
         packetCounter++;
+
+        //TODO: shouldn't seq num counter have an if statement here to restart it?
+//        if (seqNumCounter == seqNumberUpperBound) {
+//            seqNumCounter = 0;
+//        }
     }
 
     return packetCounter;
