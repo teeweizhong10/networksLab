@@ -456,8 +456,6 @@ void SR(tcp::socket& socket){
                 printCurrentWindow();
             }
 
-            cout << "Current seqeunce number counter: " << seqNumCounter << endl;
-
             // Reordering packets
             if(tempSeq == seqNumCounter) {
                 receivedBytes += bitData;
