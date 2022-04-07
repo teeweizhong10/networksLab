@@ -77,6 +77,7 @@ int port;
 string finalBits;
 int packetNumber;
 string bitData;
+int seqNumCounter = -1;
 int currentSeqNum;
 int currentPacketNum;
 string bitDataComp;
@@ -404,6 +405,7 @@ void printCurrentWindow(){
 
 void SR(tcp::socket& socket){
     bool alldone = false;
+    vector<packet> unorderedPackets;
     while(!alldone){
         bool badPacket = false;
         bool cksumFail = false;
@@ -447,10 +449,30 @@ void SR(tcp::socket& socket){
 
         if(!badPacket){
             sendData(socket, "ACK " + to_string(packetNumber));
+
             if(printLog){cout << "ACK " << packetNumber << " sent" << endl;
                 printCurrentWindow();
-            }receivedBytes += bitData;
+            }
 
+            // Reordering packets
+            if(tempSeq == seqNumCounter) {
+                receivedBytes += bitData;
+            } else {
+                packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
+                unorderedPackets.push_back(newPacket);
+
+                for (int i = 0; i < unorderedPackets.size(); ++i) {
+                    if(unorderedPackets[i].getSeqNum() == seqNumCounter) {
+                        receivedBytes += unorderedPackets[i].getBitContent();
+                        unorderedPackets.erase(unorderedPackets.begin() + i);
+                    }
+                }
+            }
+
+            seqNumCounter++;
+            if(seqNumCounter == seqNumberUpperBound){
+                seqNumCounter = 0;
+            }
         }
 
 
