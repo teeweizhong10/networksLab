@@ -785,7 +785,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
                 printCurrentWindow();
             }
         } else {
-            cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " ***** Timed Out *****" << endl;
+            cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
             cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
             queue<packet> empty;
             swap(q, empty);
