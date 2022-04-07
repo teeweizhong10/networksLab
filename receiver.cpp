@@ -355,7 +355,7 @@ void GBN(tcp::socket& socket){
             }string ack = "NACK";
             cksumFail = true;
             q.push(ack);
-            //sendData(socket, ack);
+            sendData(socket, ack);
         }
 
         //lost
@@ -373,7 +373,7 @@ void GBN(tcp::socket& socket){
         if(!cksumFail){
             string ack = "ACK " + to_string(packetNumber);
             q.push(ack);
-            //sendData(socket, ack);
+            sendData(socket, ack);
             packetsReceived++;
             receivedBytes += bitData;
         }
@@ -383,10 +383,10 @@ void GBN(tcp::socket& socket){
         }
     }
 
-    while (!q.empty()) {
-        sendData(socket, q.front());
-        q.pop();
-    }
+//    while (!q.empty()) {
+//        sendData(socket, q.front());
+//        q.pop();
+//    }
 }
 
 

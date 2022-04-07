@@ -664,7 +664,7 @@ int sendQ(tcp::socket& socket, int lastPktNum){
 
     //send everything in window
 
-    while (!q.empty()) {
+    //while (!q.empty()) {
         bool badPacket = false;
         //drop packet
         if(!packetsToDrop.empty()) {
@@ -694,9 +694,10 @@ int sendQ(tcp::socket& socket, int lastPktNum){
             string temp = q.front().getPacketMessage();
             sendData(socket, temp);
             testingBitsTransferred+=q.front().getBitContent().size();
+            return q.front().getPacketNum();
         }
-    }
-    return q.front().getPacketNum();
+//    }
+//    return q.front().getPacketNum();
 }
 
 
