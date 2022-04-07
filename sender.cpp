@@ -889,7 +889,7 @@ void SR(tcp::socket& socket, vector<char> bytes){
 
         //if drop
         if(!packetsToDrop.empty()) {
-            if(packetsToDrop[0] == newPacket.getPacketNum()) {
+            if(packetsToDrop[0] == q.front().getPacketNum()) {
                 packetsToDrop.erase(packetsToDrop.begin());
                 cout << "Packet " << to_string(newPacket.getPacketNum()) << " sent" << endl;
 
