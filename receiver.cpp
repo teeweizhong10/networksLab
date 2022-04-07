@@ -471,6 +471,7 @@ void SR(tcp::socket& socket){
                 } else {
                     unorderedPackets.push_back(newPacket);
                 }
+                cout << "Unordered packets: " << unorderedPackets.size() << endl;
             } else {
                 for (int i = 0; i < unorderedPackets.size(); ++i) {
                     receivedBytes += unorderedPackets[i].getBitContent();
