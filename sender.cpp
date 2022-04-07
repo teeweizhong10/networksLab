@@ -657,8 +657,11 @@ int fillQ(int packetCounter){
 }
 
 
-
+//GBN
 int sendQ(tcp::socket& socket, int lastPktNum){
+
+    //TODO: Currently I don't think its right for GBN, as it needs to send the whole window again instead of one packet.
+
     //send everything in window
     bool badPacket = false;
     //drop packet
@@ -706,7 +709,7 @@ void printCurrentWindow(){
     cout << " ]" << endl;
 }
 
-
+//SR
 void sendQueue(tcp::socket& socket){
     queue<packet> tempQ = q;
     cout << "TempQ " << sizeof(q) << endl;
@@ -848,28 +851,29 @@ void SR(tcp::socket& socket, vector<char> bytes){
             fillQ();
         }else{
 
-            //drop packet
-//            if(!packetsToDrop.empty()) {
-//                if(packetsToDrop[0] == q.front().getPacketNum()) {
-//                    packetsToDrop.erase(packetsToDrop.begin());
-//                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
-//
-//                    sleep_for(waitTime + milliseconds(1)); // Let it time out
-//                    if (printLog) {
-//                        cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
-//                    }
-//                }
-//            }
-//
-//            //corrupt packet
-//            if(!packetsToFailChecksum.empty()) {
-//                if (packetsToFailChecksum[0] == q.front().getPacketNum()){
-//                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
-//                    }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
-//                    sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted essage
-//                    badPacket = true;
-//                }
-//            }
+            // TODO: Not sure why it's not working with the errors for now. I suspect it has something to do with the loop or fillQ()
+            drop packet
+            if(!packetsToDrop.empty()) {
+                if(packetsToDrop[0] == q.front().getPacketNum()) {
+                    packetsToDrop.erase(packetsToDrop.begin());
+                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
+
+                    sleep_for(waitTime + milliseconds(1)); // Let it time out
+                    if (printLog) {
+                        cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
+                    }
+                }
+            }
+
+            //corrupt packet
+            if(!packetsToFailChecksum.empty()) {
+                if (packetsToFailChecksum[0] == q.front().getPacketNum()){
+                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
+                    }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
+                    sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted essage
+                    badPacket = true;
+                }
+            }
             if(!badPacket){
                 if(printLog){
                     cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
