@@ -461,16 +461,21 @@ void SR(tcp::socket& socket){
 
             if (unorderedPackets.size() != seqNumberUpperBound) {
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
-                unorderedPackets.push_back(newPacket);
-            } else {
-                sort( unorderedPackets.begin( ), unorderedPackets.end( ), [ ]( const auto& lhs, const auto& rhs )
-                {
-                    return lhs.key < rhs.key;
-                });
 
+                if (!unorderedPackets.empty()) {
+                    for (int i = 0; i < unorderedPackets.size(); ++i) {
+                        if (newPacket.getSeqNum() == unorderedPackets[i].getSeqNum() - 1) {
+                            unorderedPackets.insert(unorderedPackets.begin() + i, newPacket);
+                        }
+                    }
+                } else {
+                    unorderedPackets.push_back(newPacket);
+                }
+            } else {
                 for (int i = 0; i < unorderedPackets.size(); ++i) {
                     receivedBytes += unorderedPackets[i].getBitContent();
                 }
+                unorderedPackets.clear();
             }
 
             seqNumCounter++;
