@@ -677,6 +677,7 @@ int sendQ(tcp::socket& socket, int lastPktNum){
                 if (printLog) {
                     cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
                     cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
+
                 }
             }
         }
@@ -734,6 +735,8 @@ void sendQueue(tcp::socket& socket){
                 if (printLog) {
                     cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " ***** Timed Out *****" << endl;
                     cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
+                    queue<packet> empty;
+                    swap(q, empty);
                 }
             }
         }
@@ -782,6 +785,8 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
                 printCurrentWindow();
             }
         } else {
+            cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " ***** Timed Out *****" << endl;
+            cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
             queue<packet> empty;
             swap(q, empty);
         }
