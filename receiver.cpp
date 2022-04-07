@@ -481,6 +481,8 @@ void SR(tcp::socket& socket){
 
 
     }
+
+    cout << "Unordered packets: " << unorderedPackets.size() << endl;
 }
 
 void SNW(tcp::socket& socket){
