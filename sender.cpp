@@ -910,7 +910,8 @@ void SR(tcp::socket& socket, vector<char> bytes){
     for(int p = 0; p < packetsAr.size();p++){
         sendPacket(socket, packetsAr[p]);
         cout << "Packet " << to_string(packetsAr[p].getPacketNum()) << " sent" << endl;
-        acksRecv.push_back(getData(socket));
+        string ack = getData(socket)
+        acksRecv.push_back(ack);
         cout << "Received ack test" << endl;
     }
 
