@@ -260,8 +260,8 @@ void showCurrentConfig(Sender currentSender) {
     contentToSend += std::to_string(currentSender.getSelectedAlgorithm());
     contentToSend += "\n";
     cout << "Sender Window Size: " << currentSender.getSenderMaxWindowSize() << endl;
-    cout << "Receiver Window Size: " << currentSender.getReceiverMaxWindowSize() << endl;
-    contentToSend += std::to_string(currentSender.getReceiverMaxWindowSize());
+    cout << "Receiver Window Size: " << currentSender.getSenderMaxWindowSize() << endl;
+    contentToSend += std::to_string(currentSender.getSenderMaxWindowSize());
     contentToSend += "\n";
     cout << "Size of Packet: " << currentSender.getSizeOfPacket() << endl;
     contentToSend += std::to_string(currentSender.getSizeOfPacket());
@@ -646,14 +646,22 @@ int fillQ(int packetCounter){
         q.push(newPacket);
         seqNumCounter++;
         packetCounter++;
+
+        //TODO: shouldn't seq num counter have an if statement here to restart it?
+//        if (seqNumCounter == seqNumberUpperBound) {
+//            seqNumCounter = 0;
+//        }
     }
 
     return packetCounter;
 }
 
 
-
+//GBN
 int sendQ(tcp::socket& socket, int lastPktNum){
+
+    //TODO: Currently I don't think its right for GBN, as it needs to send the whole window again instead of one packet.
+
     //send everything in window
     bool badPacket = false;
     //drop packet
@@ -665,6 +673,7 @@ int sendQ(tcp::socket& socket, int lastPktNum){
             sleep_for(waitTime + milliseconds(1)); // Let it time out
             if (printLog) {
                 cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
+                cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
             }
         }
     }
@@ -690,7 +699,7 @@ int sendQ(tcp::socket& socket, int lastPktNum){
 
 
 void printCurrentWindow(){
-    cout << "Current window: [";
+    cout << "Current window = [";
     queue<packet> SW = q;
     int i = 0;
     while(i < SW.size()){
@@ -700,7 +709,7 @@ void printCurrentWindow(){
     cout << " ]" << endl;
 }
 
-
+//SR
 void sendQueue(tcp::socket& socket){
     queue<packet> tempQ = q;
     cout << "TempQ " << sizeof(q) << endl;
@@ -719,6 +728,7 @@ void sendQueue(tcp::socket& socket){
                 sleep_for(waitTime + milliseconds(1)); // Let it time out
                 if (printLog) {
                     cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " ***** Timed Out *****" << endl;
+                    cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
                 }
             }
         }
@@ -816,69 +826,131 @@ void fillQ(){
 }
 
 //*************************************************************************************************************************
+void printCurrentWindowSR(int SN){
+
+    cout << "Current window: [ ";
+
+    int k = SN;
+    int i = 0;
+    int j = 0;
+    while(i < senderMaxWindowSize){
+        if((k+j)>=seqNumberUpperBound){
+            k = 0;
+            j = 0;
+        }
+
+        cout << k + j << " ";
+        i++;
+        j++;
+    }
+
+    cout << "]" << endl;
+}
+
+
 void SR(tcp::socket& socket, vector<char> bytes){
 
-    cout << "About to fill temp" << endl;
+    int seqNumCounter = 0;
     fillTemp(bytes);
-    cout << "temp filled" << endl;
+    string byteContent = "";
+    packet newPacket;
     int packetCounter = 0;
+    int pktCtr = 0;
+
+    bool retrans = false;
+    bool badPacket = false;
+    while(pktCtr < numOfPackets){
+        badPacket = false;
+        retrans = false;
 
 
-    cout << "send ing sockets" << endl;
-    sendQueue(socket);
+        if(seqNumCounter == seqNumberUpperBound){
+            seqNumCounter = 0;
+        }
 
-    cout << "packets sent..." << endl;
-    while(packetCounter != numOfPackets){
-        bool badPacket = false;
-        string recvPkt = getData(socket);
+        if (tempBytes.size() >= sizeOfPacket) {
+            string s(tempBytes.begin(), tempBytes.begin()+sizeOfPacket);
+            byteContent = s;
+            tempBytes.erase(tempBytes.begin(), tempBytes.begin()+sizeOfPacket);//remove stored bytes
 
-        if(recvPkt == "Ack " + to_string(q.front().getPacketNum()) + "=|||="){
-            if(printLog){
-                cout << "Ack " << to_string(q.front().getPacketNum()) << " received" << endl;
+
+        } else {
+            string s(tempBytes.begin(), tempBytes.end());
+            byteContent = s;
+            tempBytes.erase(tempBytes.begin(), tempBytes.end());//remove stored bytes
+        }
+        //create the packet and add to queue
+        newPacket = packet(packetCounter, seqNumCounter, byteContent, getChecksumVal(byteContent), 0);
+
+        seqNumCounter++;
+        packetCounter++;
+
+
+
+        //if drop
+        if(!packetsToDrop.empty()) {
+            if(packetsToDrop[0] == newPacket.getPacketNum()) {
+                packetsToDrop.erase(packetsToDrop.begin());
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " sent" << endl;
+
+                sleep_for(waitTime + milliseconds(1)); // Let it time out
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " ***** Timed Out *****" << endl;
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " Re-transmitted" << endl;
+
+                sendData(socket, newPacket.getPacketMessage());
+
+                if(getData(socket) == "ACK " + to_string(newPacket.getPacketNum()) + "=|||="){
+                    cout << "ACK " << to_string(newPacket.getPacketNum()) << " received" << endl;
+
+                    printCurrentWindowSR(seqNumCounter);
+                    pktCtr+=1;
+
+                }
             }
-            packetCounter++;
-            q.pop();
-            fillQ();
-        }else{
+            badPacket = true;
+        }
 
-            //drop packet
-            if(!packetsToDrop.empty()) {
-                if(packetsToDrop[0] == q.front().getPacketNum()) {
-                    packetsToDrop.erase(packetsToDrop.begin());
-                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
-
+        //corrupt packet
+        if(!packetsToFailChecksum.empty()) {
+            if (packetsToFailChecksum[0] == newPacket.getPacketNum()){
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " sent" << endl;
+                packetsToFailChecksum.erase(packetsToFailChecksum.begin());
+                sendData(socket, newPacket.getCorruptedPacketMessage());// send corrupted essage
+                if(getData(socket) == "NACK=|||="){
                     sleep_for(waitTime + milliseconds(1)); // Let it time out
-                    if (printLog) {
-                        cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
-                    }
+
+
+                }
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " ***** Timed Out *****" << endl;
+                cout << "Packet " << to_string(newPacket.getPacketNum()) << " Re-transmitted" << endl;
+
+                sendData(socket, newPacket.getPacketMessage());
+                if(getData(socket) == "ACK " + to_string(newPacket.getPacketNum()) + "=|||="){
+                    cout << "ACK " << to_string(newPacket.getPacketNum()) << " received" << endl;
+                    printCurrentWindowSR(seqNumCounter);
+                    pktCtr+=1;
                 }
             }
-
-            //corrupt packet
-            if(!packetsToFailChecksum.empty()) {
-                if (packetsToFailChecksum[0] == q.front().getPacketNum()){
-                    if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
-                    }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
-                    sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted essage
-                    badPacket = true;
-                }
-
-            }
-            if(!badPacket){
-                if(printLog){
-                    cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
-                }
-
-                sendData(socket, q.front().getPacketMessage());
-            }
+            badPacket = true;
         }
 
-        sendData(socket, "alldone");
-        string done = getData(socket);
-        if(done == "alldone=|||="){
-            socket.close();
 
+        if(!badPacket){
+
+            sendData(socket, newPacket.getPacketMessage());
+            string temp = getData(socket);
+            if(temp == "ACK " + to_string(newPacket.getPacketNum()) + "=|||="){
+                cout << "ACK " << to_string(newPacket.getPacketNum()) << " received" << endl;
+                printCurrentWindowSR(seqNumCounter);
+                pktCtr+=1;
+            }
         }
+    }
+
+    sendData(socket, "alldone");
+    if(getData(socket) == "alldone=|||="){
+        socket.close();
+
     }
 }
 //*************************************************************************************************************************
@@ -1102,4 +1174,3 @@ int main() {
 
     cout << "All received bytes length: " << file_size << endl;
 }
-

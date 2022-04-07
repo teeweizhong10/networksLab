@@ -82,6 +82,7 @@ int currentPacketNum;
 string bitDataComp;
 //bool printLog = true;
 string receivedBytes = "";
+int tempSeq;
 int lastReceivedSeqNum;
 
 bool printLog = true;
@@ -146,20 +147,24 @@ void parseConfigFromString(string input) {
 
     while (getline(f, line)) {
         int len = line.length();
-        cout << line << endl;
+        //cout << line << endl;
         if (itemCount == 0) { // selected algorithm
             selectedAlgorithm = stoi(line);
-            cout<<"slcd agtm"<<selectedAlgorithm<<endl;
+            cout<<"Selected algorithm: "<<selectedAlgorithm<<endl;
         } else if (itemCount == 1) {
             receiverMaxWindowSize = stoi(line);
+            cout<<"Receiver window size: "<<receiverMaxWindowSize<<endl;
         } else if (itemCount == 2) {
             sizeOfPacket = stoi(line);
+            cout<<"Size of packet: "<<sizeOfPacket<<endl;
         } else if (itemCount == 3) { // seq num lower bound
             seqNumberLowerBound = stoi(line);
         } else if (itemCount == 4) { //seq num upper bound
             seqNumberUpperBound = stoi(line);
+            cout<<"Sequence number upper bound: "<<seqNumberUpperBound<<endl;
         } else if (itemCount == 5) { // error type
             selectedErrorType = stoi(line);
+            cout<<"Selected error type: "<<selectedErrorType<<endl;
         } else if (itemCount == 6) { // Frame IDs of packets to lose ack
             string currentNum = "";
             for (int i = 0; i < len; ++i) {
@@ -174,52 +179,12 @@ void parseConfigFromString(string input) {
         }
         itemCount++;
     }
-}
 
-void showCurrentConfig(Receiver currentReceiver) {
-    cout << endl << "Current sender configuration: " << endl;
-    cout << "Selected algorithm: ";
-    switch (currentReceiver.getSelectedAlgorithm()) {
-        case 0:
-            cout << "GBN" << endl;
-            break;
-        case 1:
-            cout << "Stop and Wait" << endl;
-            break;
-        case 2:
-            cout << "Selective Repeat" << endl;
-            break;
+    cout << "Packets to lose ack: ";
+    for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+        cout << packetsToLoseAck[i] << "\t";
     }
-    cout << "Receiver Window Size: " << currentReceiver.getReceiverMaxWindowSize() << endl;
-    cout << "Packet Size: " << sizeOfPacket << endl;
-    //currentReceiver.getSizeOfPacket() << endl;
-    cout << "Seq Num Lower Bound: " << currentReceiver.getSeqNumberLowerBound() << endl;
-    cout << "Seq Num Upper Bound: " << currentReceiver.getSeqNumberUpperBound() << endl;
-    cout << "Selected error type: " << currentReceiver.getErrorType() << endl;
-    cout << "Selected port number: " << currentReceiver.getPortNumber() << endl;
-
-    switch (currentReceiver.getErrorType()) {
-        case 0:
-            cout << "None" << endl;
-            break;
-        case 1:
-            cout << "Specific Packets" << endl;
-            cout << "Packets to lose ack: ";
-            for (int i = 0; i < packetsToLoseAck.size(); ++i) {
-                cout << packetsToLoseAck[i] << "\t";
-            }
-            cout << endl;
-            break;
-        case 2:
-            cout << "Percentage of randomly selected packets" << endl;
-            cout << "Packets to lose ack: ";
-            for (int i = 0; i < packetsToLoseAck.size(); ++i) {
-                cout << packetsToLoseAck[i] << "\t";
-            }
-
-            cout << endl;
-            break;
-    }
+    cout << endl;
 }
 
 Receiver setReceiverInstance(int selectedAlgorithm, int receiverMaxWindowSize, int seqNumLowerBound, int seqNumUpperBound, int sizeOfPacket, int selectedErrorType, int errorPercentage, vector<int> packetsToLoseAck, int port){
@@ -387,7 +352,7 @@ void GBN(tcp::socket& socket){
         if(s.find('0') != std::string::npos){
             if(printLog){
                 cout << "Checksum failed" << endl;
-                cout << "Current window: [1]" << endl;
+                cout << "Current window = [1]" << endl;
             }string ack = "NACK";
             cksumFail = true;
             sendData(socket, ack);
@@ -419,53 +384,78 @@ void GBN(tcp::socket& socket){
     }
 }
 
+void printCurrentWindow(){
+    cout << "Current window: [ ";
+
+    int k = tempSeq;
+    int i = 0;
+    int j = 0;
+
+    while (i < senderMaxWindowSize){
+        if((k+j)>=seqNumberUpperBound){
+            k = 0;
+            j= 0;
+        }
+        cout << k + j << " ";
+        i++;
+        j++;
+    }
+    cout << "]" << endl;
+}
+
 
 void SR(tcp::socket& socket){
-    bool allDone = false;
-    while(!allDone){
-        cout << "while" << endl;
+    bool alldone = false;
+    while(!alldone){
+        bool badPacket = false;
         bool cksumFail = false;
-        cout << "Getting data..." << endl;
+
         string recvPkt = getData(socket);
 
-        cout << "Data: " << recvPkt << endl;
         if(recvPkt == "alldone=|||="){
-            allDone = true;
             sendData(socket, "alldone");
-        }else{
-            parseReceivingPacket(recvPkt);
+            stats();
+            break;
+        }
 
-            cout << "parsed..." << endl;
-
-            if(printLog){cout << "Packet " << to_string(packetNumber) << " received" << endl;}
-            string receivedCk = checksum(bitData);
-            std::string s = addBinary(bitDataComp, receivedCk);
-            if (s.find('0') != std::string::npos) {
-                if(printLog){ cout << "Checksum failed" << endl;
-                    cout << "Current window [1]" << endl;
-                }string ack = "NACK";
-                cksumFail = true;
+        parseReceivingPacket(recvPkt);
+        if(printLog){cout << "Packet " << to_string(packetNumber) << " received" << endl;}
+        string receivedCk = checksum(bitData);
+        std::string s = addBinary(bitDataComp, receivedCk);
+        if (s.find('0') != std::string::npos) {
+            if(printLog){ cout << "Checksum failed" << endl;
+            }string ack = "NACK";
+            if(printLog){printCurrentWindow();
+            }cksumFail = true;
+            sendData(socket, ack);
+            badPacket = true;
+        }
+        //else checksum succeeds
+        // If checksum is bad or lose ack
+        for (int i = 0; i < packetsToLoseAck.size(); ++i) {
+            if(packetNumber == packetsToLoseAck[i]) {
+                if(printLog){cout << "ACK " << packetNumber << " sent" << endl;
+                }packetsToLoseAck.erase(packetsToLoseAck.begin());
+                string ack = "NACK";
                 sendData(socket, ack);
-
-            }
-            //else checksum succeeds
-            // If checksum is bad or lose ack
-            for (int i = 0; i < packetsToLoseAck.size(); ++i) {
-                if(packetNumber == packetsToLoseAck[i]) {
-                    packetsToLoseAck.erase(packetsToLoseAck.begin());
-                    string ack = "NACK";
-                    cksumFail = true;
-                    sendData(socket, ack);
-                }
-            }
-
-            if(!cksumFail){
-                if(printLog){
-                    cout << "Ack " << packetNumber << " sent" << endl;
-                }
-                sendData(socket, "Ack " + packetNumber);
+                if(printLog){printCurrentWindow();
+                }badPacket = true;
             }
         }
+
+        if(printLog && !cksumFail){
+            cout << "Checksum OK" << endl;
+        }
+
+        if(!badPacket){
+            sendData(socket, "ACK " + to_string(packetNumber));
+            if(printLog){cout << "ACK " << packetNumber << " sent" << endl;
+                printCurrentWindow();
+            }receivedBytes += bitData;
+
+        }
+
+
     }
 }
 
@@ -487,7 +477,7 @@ void SNW(tcp::socket& socket){
         std::string s = addBinary(bitDataComp, receivedCk);
         if (s.find('0') != std::string::npos) {
             if(printLog){ cout << "Checksum failed" << endl;
-                cout << "Current window [1]" << endl;
+                cout << "Current window = [1]" << endl;
             }string ack = "NACK";
             cksumFail = true;
             sendData(socket, ack);
@@ -514,7 +504,7 @@ void SNW(tcp::socket& socket){
         }
         if(printLog && !cksumFail){
             cout << "Ack " << to_string(packetNumber) << " sent"  << endl;
-            cout << "Current window [1]" << endl;
+            cout << "Current window = [1]" << endl;
             receivedBytes += bitData;
         }
     }
@@ -575,8 +565,7 @@ int main() {
     receiverWelcomeMessage();
     //receive config by sockets
     getNetworkConfigFrom("config.txt");
-    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck, port);    showCurrentConfig(receiverInstance);
-    //parseConfigFromString("config.txt");
+    receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck, port);
 
     receiverSimulation();
     setBitsToFile(finalBits);
@@ -587,4 +576,3 @@ int main() {
 
     return 0;
 }
-
