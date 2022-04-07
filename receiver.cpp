@@ -459,7 +459,7 @@ void SR(tcp::socket& socket){
 
             // Reordering packets
 
-            if (unorderedPackets.size() != seqNumberUpperBound) {
+            if (unorderedPackets.size() != receiverMaxWindowSize) {
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
 
                 if (!unorderedPackets.empty()) {
