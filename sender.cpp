@@ -671,7 +671,7 @@ int sendQ(tcp::socket& socket, int lastPktNum){
         if(!packetsToDrop.empty()) {
             if(packetsToDrop[0] == q.front().getPacketNum()) {
                 packetsToDrop.erase(packetsToDrop.begin());
-                if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
+                //if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
 
                 sleep_for(waitTime + milliseconds(1)); // Let it time out
                 if (printLog) {
@@ -684,14 +684,14 @@ int sendQ(tcp::socket& socket, int lastPktNum){
         //corrupt packet
         if(!packetsToFailChecksum.empty()) {
             if (packetsToFailChecksum[0] == q.front().getPacketNum()){
-                if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
+                //if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
                 }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
                 sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted essage
                 badPacket = true;
             }
         }
         if(!badPacket){
-            if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
+            //if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
             string temp = q.front().getPacketMessage();
             sendData(socket, temp);
             testingBitsTransferred+=q.front().getBitContent().size();
@@ -781,6 +781,9 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             if(printLog){
                 printCurrentWindow();
             }
+        } else {
+            queue<packet> empty;
+            swap(q, empty);
         }
         if(temp == ("ACK " + to_string((numOfPackets-1)) + "=|||=")){
             allDone = true;
