@@ -159,10 +159,10 @@ void parseConfigFromString(string input) {
             seqNumberLowerBound = stoi(line);
         } else if (itemCount == 4) { //seq num upper bound
             seqNumberUpperBound = stoi(line);
-            cout<<"Sequence number upper bound: "<<sizeOfPacket<<endl;
+            cout<<"Sequence number upper bound: "<<seqNumberUpperBound<<endl;
         } else if (itemCount == 5) { // error type
             selectedErrorType = stoi(line);
-            cout<<"Selected error type: "<<sizeOfPacket<<endl;
+            cout<<"Selected error type: "<<selectedErrorType<<endl;
         } else if (itemCount == 6) { // Frame IDs of packets to lose ack
             string currentNum = "";
             for (int i = 0; i < len; ++i) {
