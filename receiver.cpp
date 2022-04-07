@@ -460,7 +460,6 @@ void SR(tcp::socket& socket){
             if(tempSeq == seqNumCounter) {
                 receivedBytes += bitData;
             } else {
-                cout << "!!! should not happen" << endl;
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
                 unorderedPackets.push_back(newPacket);
 
