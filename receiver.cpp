@@ -488,6 +488,10 @@ void SR(tcp::socket& socket){
             unorderedPackets.erase(unorderedPackets.begin() + i);
         }
     }
+
+    for (int i = 0; i < 100; ++i) {
+        cout << i << endl;
+    }
     cout << "Unordered packets: " << unorderedPackets.size() << endl;
 }
 
