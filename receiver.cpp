@@ -463,7 +463,7 @@ void SR(tcp::socket& socket){
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
                 unorderedPackets.push_back(newPacket);
             } else {
-                sort( unorderedPackets.begin( ), unorderedPackets.end( ), [ ]( packet packet& lhs, packet packet& rhs )
+                sort( unorderedPackets.begin( ), unorderedPackets.end( ), const auto& lhs, const auto& rhs )
                 {
                     return lhs.getSeqNum() < rhs.getSeqNum();
                 });
