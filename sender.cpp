@@ -646,7 +646,6 @@ int fillQ(int packetCounter){
         q.push(newPacket);
         seqNumCounter++;
         packetCounter++;
-        cout << "Packet " << newPacket.getPacketNum() << " sent" << endl;
 
         //TODO: shouldn't seq num counter have an if statement here to restart it?
 //        if (seqNumCounter == seqNumberUpperBound) {
@@ -664,42 +663,37 @@ int sendQ(tcp::socket& socket, int lastPktNum){
     //TODO: Currently I don't think its right for GBN, as it needs to send the whole window again instead of one packet.
 
     //send everything in window
+    bool badPacket = false;
+    //drop packet
+    if(!packetsToDrop.empty()) {
+        if(packetsToDrop[0] == q.front().getPacketNum()) {
+            packetsToDrop.erase(packetsToDrop.begin());
+            if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
 
-    //while (!q.empty()) {
-        bool badPacket = false;
-        //drop packet
-        if(!packetsToDrop.empty()) {
-            if(packetsToDrop[0] == q.front().getPacketNum()) {
-                packetsToDrop.erase(packetsToDrop.begin());
-                //if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
-
-                sleep_for(waitTime + milliseconds(1)); // Let it time out
-                if (printLog) {
-                    cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
-                    cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
-
-                }
+            sleep_for(waitTime + milliseconds(1)); // Let it time out
+            if (printLog) {
+                cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
+                cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
             }
         }
+    }
 
-        //corrupt packet
-        if(!packetsToFailChecksum.empty()) {
-            if (packetsToFailChecksum[0] == q.front().getPacketNum()){
-                //if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
-                packetsToFailChecksum.erase(packetsToFailChecksum.begin());
-                sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted essage
-                badPacket = true;
-            }
+    //corrupt packet
+    if(!packetsToFailChecksum.empty()) {
+        if (packetsToFailChecksum[0] == q.front().getPacketNum()){
+            if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
+            }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
+            sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted essage
+            badPacket = true;
         }
-        if(!badPacket){
-            //if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
-            string temp = q.front().getPacketMessage();
-            sendData(socket, temp);
-            testingBitsTransferred+=q.front().getBitContent().size();
-            return q.front().getPacketNum();
-        }
-    //}
-//    return q.front().getPacketNum();
+    }
+    if(!badPacket){
+        if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
+        string temp = q.front().getPacketMessage();
+        sendData(socket, temp);
+        testingBitsTransferred+=q.front().getBitContent().size();
+        return q.front().getPacketNum();
+    }
 }
 
 
@@ -735,8 +729,6 @@ void sendQueue(tcp::socket& socket){
                 if (printLog) {
                     cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " ***** Timed Out *****" << endl;
                     cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
-                    queue<packet> empty;
-                    swap(q, empty);
                 }
             }
         }
@@ -784,11 +776,6 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             if(printLog){
                 printCurrentWindow();
             }
-        } else {
-            cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
-            cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
-            queue<packet> empty;
-            swap(q, empty);
         }
         if(temp == ("ACK " + to_string((numOfPackets-1)) + "=|||=")){
             allDone = true;
@@ -799,6 +786,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
     if(recvPkt == "alldone=|||="){
         socket.close();
     }
+
 }
 
 void fillQ(){
@@ -864,7 +852,7 @@ void SR(tcp::socket& socket, vector<char> bytes){
         }else{
 
             // TODO: Not sure why it's not working with the errors for now. I suspect it has something to do with the loop or fillQ()
-            //drop packet
+            drop packet
             if(!packetsToDrop.empty()) {
                 if(packetsToDrop[0] == q.front().getPacketNum()) {
                     packetsToDrop.erase(packetsToDrop.begin());
@@ -1123,4 +1111,3 @@ int main() {
 
     cout << "All received bytes length: " << file_size << endl;
 }
-
