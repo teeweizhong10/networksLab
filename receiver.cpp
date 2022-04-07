@@ -458,38 +458,19 @@ void SR(tcp::socket& socket){
             }
 
             // Reordering packets
-            if(tempSeq == seqNumCounter) {
-                receivedBytes += bitData;
-                lastStoredSeq = tempSeq;
-                cout << "Received bytes length: " << receivedBytes.length() << endl;
-            } else {
+
+            if (unorderedPackets.size() != seqNumberUpperBound) {
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
                 unorderedPackets.push_back(newPacket);
+            } else {
+                sort( unorderedPackets.begin( ), unorderedPackets.end( ), [ ]( const packet& lhs, const packet& rhs )
+                {
+                    return lhs.getSeqNum() < rhs.getSeqNum();
+                });
 
                 for (int i = 0; i < unorderedPackets.size(); ++i) {
-                    if(unorderedPackets[i].getSeqNum() == lastStoredSeq + 1) {
-                        lastStoredSeq += 1;
-                        receivedBytes += unorderedPackets[i].getBitContent();
-                        cout << "Received bytes length: " << receivedBytes.length() << endl;
-                        unorderedPackets.erase(unorderedPackets.begin() + i);
-                    }
+                    receivedBytes += unorderedPackets[i].getBitContent();
                 }
-
-
-//                if (receivedBytes.length() > 0) {
-//                    for (int i = 0; i < unorderedPackets.size(); ++i) {
-//                        for (int j = 0; j < seqNumCounter; ++j) {
-//                            if(unorderedPackets[i].getSeqNum() == j) {
-//                                receivedBytes += unorderedPackets[i].getBitContent();
-//                                cout << "Received bytes length: " << receivedBytes.length() << endl;
-//                                unorderedPackets.erase(unorderedPackets.begin() + i);
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
-//                    unorderedPackets.push_back(newPacket);
-//                }
             }
 
             seqNumCounter++;
