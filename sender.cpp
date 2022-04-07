@@ -909,11 +909,12 @@ void SR(tcp::socket& socket, vector<char> bytes){
     fillArray();
     for(int p = 0; p < packetsAr.size();p++){
         bool notReceivedAck = true;
+        string ack = "";
         sendPacket(socket, packetsAr[p]);
         cout << "Packet " << to_string(packetsAr[p].getPacketNum()) << " sent" << endl;
 
         while (notReceivedAck) {
-            string ack = getData(socket);
+            ack = getData(socket);
             notReceivedAck = false;
         }
         cout << "Received ack test1" << endl;
