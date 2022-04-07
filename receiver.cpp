@@ -384,7 +384,8 @@ void GBN(tcp::socket& socket){
     }
 
     while (!q.empty()) {
-        sendData(socket, q.pop());
+        sendData(socket, q.front());
+        q.pop();
     }
 }
 
