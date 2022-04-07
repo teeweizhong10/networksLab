@@ -465,10 +465,10 @@ void SR(tcp::socket& socket){
                 unorderedPackets.push_back(newPacket);
 
                 for (int i = 0; i < unorderedPackets.size(); ++i) {
-                    if(unorderedPackets[i].getSeqNum() == seqNumCounter) {
+                    if(unorderedPackets[i].getSeqNum() == seqNumCounter-i) {
                         receivedBytes += unorderedPackets[i].getBitContent();
                         cout << "Received bytes length: " << receivedBytes.length() << endl;
-                        unorderedPackets.erase(i);
+                        unorderedPackets.erase(unorderedPackets.begin() + i);
                     }
                 }
             }
