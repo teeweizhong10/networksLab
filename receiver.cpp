@@ -460,20 +460,23 @@ void SR(tcp::socket& socket){
             if(tempSeq == seqNumCounter) {
                 receivedBytes += bitData;
                 cout << "Received bytes length: " << receivedBytes.length() << endl;
-                seqNumCounter++;
             } else {
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
                 unorderedPackets.push_back(newPacket);
 
                 for (int i = 0; i < unorderedPackets.size(); ++i) {
-                    if(unorderedPackets[i].getSeqNum() == seqNumCounter) {
-                        receivedBytes += unorderedPackets[i].getBitContent();
-                        cout << "Received bytes length: " << receivedBytes.length() << endl;
-                        seqNumCounter++;
-                        unorderedPackets.erase(unorderedPackets.begin() + i);
+                    for (int j = 0; j < seqNumCounter; ++j) {
+                        if(unorderedPackets[i].getSeqNum() == j) {
+                            receivedBytes += unorderedPackets[i].getBitContent();
+                            cout << "Received bytes length: " << receivedBytes.length() << endl;
+                            unorderedPackets.erase(unorderedPackets.begin() + i);
+                        }
                     }
                 }
+
             }
+
+            seqNumCounter++;
             if(seqNumCounter == seqNumberUpperBound){
                 seqNumCounter = 0;
             }
