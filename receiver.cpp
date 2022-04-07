@@ -290,6 +290,7 @@ void parseReceivingPacket(string input) {
         } else if(itemCount == 1) { // seq number
             itemCount = 2;
             seqNum = stoi(token);
+            tempSeq = seqNum;
         } else if(itemCount == 2) { // byte content
             itemCount = 3;
             bitContent = token;
@@ -454,6 +455,8 @@ void SR(tcp::socket& socket){
             if(printLog){cout << "ACK " << packetNumber << " sent" << endl;
                 printCurrentWindow();
             }
+
+            cout << "Current seqeunce number counter: " << seqNumCounter << endl;
 
             // Reordering packets
             if(tempSeq == seqNumCounter) {
