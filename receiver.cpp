@@ -460,6 +460,7 @@ void SR(tcp::socket& socket){
             if(tempSeq == seqNumCounter) {
                 receivedBytes += bitData;
                 cout << "Received bytes length: " << receivedBytes.length() << endl;
+                seqNumCounter++;
             } else {
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
                 unorderedPackets.push_back(newPacket);
@@ -473,7 +474,6 @@ void SR(tcp::socket& socket){
                 }
             }
 
-            seqNumCounter++;
             if(seqNumCounter == seqNumberUpperBound){
                 seqNumCounter = 0;
             }
