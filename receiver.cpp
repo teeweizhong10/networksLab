@@ -6,6 +6,8 @@
 #include <sstream>
 #include <algorithm>
 #include <bitset>
+#include <queue>
+#include <deque>
 #include <boost/asio.hpp>
 
 using namespace std;
@@ -326,7 +328,7 @@ void stats(){
 
 void GBN(tcp::socket& socket){
     int packetsReceived = 0;
-
+    queue<string> q;
 
     while(true){
         bool cksumFail = false;
@@ -352,7 +354,8 @@ void GBN(tcp::socket& socket){
                 cout << "Current window: [1]" << endl;
             }string ack = "NACK";
             cksumFail = true;
-            sendData(socket, ack);
+            q.push(ack);
+            //sendData(socket, ack);
         }
 
         //lost
@@ -369,7 +372,8 @@ void GBN(tcp::socket& socket){
         }
         if(!cksumFail){
             string ack = "ACK " + to_string(packetNumber);
-            sendData(socket, ack);
+            q.push(ack);
+            //sendData(socket, ack);
             packetsReceived++;
             receivedBytes += bitData;
         }
@@ -377,7 +381,10 @@ void GBN(tcp::socket& socket){
             cout << "Ack " << to_string(packetNumber) << " sent"  << endl;
             cout << "Current window [1]" << endl;
         }
+    }
 
+    while (!q.empty()) {
+        sendData(socket, q.pop());
     }
 }
 
