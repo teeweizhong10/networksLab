@@ -426,7 +426,7 @@ void SR(tcp::socket& socket){
         std::string s = addBinary(bitDataComp, receivedCk);
         if (s.find('0') != std::string::npos) {
             if(printLog){ cout << "Checksum failed" << endl;
-            }string ack = "NACK";
+            }string ack = "NACK " + to_string(packetNumber);
             if(printLog){printCurrentWindow();
             }cksumFail = true;
             sendData(socket, ack);
@@ -438,7 +438,7 @@ void SR(tcp::socket& socket){
             if(packetNumber == packetsToLoseAck[i]) {
                 if(printLog){cout << "ACK " << packetNumber << " sent" << endl;
                 }packetsToLoseAck.erase(packetsToLoseAck.begin());
-                string ack = "NACK";
+                string ack = "NACK " + to_string(packetNumber);
                 sendData(socket, ack);
                 if(printLog){printCurrentWindow();
                 }badPacket = true;
