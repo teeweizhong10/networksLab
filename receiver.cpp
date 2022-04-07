@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <bitset>
 #include <boost/asio.hpp>
+#include "packet.h"
 
 using namespace std;
 using namespace boost::asio;
