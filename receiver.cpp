@@ -145,20 +145,24 @@ void parseConfigFromString(string input) {
 
     while (getline(f, line)) {
         int len = line.length();
-        cout << line << endl;
+        //cout << line << endl;
         if (itemCount == 0) { // selected algorithm
             selectedAlgorithm = stoi(line);
-            cout<<"slcd agtm"<<selectedAlgorithm<<endl;
+            cout<<"Selected algorithm: "<<selectedAlgorithm<<endl;
         } else if (itemCount == 1) {
             receiverMaxWindowSize = stoi(line);
+            cout<<"Receiver window size: "<<receiverMaxWindowSize<<endl;
         } else if (itemCount == 2) {
             sizeOfPacket = stoi(line);
+            cout<<"Size of packet: "<<sizeOfPacket<<endl;
         } else if (itemCount == 3) { // seq num lower bound
             seqNumberLowerBound = stoi(line);
         } else if (itemCount == 4) { //seq num upper bound
             seqNumberUpperBound = stoi(line);
+            cout<<"Sequence number upper bound: "<<sizeOfPacket<<endl;
         } else if (itemCount == 5) { // error type
             selectedErrorType = stoi(line);
+            cout<<"Selected error type: "<<sizeOfPacket<<endl;
         } else if (itemCount == 6) { // Frame IDs of packets to lose ack
             string currentNum = "";
             for (int i = 0; i < len; ++i) {
