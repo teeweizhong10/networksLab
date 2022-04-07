@@ -427,7 +427,6 @@ void SR(tcp::socket& socket){
         if (s.find('0') != std::string::npos) {
             if(printLog){ cout << "Checksum failed" << endl;
             }string ack = "NACK " + to_string(packetNumber);
-            seqNumCounter++;
             if(printLog){printCurrentWindow();
             }cksumFail = true;
             sendData(socket, ack);
@@ -440,7 +439,6 @@ void SR(tcp::socket& socket){
                 if(printLog){cout << "ACK " << packetNumber << " sent" << endl;
                 }packetsToLoseAck.erase(packetsToLoseAck.begin());
                 string ack = "NACK " + to_string(packetNumber);
-                seqNumCounter++;
                 sendData(socket, ack);
                 if(printLog){printCurrentWindow();
                 }badPacket = true;
