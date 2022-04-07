@@ -826,6 +826,28 @@ void fillQ(){
 }
 
 //*************************************************************************************************************************
+void printCurrentWindowSR(int SN){
+
+    cout << "Current window: [ ";
+
+    int k = SN;
+    int i = 0;
+    int j = 0;
+    while(i < senderMaxWindowSize){
+        if((k+j)>=seqNumberUpperBound){
+            k = 0;
+            j = 0;
+        }
+
+        cout << k + j << " ";
+        i++;
+        j++;
+    }
+
+    cout << "]" << endl;
+}
+
+
 void SR(tcp::socket& socket, vector<char> bytes){
 
     int seqNumCounter = 0;
