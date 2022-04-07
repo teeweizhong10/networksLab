@@ -260,8 +260,8 @@ void showCurrentConfig(Sender currentSender) {
     contentToSend += std::to_string(currentSender.getSelectedAlgorithm());
     contentToSend += "\n";
     cout << "Sender Window Size: " << currentSender.getSenderMaxWindowSize() << endl;
-    cout << "Receiver Window Size: " << currentSender.getReceiverMaxWindowSize() << endl;
-    contentToSend += std::to_string(currentSender.getReceiverMaxWindowSize());
+    cout << "Receiver Window Size: " << currentSender.getSenderMaxWindowSize() << endl;
+    contentToSend += std::to_string(currentSender.getSenderMaxWindowSize());
     contentToSend += "\n";
     cout << "Size of Packet: " << currentSender.getSizeOfPacket() << endl;
     contentToSend += std::to_string(currentSender.getSizeOfPacket());
