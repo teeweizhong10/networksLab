@@ -82,6 +82,7 @@ int currentPacketNum;
 string bitDataComp;
 //bool printLog = true;
 string receivedBytes = "";
+int lastReceivedSeqNum;
 
 bool printLog = true;
 void receiverWelcomeMessage() {
@@ -323,6 +324,7 @@ void parseReceivingPacket(string input) {
         } else if(itemCount == 1) { // seq number
             itemCount = 2;
             seqNum = stoi(token);
+            lastReceivedSeqNum=seqNum;
         } else if(itemCount == 2) { // byte content
             itemCount = 3;
             bitContent = token;
@@ -580,6 +582,7 @@ int main() {
     setBitsToFile(finalBits);
 
     cout << "All received bytes length: " << receivedBytes.length() << endl;
+    cout << "Last packet seq# received: " << lastReceivedSeqNum << endl;
     setBitsToFile(receivedBytes);
 
     return 0;
