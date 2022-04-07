@@ -895,7 +895,6 @@ void sendPacket(tcp::socket& socket, packet item){
     if(!badPacket){
         sendData(socket, item.getPacketMessage());
         acksRecv.push_back(getData(socket));
-
     }
 }
 
@@ -911,10 +910,6 @@ void SR(tcp::socket& socket, vector<char> bytes){
         string ack = "";
         sendPacket(socket, packetsAr[p]);
         cout << "Packet " << to_string(packetsAr[p].getPacketNum()) << " sent" << endl;
-        //ack = getData(socket);
-        cout << "Received ack test1" << endl;
-        acksRecv.push_back(ack);
-        cout << "Received ack test2" << endl;
     }
 
 
