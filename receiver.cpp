@@ -83,6 +83,7 @@ string bitDataComp;
 //bool printLog = true;
 string receivedBytes = "";
 int tempSeq;
+int lastReceivedSeqNum;
 
 bool printLog = true;
 void receiverWelcomeMessage() {
@@ -288,6 +289,9 @@ void parseReceivingPacket(string input) {
         } else if(itemCount == 1) { // seq number
             itemCount = 2;
             seqNum = stoi(token);
+
+            tempSeq = seqNum;
+            lastReceivedSeqNum=seqNum;
         } else if(itemCount == 2) { // byte content
             itemCount = 3;
             bitContent = token;
@@ -405,55 +409,62 @@ void printCurrentWindow(){
 void SR(tcp::socket& socket){
     bool alldone = false;
     while(!alldone){
-        bool badPacket = false;
         bool cksumFail = false;
-
         string recvPkt = getData(socket);
 
+        //ALL DONE
         if(recvPkt == "alldone=|||="){
+            alldone = true;
             sendData(socket, "alldone");
             stats();
             break;
         }
 
-        parseReceivingPacket(recvPkt);
+
+            //DROP??
+        else if(recvPkt == "DROP=|||="){
+            sendData(socket, "DROP");
+        }else
+
+
+            parseReceivingPacket(recvPkt);
         if(printLog){cout << "Packet " << to_string(packetNumber) << " received" << endl;}
+
+
+        //cksum fail
         string receivedCk = checksum(bitData);
         std::string s = addBinary(bitDataComp, receivedCk);
         if (s.find('0') != std::string::npos) {
             if(printLog){ cout << "Checksum failed" << endl;
-            }string ack = "NACK";
-            if(printLog){printCurrentWindow();
-            }cksumFail = true;
+                printCurrentWindow();}
+            string ack = "NACK " + to_string(packetNumber);
+            cksumFail = true;
             sendData(socket, ack);
-            badPacket = true;
         }
-        //else checksum succeeds
-        // If checksum is bad or lose ack
+
+        //lose ack
         for (int i = 0; i < packetsToLoseAck.size(); ++i) {
             if(packetNumber == packetsToLoseAck[i]) {
-                if(printLog){cout << "ACK " << packetNumber << " sent" << endl;
-                }packetsToLoseAck.erase(packetsToLoseAck.begin());
-                string ack = "NACK";
+                packetsToLoseAck.erase(packetsToLoseAck.begin());
+                string ack = "NACK " + to_string(packetNumber);
+                cksumFail = true;
                 sendData(socket, ack);
-                if(printLog){printCurrentWindow();
-                }badPacket = true;
             }
         }
 
-        if(printLog && !cksumFail){
-            cout << "Checksum OK" << endl;
-        }
-
-        if(!badPacket){
+        if(!cksumFail){
             sendData(socket, "ACK " + to_string(packetNumber));
-            if(printLog){cout << "ACK " << packetNumber << " sent" << endl;
-                printCurrentWindow();
-            }receivedBytes += bitData;
+            //VECTOR OF PACKETS FOR REORGANIZING
 
+            receivedBytes += bitData;
         }
 
+        if(printLog){
+            cout << "ACK " << to_string(packetNumber) << " sent" << endl;
+            printCurrentWindow();
 
+
+        }
     }
 }
 
@@ -569,6 +580,7 @@ int main() {
     setBitsToFile(finalBits);
 
     cout << "All received bytes length: " << receivedBytes.length() << endl;
+    cout << "Last packet seq# received: " << lastReceivedSeqNum << endl;
     setBitsToFile(receivedBytes);
 
     return 0;
