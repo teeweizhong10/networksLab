@@ -78,7 +78,7 @@ int port;
 string finalBits;
 int packetNumber;
 string bitData;
-int seqNumCounter = -1;
+int seqNumCounter = 0;
 int currentSeqNum;
 int currentPacketNum;
 string bitDataComp;
@@ -459,6 +459,7 @@ void SR(tcp::socket& socket){
             if(tempSeq == seqNumCounter) {
                 receivedBytes += bitData;
             } else {
+                cout << "!!! should not happen" << endl;
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
                 unorderedPackets.push_back(newPacket);
 
