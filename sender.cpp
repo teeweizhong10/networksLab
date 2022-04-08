@@ -604,6 +604,8 @@ void setNumberOfPackets(int fileSizeBytes, int sizeOfPackets) {
     cout << "Num of packets: " << numOfPackets << endl;
     contentToSend += std::to_string(numOfPackets);
     contentToSend += "\n";
+
+    cout << contentToSend << endl;
 }
 
 bool notTimedOut(milliseconds currentTime) {
