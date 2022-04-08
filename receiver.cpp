@@ -389,6 +389,8 @@ void GBN(tcp::socket& socket){
     }
 }
 
+
+//TODO: Lauren to fix printing final window
 void printCurrentWindow(){
     cout << "Current window: [ ";
 
