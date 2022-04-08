@@ -467,6 +467,7 @@ void SR(tcp::socket& socket){
             } else {
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
                 unorderedPackets.push_back(newPacket);
+                cout << "Unordered, add to vector" << endl;
 
                 for (int i = 0; i < unorderedPackets.size() ; ++i) {
                     if (tempSeq == lastStoredSeq - (lastStoredSeq-i-1)) {
