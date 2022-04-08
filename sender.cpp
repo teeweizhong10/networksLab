@@ -602,7 +602,7 @@ void setNumberOfPackets(int fileSizeBytes, int sizeOfPackets) {
         numOfPackets = fileSizeBytes/sizeOfPacket;
     }
     cout << "Num of packets: " << numOfPackets << endl;
-    contentToSend += numOfPackets;
+    contentToSend += std::to_string(numOfPackets);
     contentToSend += "\n";
 }
 
