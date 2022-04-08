@@ -123,7 +123,7 @@ string filePath;
 int testingBitsTransferred = 0;
 string allBits;
 string contentToSend;
-int numOfPackets;
+int numOfPackets = 0;
 time_point<Clock> startTimer;
 time_point<Clock> endTimeInSeconds;
 string ipAddr;
