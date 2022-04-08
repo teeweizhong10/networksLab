@@ -1093,7 +1093,7 @@ void beginTransaction(vector<char>& bytes){
     //first packet sent is config
     contentToSend += to_string(numOfPackets);
     contentToSend += "\n";
-    cout << "contentToSend:  " << contentToSend << endl;
+    //cout << "contentToSend:  " << contentToSend << endl;
     sendData(socket, contentToSend);
     response = getData(socket);
 
@@ -1142,7 +1142,7 @@ int main() {
     cout << "File size in bytes: " << bytes.size() << endl;
     int file_size = bytes.size();
     setNumberOfPackets(bytes.size(), sizeOfPacket);
-    cout<<"set number of packets"<<endl;
+    //cout<<"set number of packets"<<endl;
     if (selectedErrorType == 2) { // set errors for random percentage
         setPacketErrors(errorPercentage, numOfPackets);
     }
