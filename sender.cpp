@@ -602,10 +602,6 @@ void setNumberOfPackets(int fileSizeBytes, int sizeOfPackets) {
         numOfPackets = fileSizeBytes/sizeOfPacket;
     }
     cout << "Num of packets: " << numOfPackets << endl;
-    contentToSend += std::to_string(numOfPackets);
-    contentToSend += "\n";
-
-    cout << contentToSend << endl;
 }
 
 bool notTimedOut(milliseconds currentTime) {
@@ -1096,6 +1092,8 @@ void beginTransaction(vector<char>& bytes){
 
 
     //first packet sent is config
+    contentToSend += to_string(numOfPackets);
+    contentToSend += "\n";
     cout << "contentToSend:  " << contentToSend << endl;
     sendData(socket, contentToSend);
     response = getData(socket);
