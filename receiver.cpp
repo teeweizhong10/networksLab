@@ -470,6 +470,7 @@ void SR(tcp::socket& socket){
                 cout << "Unordered, add to vector" << endl;
 
                 for (int i = 0; i < unorderedPackets.size() ; ++i) {
+                    cout << "Unordered packets: " << unorderedPackets.size() << endl;
                     if (tempSeq == lastStoredSeq - (lastStoredSeq-i-1)) {
                         receivedBytes += unorderedPackets[i].getBitContent();
                         lastStoredSeq = tempSeq;
