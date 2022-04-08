@@ -472,6 +472,7 @@ void SR(tcp::socket& socket){
                         receivedBytes += unorderedPackets[i].getBitContent();
                         cout << "Received bytes length: " << receivedBytes.length() << endl;
                         unorderedPackets.erase(unorderedPackets.begin() + i);
+                        seqNumCounter--;
                         seqInserted = true;
                     }
                 }
