@@ -396,9 +396,7 @@ void printCurrentWindow(){
     int j = 0;
 
     if(packetNumber + seqNumberUpperBound > numOfPackets){
-        for(int i = 0; i < (numOfPackets - packetNumber);i++){
-            cout << tempSeq << endl;
-        }
+        cout << tempSeq;
     }else{
         while (i < senderMaxWindowSize){
             if((k+j)>=seqNumberUpperBound){
