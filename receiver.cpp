@@ -86,6 +86,7 @@ string bitDataComp;
 string receivedBytes = "";
 int tempSeq;
 int lastStoredSeq = 0;
+int numOfPackets = 0;
 
 bool printLog = true;
 void receiverWelcomeMessage() {
@@ -178,6 +179,9 @@ void parseConfigFromString(string input) {
                     currentNum = "";
                 }
             }
+        } else if (itemCount == 7) { // Frame IDs of packets to lose ack
+            numOfPackets = stoi(line);
+            cout<<"Number of packets: "<<numOfPackets<<endl;
         }
         itemCount++;
     }
@@ -388,19 +392,26 @@ void GBN(tcp::socket& socket){
 
 void printCurrentWindow(){
     cout << "Current window: [ ";
-
     int k = tempSeq;
     int i = 0;
     int j = 0;
 
-    while (i < senderMaxWindowSize){
-        if((k+j)>=seqNumberUpperBound){
-            k = 0;
-            j= 0;
+    if(packetNumber + senderMaxSeqNum > numOfPackets){
+        for(int i = 0; i < (numOfPackets - packetNumber);i++){
+            cout << tempSeq << endl;
         }
-        cout << k + j << " ";
-        i++;
-        j++;
+    }else{
+        while (i < senderMaxWindowSize){
+            if((k+j)>=seqNumberUpperBound){
+                k = 0;
+                j= 0;
+            } else {
+                cout << k + j << " ";
+                i++;
+                j++;
+            }
+
+        }
     }
     cout << "]" << endl;
 }
@@ -481,19 +492,12 @@ void SR(tcp::socket& socket){
                     }
                 }
             }
-
-
             seqNumCounter++;
-
             if(seqNumCounter == seqNumberUpperBound){
                 seqNumCounter = 0;
             }
-
         }
-
-
     }
-    cout << "Unordered packets: " << unorderedPackets.size() << endl;
 }
 
 void SNW(tcp::socket& socket){
