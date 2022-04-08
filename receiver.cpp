@@ -85,7 +85,7 @@ string bitDataComp;
 //bool printLog = true;
 string receivedBytes = "";
 int tempSeq;
-int lastStoredSeq = -1;
+int lastStoredSeq = 0;
 
 bool printLog = true;
 void receiverWelcomeMessage() {
@@ -462,7 +462,7 @@ void SR(tcp::socket& socket){
             // Reordering packets
             if(tempSeq == seqNumCounter) {
                 receivedBytes += bitData;
-                lastStoredSeq = tempSeq;
+                lastStoredSeq ++;
                 cout << "Received bytes length: " << receivedBytes.length() << endl;
             } else {
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
@@ -470,7 +470,7 @@ void SR(tcp::socket& socket){
                 cout << "Unordered, add to vector" << endl;
             }
 
-            if (unorderedPackets.size() == receiverMaxWindowSize) {
+            if (unorderedPackets.size()+lastStoredSeq == receiverMaxWindowSize) {
                 for (int j = 0; j < receiverMaxWindowSize; ++j) {
                     for (int i = 0; i < unorderedPackets.size() ; ++i) {
                         if (tempSeq == j) {
