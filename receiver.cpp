@@ -469,13 +469,13 @@ void SR(tcp::socket& socket){
                 unorderedPackets.push_back(newPacket);
                 cout << "Unordered, add to vector" << endl;
 
-                for (int i = 0; i < unorderedPackets.size() ; ++i) {
-                    cout << "Unordered packets: " << unorderedPackets.size() << endl;
-                    if (tempSeq == seqNumCounter-i-1) {
-                        receivedBytes += unorderedPackets[i].getBitContent();
-                        lastStoredSeq = tempSeq;
-                        cout << "Received bytes length: " << receivedBytes.length() << endl;
-                        unorderedPackets.erase(unorderedPackets.begin() + i);
+                for (int j = 0; j < receiverMaxWindowSize; ++j) {
+                    for (int i = 0; i < unorderedPackets.size() ; ++i) {
+                        if (tempSeq == j) {
+                            receivedBytes += unorderedPackets[i].getBitContent();
+                            cout << "Received bytes length: " << receivedBytes.length() << endl;
+                            unorderedPackets.erase(unorderedPackets.begin() + i);
+                        }
                     }
                 }
             }
