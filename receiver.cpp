@@ -450,41 +450,41 @@ void SR(tcp::socket& socket){
             cout << "Checksum OK" << endl;
         }
 
-        if(!badPacket){
+        if(!badPacket) {
             sendData(socket, "ACK " + to_string(packetNumber));
 
-            if(printLog){cout << "ACK " << packetNumber << " sent" << endl;
+            if (printLog) {
+                cout << "ACK " << packetNumber << " sent" << endl;
                 printCurrentWindow();
             }
 
+            bool seqInserted = false;
             // Reordering packets
-
-            if (unorderedPackets.size() != receiverMaxWindowSize) {
-                packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
-
-                if (!unorderedPackets.empty()) {
-                    for (int i = 0; i < unorderedPackets.size(); ++i) {
-                        for (int j = 0; j < receiverMaxWindowSize; ++j) {
-                            if (newPacket.getSeqNum() == unorderedPackets[i].getSeqNum() - j) {
-                                unorderedPackets.insert(unorderedPackets.begin() + j, newPacket);
-                            }
-                        }
-                    }
-                } else {
-                    unorderedPackets.push_back(newPacket);
-                }
-                cout << "Unordered packets: " << unorderedPackets.size() << endl;
+            if(tempSeq == seqNumCounter) {
+                receivedBytes += bitData;
+                cout << "Received bytes length: " << receivedBytes.length() << endl;
             } else {
-                for (int i = 0; i < unorderedPackets.size(); ++i) {
-                    receivedBytes += unorderedPackets[i].getBitContent();
+                packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
+                unorderedPackets.push_back(newPacket);
+
+                for (int i = 0; i < unorderedPackets.size() ; ++i) {
+                    if (seqNumCounter - tempSeq == 1) {
+                        receivedBytes += unorderedPackets[i].getBitContent();
+                        cout << "Received bytes length: " << receivedBytes.length() << endl;
+                        unorderedPackets.erase(unorderedPackets.begin() + i);
+                        seqInserted = true;
+                    }
                 }
-                unorderedPackets.clear();
             }
 
-            seqNumCounter++;
+            if (seqInserted) {
+                seqNumCounter++;
+            }
+
             if(seqNumCounter == seqNumberUpperBound){
                 seqNumCounter = 0;
             }
+
         }
 
 
