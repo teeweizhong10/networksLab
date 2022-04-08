@@ -473,7 +473,7 @@ void SR(tcp::socket& socket){
             if (unorderedPackets.size()+lastStoredSeq == receiverMaxWindowSize) {
                 for (int j = 0; j < receiverMaxWindowSize; ++j) {
                     for (int i = 0; i < unorderedPackets.size() ; ++i) {
-                        if (tempSeq == j) {
+                        if (unorderedPackets[i].getSeqNum() == j) {
                             receivedBytes += unorderedPackets[i].getBitContent();
                             cout << "Received bytes length: " << receivedBytes.length() << endl;
                             unorderedPackets.erase(unorderedPackets.begin() + i);
