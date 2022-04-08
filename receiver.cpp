@@ -391,28 +391,25 @@ void GBN(tcp::socket& socket){
 
 void printCurrentWindow(){
     cout << "Current window: [ ";
+
     int k = tempSeq;
     int i = 0;
     int j = 0;
 
-    if(packetNumber + seqNumberUpperBound > numOfPackets){
-        for(int i = 0; i < (numOfPackets - packetNumber);i++){
-            cout << tempSeq;
+    while (i < senderMaxWindowSize){
+        if(packetNumber == numOfPackets) {
+            cout << k + j;
+        } else if((k+j)>=seqNumberUpperBound){
+            k = 0;
+            j= 0;
+        } else {
+            cout << k + j << " ";
+            i++;
+            j++;
         }
-    }else{
-        while (i < senderMaxWindowSize){
-            if((k+j)>=seqNumberUpperBound){
-                k = 0;
-                j= 0;
-            } else {
-                cout << k + j << " ";
-                i++;
-                j++;
-            }
 
-        }
     }
-    cout << " ]" << endl;
+    cout << "]" << endl;
 }
 
 
