@@ -462,14 +462,16 @@ void SR(tcp::socket& socket){
             // Reordering packets
             if(tempSeq == seqNumCounter) {
                 receivedBytes += bitData;
+                lastStoredSeq = tempSeq;
                 cout << "Received bytes length: " << receivedBytes.length() << endl;
             } else {
                 packet newPacket = packet(packetNumber, tempSeq, bitData, "", 1);
                 unorderedPackets.push_back(newPacket);
 
                 for (int i = 0; i < unorderedPackets.size() ; ++i) {
-                    if (seqNumCounter - tempSeq == 1) {
+                    if (lastStoredSeq - tempSeq == 1) {
                         receivedBytes += unorderedPackets[i].getBitContent();
+                        lastStoredSeq = tempSeq;
                         cout << "Received bytes length: " << receivedBytes.length() << endl;
                         unorderedPackets.erase(unorderedPackets.begin() + i);
                         seqNumCounter--;
@@ -478,9 +480,8 @@ void SR(tcp::socket& socket){
                 }
             }
 
-            if (seqInserted) {
-                seqNumCounter++;
-            }
+
+            seqNumCounter++;
 
             if(seqNumCounter == seqNumberUpperBound){
                 seqNumCounter = 0;
