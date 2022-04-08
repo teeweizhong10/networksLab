@@ -290,7 +290,6 @@ void parseReceivingPacket(string input) {
         token = packetMessage.substr(0, pos);
         if(itemCount == 0) { // packet number
             itemCount = 1;
-
             packetNum = stoi(token);
         } else if(itemCount == 1) { // seq number
             itemCount = 2;
@@ -567,6 +566,7 @@ void receiverSimulation(){
 
     //first packet sent is config
     string config = getData(socket);
+    cout << "Config: " << config << endl;
     parseConfigFromString(config);
     sendData(socket, "configReceived");
 
