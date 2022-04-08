@@ -976,9 +976,7 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
     packet newPacket;
 
     while(packetCounter != numOfPackets) {
-        bool receivedAck = false
-
-        ;
+        bool receivedAck = false;
         if (bytes.size() >= sizeOfPacket) {
             string s(bytes.begin(), bytes.begin()+sizeOfPacket);
             byteContent = s;
@@ -1061,6 +1059,7 @@ void SNW(tcp::socket& socket, vector<char>& bytes){
                     cout << "Packet " << packetCounter << " *****Timed Out *****" << endl;
                     cout << "Packet " << packetCounter << " Re-transmitted" << endl;
                     retransmitted = true;
+                    newPacket = packet();
                 }
 
             }
