@@ -469,7 +469,7 @@ void SR(tcp::socket& socket){
                 unorderedPackets.push_back(newPacket);
 
                 for (int i = 0; i < unorderedPackets.size() ; ++i) {
-                    if (tempSeq == lastStoredSeq) {
+                    if (tempSeq == lastStoredSeq - (lastStoredSeq-i-1)) {
                         receivedBytes += unorderedPackets[i].getBitContent();
                         lastStoredSeq = tempSeq;
                         cout << "Received bytes length: " << receivedBytes.length() << endl;
