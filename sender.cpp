@@ -702,8 +702,6 @@ int sendQ(tcp::socket& socket, int lastPktNum, bool sendingWholeQ){
     if(!badPacket){
         if(printLog && !sendingWholeQ) {
             cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
-        }else{
-            printAllQ();
         }
         string temp = q.front().getPacketMessage();
         sendData(socket, temp);
@@ -779,10 +777,15 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
     bool allDone = false;
     bool firstRun = true;
     int printerCounter = 0;
+    bool printOnce = true;
 
     while((packetCounter <  (numOfPackets+senderMaxWindowSize)) && !allDone){
         packetCounter = fillQ( packetCounter);
         if(firstRun){
+            if(printOnce){
+                printAllQ();
+            }
+            printOnce = false;
             printerCounter++;
             lastPkNumSent = sendQ(socket, lastPkNumSent, true);
             //cout << "sendq 1" << endl;
