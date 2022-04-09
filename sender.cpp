@@ -693,8 +693,8 @@ int sendQ(tcp::socket& socket, int lastPktNum, bool sendingWholeQ){
     //corrupt packet
     if(!packetsToFailChecksum.empty()) {
         if (packetsToFailChecksum[0] == q.front().getPacketNum()){
-            if(printLog && !sendingWholeQ){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
-            }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
+            if(printLog && !sendingWholeQ){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
+            packetsToFailChecksum.erase(packetsToFailChecksum.begin());
             sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted message
             badPacket = true;
         }
