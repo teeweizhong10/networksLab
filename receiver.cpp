@@ -563,7 +563,7 @@ void receiverSimulation(){
     cout << "Config: " << config << endl;
     parseConfigFromString(config);
     sendData(socket, "configReceived");
-    retransmittedPackets = getData(socket);
+    retransmittedPackets = stoi(getData(socket));
 
     //getting Begin Transaction
     string recv = getData(socket);
