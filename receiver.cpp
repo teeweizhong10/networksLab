@@ -564,6 +564,7 @@ void receiverSimulation(){
     parseConfigFromString(config);
     sendData(socket, "configReceived");
     retransmittedPackets = stoi(getData(socket));
+    sendData(socket,'tanimal');
 
     //getting Begin Transaction
     string recv = getData(socket);
