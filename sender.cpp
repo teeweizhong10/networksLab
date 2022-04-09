@@ -591,10 +591,6 @@ void sendData(tcp::socket& socket, const string& msg){
     boost::asio::write(socket, buffer(temp));
 }
 
-void stats(){
-    cout << "Number of original packets sent: _____\nNumber of retransmitted packets:______\nTotal elapsed time:_____\ntotal throughput (Mbps):_______\nEffective throughput:______" << endl;
-}
-
 void setNumberOfPackets(int fileSizeBytes, int sizeOfPackets) {
     if(fileSizeBytes%sizeOfPacket > 0) {
         numOfPackets = fileSizeBytes/sizeOfPacket + 1;
@@ -1191,6 +1187,9 @@ int main() {
 
     start = Clock::now(); // for total elapsed time
     cout << "\n************ Protocol work ************" << endl;
+    //send num of retransmitted packets
+    sendData(socket, to_string(numOfRetransmittedPackets));
+
     beginTransaction(bytes);
 
 

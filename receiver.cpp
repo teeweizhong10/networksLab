@@ -86,7 +86,10 @@ string bitDataComp;
 string receivedBytes = "";
 int tempSeq;
 int lastStoredSeq = 0;
+int lastSeqNum;
 int numOfPackets = 0;
+int retransmittedPackets;
+
 
 bool printLog = true;
 void receiverWelcomeMessage() {
@@ -295,6 +298,7 @@ void parseReceivingPacket(string input) {
             itemCount = 2;
             seqNum = stoi(token);
             tempSeq = seqNum;
+            lastSeqNum=seqNum;
         } else if(itemCount == 2) { // byte content
             itemCount = 3;
             bitContent = token;
@@ -328,9 +332,6 @@ void sendData(tcp::socket & socket, const string& message) {
     boost::asio::write( socket, boost::asio::buffer(msg) );
 }
 
-void stats(){
-    cout << "Last packet seq# received: \nNumber of original packets received: \nNumber of retransmitted packets received: " << endl;
-}
 
 void GBN(tcp::socket& socket){
     int packetsReceived = 0;
@@ -601,11 +602,20 @@ int main() {
     getNetworkConfigFrom("config.txt");
     receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck, port);
 
+    retransmittedPackets = getData(socket);
     receiverSimulation();
     setBitsToFile(finalBits);
 
     cout << "All received bytes length: " << receivedBytes.length() << endl;
     setBitsToFile(receivedBytes);
+
+//    Last packet seq# received:xxxx
+//    Number of original packets received: xxxx
+//    Number of retransmitted packets received: xxxx
+
+    cout << "Last Packet seq# received: " << lastSeqNum << endl;
+    cout << "Number of original packets received: "<< numOfPackets << endl;
+    cout << "Number of retransmitted packets received: " << retransmittedPackets << endl;
 
     return 0;
 }
