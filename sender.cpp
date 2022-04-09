@@ -797,6 +797,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             printerCounter = 0;
         }
 
+        cout << "RECV: " << temp << endl;
         if(temp == "ACK " + to_string(q.front().getPacketNum()) + "=|||="){
             if(printLog){cout << "ACK " << to_string(q.front().getPacketNum()) << " received" << endl;
             }
@@ -806,6 +807,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
                 printCurrentWindow();
             }
         }else{
+            cout << "In else..." << endl;
             firstRun = true;
             printOnce = true;
             printerCounter = 0;
