@@ -686,6 +686,7 @@ int sendQ(tcp::socket& socket, int lastPktNum, bool sendingWholeQ){
             if (printLog) {
                 cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
                 cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
+                printAllQ();
             }
         }
     }
@@ -797,7 +798,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             printerCounter = 0;
         }
 
-        cout << "RECV: " << temp << endl;
+        //cout << "RECV: " << temp << endl;
         if(temp == "ACK " + to_string(q.front().getPacketNum()) + "=|||="){
             if(printLog){cout << "ACK " << to_string(q.front().getPacketNum()) << " received" << endl;
             }
@@ -806,8 +807,8 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             if(printLog){
                 printCurrentWindow();
             }
-        }else{
-            cout << "In else..." << endl;
+        }else{   //101 96 u88 18 9
+            //cout << "In else..." << endl;
             firstRun = true;
             printOnce = true;
             printerCounter = 0;
