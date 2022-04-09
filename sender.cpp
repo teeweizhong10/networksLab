@@ -807,6 +807,8 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             }
         }else{
             firstRun = true;
+            printOnce = true;
+            printerCounter = 0;
         }
         if(temp == ("ACK " + to_string((numOfPackets-1)) + "=|||=")){
             allDone = true;
