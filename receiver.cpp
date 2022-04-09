@@ -329,7 +329,7 @@ void sendData(tcp::socket & socket, const string& message) {
 }
 
 void stats(){
-    cout << "Last packet seq# received: ______\nNumber of original packets received: ____\nNumber of retransmitted packets received:_____ " << endl;
+    cout << "Last packet seq# received: \nNumber of original packets received: \nNumber of retransmitted packets received: " << endl;
 }
 
 void GBN(tcp::socket& socket){
