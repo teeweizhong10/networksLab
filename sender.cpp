@@ -807,7 +807,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             if(printLog){
                 printCurrentWindow();
             }
-        }else{   // 29 8!
+        }else{   // 24 9 0
             if (printLog) {
                 cout << "Packet " << to_string(q.front().getPacketNum()) << " ***** Timed Out *****" << endl;
                 cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
