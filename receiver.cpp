@@ -343,7 +343,7 @@ void GBN(tcp::socket& socket){
         //cout << "Recv: " << recvPkt << endl;
         if(recvPkt == "alldone=|||="){
             sendData(socket, "alldone");
-            stats();
+
             break;
         }
 
@@ -421,7 +421,7 @@ void SR(tcp::socket& socket){
 
         if(recvPkt == "alldone=|||="){
             sendData(socket, "alldone");
-            stats();
+
             break;
         }
 
@@ -501,7 +501,7 @@ void SNW(tcp::socket& socket){
         if(recvPkt == "alldone=|||="){
             string done = "alldone";
             sendData(socket, done);
-            stats();
+
             break;
         }
         parseReceivingPacket(recvPkt);
