@@ -693,7 +693,6 @@ int sendQ(tcp::socket& socket, int lastPktNum, bool sendingWholeQ){
         if(printLog && !sendingWholeQ){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
         string temp = q.front().getPacketMessage();
         sendData(socket, temp);
-        //testingBitsTransferred+=q.front().getBitContent().size();
         return q.front().getPacketNum();
     }
 }
@@ -778,12 +777,13 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
     while((packetCounter <  (numOfPackets+senderMaxWindowSize)) && !allDone){
         packetCounter = fillQ( packetCounter);
         if(firstRun){
+            cout << "FirstRun" << endl;
             lastPkNumSent = sendQ(socket, lastPkNumSent, true);
+            cout << "sendq 1" << endl;
         }
         firstRun = false;
-
         lastPkNumSent = sendQ(socket, lastPkNumSent, false);
-
+        cout << "sendq 2" << endl;
 
         string temp = getData(socket);
         if(temp == "ACK " + to_string(q.front().getPacketNum()) + "=|||="){
@@ -801,6 +801,8 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             allDone = true;
         }
     }
+
+
     sendData(socket, "alldone");
     string recvPkt = getData(socket);
     if(recvPkt == "alldone=|||="){
