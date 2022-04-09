@@ -792,7 +792,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             lastPkNumSent = sendQ(socket, lastPkNumSent, false);
         }
         string temp = getData(socket);
-        if(printerCounter == senderMaxWindowSize){
+        if(printerCounter == senderMaxWindowSize+1){
             firstRun = false;
             printerCounter = 0;
         }
