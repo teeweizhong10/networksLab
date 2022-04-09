@@ -679,7 +679,6 @@ int sendQ(tcp::socket& socket, int lastPktNum, bool sendingWholeQ){
         if(packetsToDrop[0] == q.front().getPacketNum()) {
             packetsToDrop.erase(packetsToDrop.begin());
 
-
             if(printLog && !sendingWholeQ){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
 
             sleep_for(waitTime + milliseconds(1)); // Let it time out
