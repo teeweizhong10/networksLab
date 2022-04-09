@@ -396,13 +396,13 @@ void printCurrentWindow(){
         int looper = numOfPackets - packetNumber;
         int i = 0;
         while(looper != 0){
-           cout << tempSeq + i + 1 << " ";
+           cout << tempSeq + i << " ";
            looper--;
            i++;
         }
     }else{
         for(int i = 0; i < senderMaxWindowSize; i++){
-            cout << tempSeq + i + 1 << " ";
+            cout << tempSeq + i << " ";
         }
     }
     cout << "]" << endl;
