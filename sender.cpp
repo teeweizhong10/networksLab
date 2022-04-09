@@ -661,16 +661,15 @@ int fillQ(int packetCounter){
 
 
 //GBN
-int sendQ(tcp::socket& socket, int lastPktNum){
+int sendQ(tcp::socket& socket, int lastPktNum, bool sendingWholeQ){
 
-    //TODO: Currently I don't think its right for GBN, as it needs to send the whole window again instead of one packet.
-
-    //send everything in window
     bool badPacket = false;
     //drop packet
     if(!packetsToDrop.empty()) {
         if(packetsToDrop[0] == q.front().getPacketNum()) {
             packetsToDrop.erase(packetsToDrop.begin());
+
+
             if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
 
             sleep_for(waitTime + milliseconds(1)); // Let it time out
@@ -684,17 +683,17 @@ int sendQ(tcp::socket& socket, int lastPktNum){
     //corrupt packet
     if(!packetsToFailChecksum.empty()) {
         if (packetsToFailChecksum[0] == q.front().getPacketNum()){
-            if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
+            if(printLog && !sendingWholeQ){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
             }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
-            sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted essage
+            sendData(socket, q.front().getCorruptedPacketMessage());// send corrupted message
             badPacket = true;
         }
     }
     if(!badPacket){
-        if(printLog){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
+        if(printLog && !sendingWholeQ){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
         string temp = q.front().getPacketMessage();
         sendData(socket, temp);
-        testingBitsTransferred+=q.front().getBitContent().size();
+        //testingBitsTransferred+=q.front().getBitContent().size();
         return q.front().getPacketNum();
     }
 }
@@ -756,6 +755,15 @@ void sendQueue(tcp::socket& socket){
     }
 }
 
+void printAllQ(){
+    queue<packet> printQ = q;
+
+    int i = 0;
+    while(i < printQ.size()){
+        cout << "Packet " << to_string(printQ.front().getPacketNum()) << " sent" << endl;
+        printQ.pop();
+    }
+}
 
 
 //*************************************************************************************************************************
@@ -765,9 +773,16 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
     int packetCounter = 0;
     packetCounter = fillQ( packetCounter);
     bool allDone = false;
+    bool firstRun = true;
+
     while((packetCounter <  (numOfPackets+senderMaxWindowSize)) && !allDone){
         packetCounter = fillQ( packetCounter);
-        lastPkNumSent = sendQ(socket, lastPkNumSent);
+        if(firstRun){
+            lastPkNumSent = sendQ(socket, lastPkNumSent, true);
+        }
+        firstRun = false;
+
+        lastPkNumSent = sendQ(socket, lastPkNumSent, false);
 
 
         string temp = getData(socket);
@@ -779,6 +794,8 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             if(printLog){
                 printCurrentWindow();
             }
+        }else{
+            firstRun = true;
         }
         if(temp == ("ACK " + to_string((numOfPackets-1)) + "=|||=")){
             allDone = true;
