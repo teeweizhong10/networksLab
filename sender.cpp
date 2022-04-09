@@ -660,6 +660,16 @@ int fillQ(int packetCounter){
 }
 
 
+void printAllQ(){
+    queue<packet> printQ = q;
+
+    int i = 0;
+    while(i < printQ.size()){
+        cout << "Packet " << to_string(printQ.front().getPacketNum()) << " sent" << endl;
+        printQ.pop();
+    }
+}
+
 //GBN
 int sendQ(tcp::socket& socket, int lastPktNum, bool sendingWholeQ){
 
@@ -690,7 +700,11 @@ int sendQ(tcp::socket& socket, int lastPktNum, bool sendingWholeQ){
         }
     }
     if(!badPacket){
-        if(printLog && !sendingWholeQ){ cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;}
+        if(printLog && !sendingWholeQ) {
+            cout << "Packet " << to_string(q.front().getPacketNum()) << " sent" << endl;
+        }else{
+            printAllQ();
+        }
         string temp = q.front().getPacketMessage();
         sendData(socket, temp);
         return q.front().getPacketNum();
@@ -754,15 +768,6 @@ void sendQueue(tcp::socket& socket){
     }
 }
 
-void printAllQ(){
-    queue<packet> printQ = q;
-
-    int i = 0;
-    while(i < printQ.size()){
-        cout << "Packet " << to_string(printQ.front().getPacketNum()) << " sent" << endl;
-        printQ.pop();
-    }
-}
 
 
 //*************************************************************************************************************************
@@ -777,13 +782,13 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
     while((packetCounter <  (numOfPackets+senderMaxWindowSize)) && !allDone){
         packetCounter = fillQ( packetCounter);
         if(firstRun){
-            cout << "FirstRun" << endl;
+            //cout << "FirstRun" << endl;
             lastPkNumSent = sendQ(socket, lastPkNumSent, true);
-            cout << "sendq 1" << endl;
+            //cout << "sendq 1" << endl;
             firstRun = false;
         }else {
             lastPkNumSent = sendQ(socket, lastPkNumSent, false);
-            cout << "sendq 2" << endl;
+            //cout << "sendq 2" << endl;
         }
         string temp = getData(socket);
         cout << "get data" << endl;
