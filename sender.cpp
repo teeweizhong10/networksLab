@@ -1133,7 +1133,7 @@ void beginTransaction(vector<char>& bytes){
 
     //send num of retransmitted packets
     sendData(socket, to_string(numOfRetransmittedPackets));
-    getData(socket);
+    string ignore = getData(socket);
 
     //Begin Transaction is sent after config
     sendData(socket, "Begin transaction...");
