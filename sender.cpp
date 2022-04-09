@@ -785,13 +785,13 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
             //cout << "FirstRun" << endl;
             lastPkNumSent = sendQ(socket, lastPkNumSent, true);
             //cout << "sendq 1" << endl;
-            firstRun = false;
         }else {
             lastPkNumSent = sendQ(socket, lastPkNumSent, false);
             //cout << "sendq 2" << endl;
         }
+        firstRun = false;
         string temp = getData(socket);
-        cout << "get data" << endl;
+        //cout << "get data" << endl;
         if(temp == "ACK " + to_string(q.front().getPacketNum()) + "=|||="){
             if(printLog){cout << "ACK " << to_string(q.front().getPacketNum()) << " received" << endl;
             }
