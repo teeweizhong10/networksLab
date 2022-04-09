@@ -778,20 +778,21 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
     packetCounter = fillQ( packetCounter);
     bool allDone = false;
     bool firstRun = true;
+    int printerCounter = 0;
 
     while((packetCounter <  (numOfPackets+senderMaxWindowSize)) && !allDone){
         packetCounter = fillQ( packetCounter);
         if(firstRun){
-            //cout << "FirstRun" << endl;
+            printerCounter++;
             lastPkNumSent = sendQ(socket, lastPkNumSent, true);
             //cout << "sendq 1" << endl;
-        }else {
-            lastPkNumSent = sendQ(socket, lastPkNumSent, false);
-            //cout << "sendq 2" << endl;
         }
-        firstRun = false;
         string temp = getData(socket);
-        //cout << "get data" << endl;
+        if(printerCounter == senderMaxWindowSize-1){
+            firstRun = false;
+            printerCounter = 0;
+        }
+
         if(temp == "ACK " + to_string(q.front().getPacketNum()) + "=|||="){
             if(printLog){cout << "ACK " << to_string(q.front().getPacketNum()) << " received" << endl;
             }
