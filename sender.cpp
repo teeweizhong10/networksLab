@@ -1132,6 +1132,7 @@ void beginTransaction(vector<char>& bytes){
 
 
     //send num of retransmitted packets
+    cout << "HERE: " << numOfRetransmittedPackets << endl;
     sendData(socket, to_string(numOfRetransmittedPackets));
     string ignore = getData(socket);
 
