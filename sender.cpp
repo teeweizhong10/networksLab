@@ -786,6 +786,7 @@ void GBN(tcp::socket& socket, vector<char>& bytes){
         cout << "sendq 2" << endl;
 
         string temp = getData(socket);
+        cout << "get data" << endl;
         if(temp == "ACK " + to_string(q.front().getPacketNum()) + "=|||="){
             if(printLog){cout << "ACK " << to_string(q.front().getPacketNum()) << " received" << endl;
             }
