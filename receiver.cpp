@@ -393,7 +393,7 @@ void GBN(tcp::socket& socket){
 void printCurrentWindow(){
     cout << "Current window: [ ";
     if(packetNumber >= numOfPackets - senderMaxWindowSize){
-        int looper = numOfPackets - senderMaxWindowSize;
+        int looper = numOfPackets - packetNumber;
         int i = 0;
         while(looper != 0){
            cout << i << " ";
