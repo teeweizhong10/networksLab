@@ -339,7 +339,7 @@ void GBN(tcp::socket& socket){
     while(true){
         bool cksumFail = false;
         string recvPkt = getData(socket);
-
+        cout << "Recv: " << recvPkt << endl;
         if(recvPkt == "alldone=|||="){
             sendData(socket, "alldone");
             stats();
