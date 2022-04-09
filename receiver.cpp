@@ -563,7 +563,7 @@ void receiverSimulation(){
     cout << "Config: " << config << endl;
     parseConfigFromString(config);
     sendData(socket, "configReceived");
-
+    retransmittedPackets = getData(socket);
 
     //getting Begin Transaction
     string recv = getData(socket);
@@ -600,9 +600,10 @@ int main() {
     receiverWelcomeMessage();
     //receive config by sockets
     getNetworkConfigFrom("config.txt");
+
     receiverInstance = setReceiverInstance(selectedAlgorithm, receiverMaxWindowSize, seqNumberLowerBound, seqNumberUpperBound, sizeOfPacket, selectedErrorType, errorPercentage, packetsToLoseAck, port);
 
-    retransmittedPackets = getData(socket);
+
     receiverSimulation();
     setBitsToFile(finalBits);
 

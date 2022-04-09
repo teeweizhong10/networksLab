@@ -1130,6 +1130,10 @@ void beginTransaction(vector<char>& bytes){
     sendData(socket, contentToSend);
     response = getData(socket);
 
+
+    //send num of retransmitted packets
+    sendData(socket, to_string(numOfRetransmittedPackets));
+
     //Begin Transaction is sent after config
     sendData(socket, "Begin transaction...");
     response = getData(socket);
@@ -1151,6 +1155,8 @@ void beginTransaction(vector<char>& bytes){
                 break;
             }
         }
+
+
     }
 }
 
@@ -1187,8 +1193,6 @@ int main() {
 
     start = Clock::now(); // for total elapsed time
     cout << "\n************ Protocol work ************" << endl;
-    //send num of retransmitted packets
-    sendData(socket, to_string(numOfRetransmittedPackets));
 
     beginTransaction(bytes);
 
