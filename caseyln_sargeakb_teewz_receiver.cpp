@@ -618,7 +618,9 @@ int main() {
 //    Last packet seq# received:xxxx
 //    Number of original packets received: xxxx
 //    Number of retransmitted packets received: xxxx
-
+    if (selectedAlgorithm!=2) {
+        lastSeqNum = 1;
+    }
     cout << "Last Packet seq# received: " << lastSeqNum << endl;
     cout << "Number of original packets received: "<< numOfPackets << endl;
     cout << "Number of retransmitted packets received: " << retransmittedPackets << endl;
