@@ -5,11 +5,11 @@ CFLAGS = -Wall -g #debug flag
 sender: sender.o packet.o
 	$(CC) $(CFLAGS) -o sender sender.o packet.o
 
-sender.o: sender.cpp packet.h
-	$(CC) $(CFLAGS) -c sender.cpp
+sender.o:  caseyln_sargeakb_teewz_sender.cpp  caseyln_sargeakb_teewz_packet.h
+	$(CC) $(CFLAGS) -c  caseyln_sargeakb_teewz_sender.cpp
 
-packet.o: packet.cpp packet.h
-	$(CC) $(CFLAGS) -c packet.cpp
+packet.o: caseyln_sargeakb_teewz_packet.cpp caseyln_sargeakb_teewz_packet.h
+	$(CC) $(CFLAGS) -c  caseyln_sargeakb_teewz_packet.cpp
 
 clean:
 	rm -f *.o

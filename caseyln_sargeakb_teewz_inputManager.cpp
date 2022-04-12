@@ -5,7 +5,7 @@
 #include <iostream>
 #include <iterator>
 #include <cstring>
-#include "inputManager.h"
+#include "caseyln_sargeakb_teewz_inputManager.h"
 
 using namespace std;
 
