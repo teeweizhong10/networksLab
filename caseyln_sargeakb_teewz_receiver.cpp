@@ -174,6 +174,7 @@ void parseConfigFromString(string input) {
         } else if (itemCount == 6) { // Frame IDs of packets to lose ack
             string currentNum = "";
             if (selectedErrorType != 0) {
+                cout << "Running";
                 for (int i = 0; i < len; ++i) {
                     if(line[i] != ',') {
                         currentNum += line[i];
