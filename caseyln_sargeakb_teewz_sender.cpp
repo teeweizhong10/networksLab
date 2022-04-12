@@ -304,6 +304,7 @@ void showCurrentConfig(Sender currentSender) {
                 cout << packetsToFailChecksum[i] << "\t";
             }
             cout << endl;
+            contentToSend += "\n";
             break;
         case 2:
             cout << "Percentage of randomly selected packets" << endl;
