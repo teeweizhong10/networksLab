@@ -173,13 +173,15 @@ void parseConfigFromString(string input) {
             cout<<"Selected error type: "<<selectedErrorType<<endl;
         } else if (itemCount == 6) { // Frame IDs of packets to lose ack
             string currentNum = "";
-            for (int i = 0; i < len; ++i) {
-                if(line[i] != ',') {
-                    currentNum += line[i];
-                } else {
-                    int packet = stoi(currentNum);
-                    packetsToLoseAck.push_back(packet);
-                    currentNum = "";
+            if (line.length() > 0) {
+                for (int i = 0; i < len; ++i) {
+                    if(line[i] != ',') {
+                        currentNum += line[i];
+                    } else {
+                        int packet = stoi(currentNum);
+                        packetsToLoseAck.push_back(packet);
+                        currentNum = "";
+                    }
                 }
             }
         } else if (itemCount == 7) { // Frame IDs of packets to lose ack
