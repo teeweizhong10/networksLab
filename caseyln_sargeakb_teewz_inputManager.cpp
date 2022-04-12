@@ -176,7 +176,7 @@ void inputManager::getInput() {
     switch (input-1) {
         case 0:
             cout << "Static" << endl;
-            cout << endl << "Choose the time in seconds to wait for a timeout:" << endl;
+            cout << endl << "Choose the time in milliseconds to wait for a timeout:" << endl;
             cout << "Input: ";
             cin >> input;
             cout << "You chose: " << input << endl;
