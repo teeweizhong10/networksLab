@@ -12,7 +12,7 @@ network: main.o inputManager.o sender.o receiver.o packet.o
 	$(CC) $(CFLAGS) -o network main.o inputManager.o packet.o
 
 main.o: caseyln_sargeakb_teewz_packet.h caseyln_sargeakb_teewz_inputManager.h
-	$(CC) $(CFLAGS) -c main.cpp
+	$(CC) $(CFLAGS) -c  caseyln_sargeakb_teewz_main.cpp
 
 inputManager.o:  caseyln_sargeakb_teewz_inputManager.cpp  caseyln_sargeakb_teewz_inputManager.h  caseyln_sargeakb_teewz_packet.h
 	$(CC) $(CFLAGS) -c  caseyln_sargeakb_teewz_inputManager.cpp
