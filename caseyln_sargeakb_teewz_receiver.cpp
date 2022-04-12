@@ -271,7 +271,7 @@ string checksum(string inPacket){
 //*************************************************************************************************************************
 void setBitsToFile(string bitString){
     ofstream output;
-    output.open("/tmp/OUTPUTFILE");
+    output.open("OUTPUTFILE");
     output << bitString;
     output.close();
 }
