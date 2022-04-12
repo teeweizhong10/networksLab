@@ -143,12 +143,6 @@ int packetCtr = 0;
 vector<packet> packetsAr;
 //vector<string> acksRecv;
 
-
-int getNumOfPackets(string bits) {
-    numOfPackets = 0;
-    return numOfPackets;
-}
-
 void senderWelcomeMessage() {
     cout << "Creating instance for: sender." << endl;
     srand(time(NULL));
@@ -487,7 +481,6 @@ string addBinary (string a, string b){
 
 }
 
-
 string checksum(string inPacket) {
     string bytesToBits = "";
     for (std::size_t i = 0; i < inPacket.size(); ++i)
@@ -536,38 +529,12 @@ string getChecksumVal(string input) {
     return com;
 }
 
-
-//*************************************************************************************************************************
-void setBitsFromFile(string file) {
-    vector<char> bytes;
-    char byte = 0;
-    string bits="";
-    //just try read into char vector
-    //then convert to binary
-
-    fstream input_file;
-    input_file.open (file);
-
-    if(!input_file.is_open()){
-        cerr << "could not open file";
-        return ;
-    } else {
-        while(input_file.get(byte)){
-            bits += bitset<8>(byte).to_string();
-        }
-        allBits = bits;
-    }
-}
-//*************************************************************************************************************************
 void startTotalTimer(){
     startTimer = Clock::now();
 }
 
 void dropTimer(milliseconds secs){
     sleep_for(secs*100);
-}
-
-void timeoutTimerStart(){
 }
 
 string endTotalTimer(){
@@ -607,13 +574,11 @@ bool notTimedOut(milliseconds currentTime) {
     return true;
 }
 
-
 void fillTemp(vector<char>& bytes){
     for (int i=0; i<bytes.size(); i++){
         tempBytes.push_back(bytes[i]);
     }
 }
-
 
 int fillQ(int packetCounter){
     packet newPacket;
@@ -654,7 +619,6 @@ int fillQ(int packetCounter){
 
     return packetCounter;
 }
-
 
 void printAllQ(){
     queue<packet> printQ = q;
@@ -705,8 +669,6 @@ int sendQ(tcp::socket& socket, int lastPktNum, bool sendingWholeQ){
     }
 }
 
-
-
 void printCurrentWindow(){
     cout << "Current window = [";
     queue<packet> SW = q;
@@ -717,52 +679,6 @@ void printCurrentWindow(){
     }
     cout << " ]" << endl;
 }
-
-//SR
-void sendQueue(tcp::socket& socket){
-    queue<packet> tempQ = q;
-    cout << "TempQ " << sizeof(q) << endl;
-
-    cout << "Sending queue..." << endl;
-
-    int i  = 0;
-    while( i < tempQ.size()){
-        bool badPacket = false;
-        //drop packet
-        if(!packetsToDrop.empty()) {
-            if(packetsToDrop[0] == tempQ.front().getPacketNum()) {
-                packetsToDrop.erase(packetsToDrop.begin());
-                if(printLog){ cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " sent" << endl;}
-
-                sleep_for(waitTime + milliseconds(1)); // Let it time out
-                if (printLog) {
-                    cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " ***** Timed Out *****" << endl;
-                    cout << "Packet " << to_string(q.front().getPacketNum()) << " Retransmitted." << endl;
-                }
-            }
-        }
-
-        //corrupt packet
-        if(!packetsToFailChecksum.empty()) {
-            if (packetsToFailChecksum[0] == tempQ.front().getPacketNum()){
-                if(printLog){ cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " sent" << endl;
-                }packetsToFailChecksum.erase(packetsToFailChecksum.begin());
-                sendData(socket, tempQ.front().getCorruptedPacketMessage());// send corrupted essage
-                badPacket = true;
-                tempQ.pop();
-            }
-        }
-        if(!badPacket){
-            sendData(socket, tempQ.front().getPacketMessage());
-            if(printLog){
-                cout << "Packet " << to_string(tempQ.front().getPacketNum()) << " sent" << endl;
-            }
-            tempQ.pop();
-        }
-    }
-}
-
-
 
 //*************************************************************************************************************************
 void GBN(tcp::socket& socket, vector<char>& bytes){
@@ -870,8 +786,6 @@ void printCurrentWindowSR(int SN){
     cout << "]" << endl;
 }
 
-
-
 void fillArray(){
     string byteContent = "";
     packet newPacket;
@@ -928,7 +842,6 @@ void sendPacket(tcp::socket& socket, packet item){
         acksRecv.push_back(getData(socket));
     }
 }
-
 
 void SR(tcp::socket& socket, vector<char> bytes){
     fillTemp(bytes);
@@ -1162,9 +1075,6 @@ void beginTransaction(vector<char>& bytes){
     }
 }
 
-
-
-
 //*************************************************************************************************************************
 int main() {
     Sender senderInstance;
@@ -1209,7 +1119,6 @@ int main() {
     cout << "Total elapsed time: " << totalElapsedTime.count() << "ms" << std::endl;
     //mbps = 8(filesize/(totalElapsedTime.count()/1000))
     //int MbpsWithErrors = 8*((file_size)/(totalElapsedTime.count()/1000));
-    //TODO: Is size of packet in bits or bytes?
     int MbpsWithErrors = file_size + (numOfRetransmittedPackets*sizeOfPacket);
     MbpsWithErrors /= 100000;
     MbpsWithErrors /= (totalElapsedTime.count()/1000);
