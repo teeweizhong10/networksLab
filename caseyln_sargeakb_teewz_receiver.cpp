@@ -146,12 +146,10 @@ void getNetworkConfigFrom(string fileName) {
 }
 
 void parseConfigFromString(string input) {
-    cout << "Current input: " << endl;
+    //cout << "Current input: " << endl;
     istringstream f(input);
     string line;
     int itemCount = 0;
-
-    cout << "Received string: \n" << input << endl;
 
     while (getline(f, line)) {
         int len = line.length();
