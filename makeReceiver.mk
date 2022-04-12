@@ -1,6 +1,6 @@
 CC = g++
-CFLAGS = -Wall -g #debug flag
-#CFLAGS = -Wall
+#CFLAGS = -Wall -g #debug flag
+CFLAGS = -Wall
 
 receiver: receiver.o packet.o
 	$(CC) $(CFLAGS) -o receiver receiver.o packet.o
