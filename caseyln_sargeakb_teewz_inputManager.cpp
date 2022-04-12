@@ -121,7 +121,7 @@ void inputManager::getInput() {
             cout << "set" << endl;
             while(seqFlag) {
                 if(gbnSelection | swSelection){
-                    cout << endl << "set the max seqNumber (max seqNumber > 2):" << endl;
+                    cout << endl << "set the max seqNumber (max seqNumber > 2*sliding window size):" << endl;
                     cout << "Input: ";
                     cin >> input;
                     if(!(input > 2)){
