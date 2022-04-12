@@ -613,7 +613,7 @@ int main() {
     receiverSimulation();
     setBitsToFile(finalBits);
 
-    cout << "All received bytes length: " << receivedBytes.length() << endl;
+    //cout << "All received bytes length: " << receivedBytes.length() << endl;
     setBitsToFile(receivedBytes);
 
 //    Last packet seq# received:xxxx

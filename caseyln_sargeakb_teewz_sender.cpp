@@ -295,6 +295,8 @@ void showCurrentConfig(Sender currentSender) {
             cout << "Packets to lose ack: ";
             for (int i = 0; i < packetsToLoseAck.size(); ++i) {
                 cout << packetsToLoseAck[i] << "\t";
+                contentToSend += std::to_string(packetsToLoseAck[i]);
+                contentToSend += ",";
             }
             cout << endl;
             cout << "Packets to fail checksum: ";
@@ -1136,5 +1138,5 @@ int main() {
     MbpsWithoutErrors /= 2;
     cout << "Effective Throughput: " << MbpsWithoutErrors <<" Mbps" << endl;
 
-    cout << "All received bytes length: " << file_size << endl;
+    //cout << "All received bytes length: " << file_size << endl;
 }
