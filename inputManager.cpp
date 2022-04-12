@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <iterator>
-
+#include <cstring>
 #include "inputManager.h"
 
 using namespace std;
@@ -14,9 +14,11 @@ void inputManager::welcomeMessage() {
     cout << "Answer the following prompts to set up the configuration for the sender and receivers sessions. " << endl;
 }
 
+
+
 void inputManager::getInput() {
     int selectedAlgorithm; // 0 for GBN, 1 for stop and Wait, 2 for SR
-    int senderMaxWindowSize;
+    int senderMaxWindowSize=0;
     int receiverMaxWindowSize;
     int sizeOfPacket;
     int seqNumberUpperBound;
@@ -32,6 +34,13 @@ void inputManager::getInput() {
     std::vector<int> packetsToFailChecksum; //empty if none
     std::vector<string> allInput; //empty if none
     welcomeMessage();
+    string ipAddr;
+    int port;
+    bool seqFlag=true;
+    bool gbnSelection=false;
+    bool swSelection=false;
+
+
 
     int input;
     // Select protocol
@@ -42,9 +51,11 @@ void inputManager::getInput() {
     switch (input-1) {
         case 0:
             cout << "Go Back N" << endl;
+            gbnSelection=true;
             break;
         case 1:
             cout << "Stop and Wait" << endl;
+            swSelection=true;
             break;
         case 2:
             cout << "Selective Repeat" << endl;
@@ -60,11 +71,14 @@ void inputManager::getInput() {
             cout << "Input: ";
             cin >> input;
             cout << "You chose: " << input << endl;
+            senderMaxWindowSize=input;
+
             allInput.push_back(std::to_string(input)); // Set sender window size to user input
             allInput.push_back("\n");
             allInput.push_back(std::to_string(1)); // Set receiver window size to 1
             allInput.push_back("\n");
             break;
+
         case 1:
             allInput.push_back(std::to_string(1)); // Set sender window size to 1
             allInput.push_back("\n");
@@ -76,39 +90,80 @@ void inputManager::getInput() {
             cout << "Input: ";
             cin >> input;
             cout << "You chose: " << input << endl;
-            allInput.push_back(std::to_string(input)); // Set sender window size to user input
+            senderMaxWindowSize=input;
+            allInput.push_back(std::to_string(senderMaxWindowSize)); // Set sender window size to user input
             allInput.push_back("\n");
-            cout << endl << "Choose the receiver window size: " << endl;
-            cout << "Input: ";
-            cin >> input;
-            cout << "You chose: " << input << endl;
-            allInput.push_back(std::to_string(input)); // Set receiver window size to user input
+            //keep receiver window same size as sender window
+            allInput.push_back(std::to_string(senderMaxWindowSize)); // Set receiver window size to user input
             allInput.push_back("\n");
             break;
     }
 
     // Size of packet
-    cout << endl << "Choose the size of packets in bits: " << endl;
+    cout << endl << "Choose the size of packets in bytes: " << endl;
     cout << "Input: ";
     cin >> input;
     cout << "You chose: " << input << endl;
     allInput.push_back(std::to_string(input)); // Set size of packets to user input
     allInput.push_back("\n");
 
-    // seqNum Upper Bound
-    cout << endl << "Choose the upper bound of the sequence numbers: " << endl;
+
+//    // seqNum Upper Bound
+//    //calculate lowest MaxSeqNumber
+
+    int calculatedMaxSeqNumber=(senderMaxWindowSize*2)-1;
+    cout << endl << "Set max seqNum or use default: \n1. set \n2. default" << endl;
     cout << "Input: ";
     cin >> input;
-    cout << "You chose: " << input << endl;
-    allInput.push_back(std::to_string(input)); // Set upper bound to user input
-    allInput.push_back("\n");
+    cout << "You chose: ";
+    switch (input-1) {
+        case 0:
+            cout << "set" << endl;
+            while(seqFlag) {
+                if(gbnSelection | swSelection){
+                    cout << endl << "set the max seqNumber (max seqNumber > 2):" << endl;
+                    cout << "Input: ";
+                    cin >> input;
+                    if(!(input > 2)){
+                        cout << "try again..." << endl;
+                        seqFlag=true;
+                    }else{
+                        cout << "You chose: " << input << endl;
+                        allInput.push_back(std::to_string(input)); // Set upper bound to user input
+                        allInput.push_back("\n");
+                        seqFlag=false;
+                    }
 
-    // seqNum Lower Bound
-//    cout << endl << "Choose the lower bound of the sequence numbers: " << endl;
-//    cout << "Input: ";
-//    cin >> input;
-//    cout << "You chose: " << input << endl;
-    allInput.push_back(std::to_string(0)); // Set lower bound to user input
+                }else{
+                    cout << endl << "set the max seqNumber (max seqNumber > " << calculatedMaxSeqNumber << "):" << endl;
+                    cout << "Input: ";
+                    cin >> input;
+                    if(!(input >= calculatedMaxSeqNumber)){
+                        cout << "try again..." << endl;
+                        seqFlag=true;
+                    }else{
+                        cout << "You chose: " << input << endl;
+                        allInput.push_back(std::to_string(input)); // Set upper bound to user input
+                        allInput.push_back("\n");
+                        seqFlag=false;
+                    }
+                }
+
+
+            }
+
+            break;
+        case 1:
+            cout << "default" << endl;
+            cout << "setting max seqNum to default..."<<endl;
+            allInput.push_back(std::to_string(calculatedMaxSeqNumber)); // Set upper bound to calculatedMaxSeqNumber
+            allInput.push_back("\n");
+            break;
+    }
+
+
+//    // seqNum Lower Bound
+    allInput.push_back(std::to_string(0)); // Set lower bound to 0
     allInput.push_back("\n");
 
     // Static or dynamic
@@ -221,6 +276,50 @@ void inputManager::getInput() {
     cin >> fileName;
     cout << "Getting File: " << fileName << endl;
     allInput.push_back(fileName);
+    allInput.push_back("\n");
+
+    //Input IP and PORT
+    int server;
+    cout << endl << "Input which Poseidon Server the receiver will be run on (0,1,2,3): " << endl;
+    cout << "Input: ";
+    cin >> server;
+    cout << endl << "Input the port number (>9000 & <10000): " << endl;
+    cout << "Input: ";
+    cin >> port;
+
+
+    switch(server){
+        case 0:{
+            //Poseidon0
+            ipAddr = "10.35.195.219";
+            allInput.push_back(ipAddr);
+            allInput.push_back("\n");
+            break;
+        }
+        case 1:{
+            //Poseidon1
+            ipAddr = "10.35.195.240";
+            allInput.push_back(ipAddr);
+            allInput.push_back("\n");
+            break;
+        }
+        case 2:{
+            //Poseidon2
+            ipAddr = "10.35.195.220";
+            allInput.push_back(ipAddr);
+            allInput.push_back("\n");
+            break;
+        }
+        case 3:{
+            //Poseidon3
+            ipAddr = "10.35.195.202";
+            allInput.push_back(ipAddr);
+            allInput.push_back("\n");
+            break;
+        }
+    }
+
+    allInput.push_back(std::to_string(port));
     for (int i = 0; i < allInput.size(); ++i) {
         cout << allInput[i];
     }
