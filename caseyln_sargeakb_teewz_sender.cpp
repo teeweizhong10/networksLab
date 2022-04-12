@@ -1039,6 +1039,7 @@ void beginTransaction(vector<char>& bytes){
 
 
     //first packet sent is config
+    contentToSend += "\n";
     contentToSend += to_string(numOfPackets);
     contentToSend += "\n";
     //cout << "contentToSend:  " << contentToSend << endl;
