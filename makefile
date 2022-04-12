@@ -8,14 +8,11 @@ receiver: receiver.o packet.o
 sender: sender.o packet.o
 	$(CC) $(CFLAGS) -o sender sender.o packet.o -lboost_system -lpthread
 
-network: main.o errorHandler.o inputManager.o sender.o receiver.o packet.o
-	$(CC) $(CFLAGS) -o network main.o errorHandler.o inputManager.o packet.o
+network: main.o inputManager.o sender.o receiver.o packet.o
+	$(CC) $(CFLAGS) -o network main.o inputManager.o packet.o
 
-main.o: packet.h inputManager.h errorHandler.h
+main.o: packet.h inputManager.h
 	$(CC) $(CFLAGS) -c main.cpp
-
-errorHandler.o: errorHandler.cpp errorHandler.h
-	$(CC) $(CFLAGS) -c errorHandler.cpp
 
 inputManager.o: inputManager.cpp inputManager.h packet.h
 	$(CC) $(CFLAGS) -c inputManager.cpp
