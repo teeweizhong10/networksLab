@@ -205,6 +205,7 @@ void inputManager::getInput() {
     cout << "You chose: ";
     input = input - 1;
     allInput.push_back(std::to_string(input));
+    allInput.push_back("\n");
     switch (input) {
         case 0:
             cout << "No errors" << endl;

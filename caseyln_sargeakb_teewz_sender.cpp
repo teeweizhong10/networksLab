@@ -295,6 +295,8 @@ void showCurrentConfig(Sender currentSender) {
             cout << "Packets to lose ack: ";
             for (int i = 0; i < packetsToLoseAck.size(); ++i) {
                 cout << packetsToLoseAck[i] << "\t";
+                contentToSend += std::to_string(packetsToLoseAck[i]);
+                contentToSend += ",";
             }
             cout << endl;
             cout << "Packets to fail checksum: ";
