@@ -190,7 +190,8 @@ void parseConfigFromString(string input) {
         }
         itemCount++;
     }
-
+    sort( packetsToLoseAck.begin(), packetsToLoseAck.end() );
+    packetsToLoseAck.erase( unique( packetsToLoseAck.begin(), packetsToLoseAck.end() ), packetsToLoseAck.end() );
     cout << "Packets to lose ack: ";
     for (int i = 0; i < packetsToLoseAck.size(); ++i) {
         cout << packetsToLoseAck[i] << "\t";
